@@ -1,0 +1,7 @@
+import {useEffect,useRef,useState} from 'react'
+export function SearchSelect({label,value,options,onChange}:{label:string;value:string;options:{value:string;label:string}[];onChange:(v:string)=>void}){
+ const [open,setOpen]=useState(false),[query,setQuery]=useState('');const root=useRef<HTMLDivElement>(null)
+ useEffect(()=>{const close=(e:PointerEvent)=>{if(!root.current?.contains(e.target as Node))setOpen(false)};document.addEventListener('pointerdown',close);return()=>document.removeEventListener('pointerdown',close)},[])
+ const visible=options.filter(o=>o.label.toLowerCase().includes(query.toLowerCase()))
+ return <div className="searchSelect" ref={root}><button type="button" aria-haspopup="listbox" aria-expanded={open} aria-label={`${label} 선택`} onClick={()=>{setOpen(v=>!v);setQuery('')}}>{options.find(o=>o.value===value)?.label??'전체'} ▾</button>{open&&<div className="searchSelectMenu"><input autoFocus aria-label={`${label} 검색`} placeholder={`${label} 검색`} value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==='Escape')setOpen(false);if(e.key==='Enter'&&visible.length===1){onChange(visible[0].value);setOpen(false)}}}/><div role="listbox" aria-label={`${label} 목록`}>{visible.map(o=><button type="button" role="option" aria-selected={o.value===value} key={o.value} onClick={()=>{onChange(o.value);setOpen(false)}}>{o.label}</button>)}{!visible.length&&<p>해당 항목이 없습니다.</p>}</div></div>}</div>
+}
