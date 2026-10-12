@@ -21,7 +21,7 @@ for(const [name,data] of Object.entries(seed)){if(!oldDb.objectStoreNames.contai
 tx.objectStore(STORES.meta).put({id:'schemaVersion',value:'5'});tx.objectStore(STORES.meta).put({id:'seedVersion',value:'5'});await done;oldDb.close()
 const repo=new IndexedDbHrRepository();await repo.initialize();const svc=new PayrollService(repo)
 const employees=await repo.listEmployees();const before=await svc.attendance();assert.equal(before.length,seed.attendanceMonthlySummaries.length);assert.equal(before[0].revision,0);assert.equal((await svc.dailyAttendance()).length,0)
-assert.equal((await repo.exportDatabase()).schemaVersion,6)
+assert.equal((await repo.exportDatabase()).schemaVersion,7)
 console.log('PASS v5→v6 migration preserves records and does not invent clock data')
 const a=before.find(r=>r.period==='2026-09')!;const run=await svc.createRun({period:'2026-09',payDate:'2026-09-25',note:'test'});const entry=(await svc.entries(run.id)).find(e=>e.employmentId===a.employmentId)!
 await svc.saveEntry({...entry,bonus:500000,otherEarnings:10000,incomeTaxManual:10000,itemAmounts:{P131:200000}})

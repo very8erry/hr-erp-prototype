@@ -3,8 +3,13 @@ import type { FilingFormValues,RetirementSettlement,YearEndTaxCase,AnnualLeaveLe
 import type { PayrollRepository,ConfirmSection } from './payrollRepository'
 
 export class PayrollService {
+  convertCandidate(input:import("../recruiting/evaluations").OnboardingInput){return this.repository.convertCandidate(input)}
+  operations(){return this.repository.operations()}
+  saveOperation<K extends import('../operations/operations').OperationStore>(name:K,row:import('../operations/operations').OperationsData[K][number]){return this.repository.saveOperation(name,row)}
   recruiting(){return this.repository.recruiting()}
   saveRecruiting(state:import("../recruiting/recruiting").RecruitingState){return this.repository.saveRecruiting(state)}
+  withholdingDraft(id:string){return this.repository.withholdingDraft(id)}
+  saveWithholdingDraft(id:string,draft:import('./withholdingForm').WithholdingDraft){return this.repository.saveWithholdingDraft(id,draft)}
   companyInfo(){return this.repository.companyInfo()}
   saveCompanyInfo(info:import('./companyInfo').CompanyInfo){return this.repository.saveCompanyInfo(info)}
   settlements(){return this.repository.settlements()}
@@ -13,6 +18,7 @@ export class PayrollService {
   closeAttendance(period:string){return this.repository.closeAttendance(period)}
   closeDaily(period:string){return this.repository.closeDaily(period)}
   dailyClosedPeriods(){return this.repository.dailyClosedPeriods()}
+  refreshIssues(){return this.repository.refreshIssues()}
   ensureDemoHistory(){return this.repository.ensureDemoHistory()}
 
   constructor(private readonly repository: PayrollRepository) {}

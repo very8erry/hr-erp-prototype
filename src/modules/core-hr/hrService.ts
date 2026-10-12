@@ -11,6 +11,10 @@ import type { HrRepository } from '../../infrastructure/repositories/hrRepositor
 export class HrService {
   constructor(private readonly repository: HrRepository) {}
 
+  saveResume(employmentId:string,file:import('../../domain/attachments').StoredFile){return this.repository.saveResume(employmentId,file)}
+  editMaster(input:import('../../domain/masterEdit').MasterEdit){return this.repository.editMaster(input)}
+  savePersonNames(id:string,names:{fullName:string;englishName:string;hanjaName:string},reviewed:boolean){return this.repository.savePersonNames(id,names,reviewed)}
+  registerEmployee(input:import('./nameValidation').EmployeeRegistration){return this.repository.registerEmployee(input)}
   initialize() { return this.repository.initialize() }
   company() { return this.repository.getCompany() }
   employees() { return this.repository.listEmployees() }

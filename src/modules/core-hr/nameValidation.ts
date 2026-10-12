@@ -1,0 +1,11 @@
+export function reviewNames(fullName:string,englishName:string,hanjaName:string){
+ const errors:string[]=[],warnings:string[]=[];const name=fullName.trim(),english=englishName.trim(),hanja=hanjaName.trim();
+ if(!name)errors.push('성명을 입력하세요.');
+ if(hanja){if(!/^[\p{Script=Han}\s·]+$/u.test(hanja))errors.push('한자명에는 한자와 구분 기호만 입력하세요.');if(/^[가-힣]+$/.test(name)&&[...hanja.replace(/[\s·]/g,'')].length!==[...name].length)warnings.push('한글 성명과 한자명의 글자 수가 다릅니다. 본인 확인 자료와 대조하세요.');}
+ if(english){if(!/^[A-Za-z\s.'-]+$/.test(english))errors.push('영문명에 영문자 이외의 문자가 있습니다.');if(english.replace(/[^A-Za-z]/g,'').length<=2||(!/[\s-]/.test(english)&&/^[가-힣]{3,}$/.test(name)))warnings.push('영문명이 이니셜이거나 성·이름 구분이 없습니다. 공식 영문 표기를 확인하세요.');}
+ return {errors,warnings};
+}
+const surnames:Record<string,[string,string]>={김:['金','Kim'],이:['李','Lee'],박:['朴','Park'],최:['崔','Choi'],정:['鄭','Jeong'],서:['徐','Seo'],권:['權','Gwon'],오:['吳','Oh'],한:['韓','Han'],신:['申','Shin'],윤:['尹','Yun'],강:['姜','Kang'],장:['張','Jang'],조:['趙','Jo'],임:['林','Lim'],송:['宋','Song'],문:['文','Mun'],배:['裵','Bae'],유:['柳','Yu'],백:['白','Baek'],안:['安','An'],전:['全','Jeon'],홍:['洪','Hong'],남:['南','Nam'],황:['黃','Hwang'],양:['梁','Yang'],손:['孫','Son']};
+const given:Record<string,[string,string]>={서:['瑞','seo'],준:['俊','jun'],민:['敏','min'],예:['叡','ye'],지:['智','ji'],훈:['勳','hun'],하:['河','ha'],윤:['允','yun'],우:['祐','u'],현:['賢','hyeon'],수:['秀','su'],빈:['彬','bin'],연:['姸','yeon'],은:['恩','eun'],아:['雅','a'],율:['律','yul'],호:['昊','ho'],도:['度','do'],유:['柔','yu'],정:['廷','jeong'],성:['成','seong'],재:['宰','jae'],원:['源','won'],채:['彩','chae'],린:['潾','rin'],진:['眞','jin'],영:['英','yeong'],희:['熙','hui'],건:['健','geon'],태:['泰','tae'],승:['承','seung']};
+export function demoNames(name:string){const chars=[...name],family=surnames[chars[0]],parts=chars.slice(1).map(c=>given[c]);if(!family||parts.some(p=>!p))return {englishName:'',hanjaName:''};const roman=parts.map(p=>p[1]).join('-');return {englishName:family[1]+' '+roman[0].toUpperCase()+roman.slice(1),hanjaName:family[0]+parts.map(p=>p[0]).join('')};}
+export interface EmployeeRegistration {fullName:string;englishName:string;hanjaName:string;birthDate:string;gender:'F'|'M';employeeNumber:string;organizationId:string;grade:string;job:string;hireDate:string;annualSalary:number;mobile:string;nameReviewed:boolean;bankName?:string;accountNumberMasked?:string}

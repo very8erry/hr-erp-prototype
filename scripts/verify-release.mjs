@@ -31,17 +31,17 @@ const checks=[
   ['수기 근태·캘린더',attendance.includes('AttendanceEditor')&&attendance.includes('AttendanceCalendar')&&db.includes('saveAttendanceBatch'),'attendance persistence'],
   ['CSV/XLSX/JSON 공통 양식',files.includes('parseAttendance')&&files.includes('exceljs')&&toolbar.includes('샘플데이터 다운받기'),'round trip'],
   ['급여 일시적용·설정 복원',tools.includes('일시 적용')&&tools.includes('저장·적용')&&tools.includes('이전양식으로 초기화')&&db.includes('restorePayrollSettings'),'settings'],
-  ['v6 마이그레이션',read('src/infrastructure/db/config.ts').includes('DB_VERSION = 6')&&read('src/infrastructure/db/migrations.ts').includes('schemaVersion < 6'),'migration'],
+  ['v7 마이그레이션',read('src/infrastructure/db/config.ts').includes('DB_VERSION = 7')&&read('src/infrastructure/db/migrations.ts').includes('schemaVersion < 6'),'migration'],
   ['GitHub Pages 상대 경로',read('vite.config.ts').includes("base: './'"),'pages base'],
   ['package/version 일치', version===pkg.version, `package=${pkg.version}, build=${version}`],
   ['브라우저 title 버전 일치', index.includes(`HR Training Lab v${version}`), 'index.html title'],
-  ['근태 WFM 활성 메뉴', /<Nav[^>]*view==='attendance'[\s\S]*?>근태 WFM/.test(app) && app.includes("{view==='attendance'&&<AttendancePage"), 'App.tsx attendance route/nav'],
-  ['급여 Payroll 활성 메뉴', /<Nav[^>]*view==='payroll'[\s\S]*?>급여 Payroll/.test(app) && app.includes("{view==='payroll'&&<PayrollPage"), 'App.tsx payroll route/nav'],
+  ['근태 활성 메뉴', /<Nav[^>]*view==='attendance'[\s\S]*?>근태/.test(app) && app.includes("{view==='attendance'&&<AttendancePage"), 'App.tsx attendance route/nav'],
+  ['급여 활성 메뉴', /<Nav[^>]*view==='payroll'[\s\S]*?>급여/.test(app) && app.includes("{view==='payroll'&&<PayrollPage"), 'App.tsx payroll route/nav'],
   ['일용직 활성 메뉴', /<Nav[^>]*view==='daily'[\s\S]*?>일용직/.test(app) && app.includes("{view==='daily'&&<DailyWorkerPage"), 'App.tsx daily route/nav'],
-  ['근태/급여 disabled 잔존 없음', !/근태 WFM[^\n]{0,120}disabled/.test(app) && !/급여 Payroll[^\n]{0,120}disabled/.test(app), 'active modules must not be disabled'],
+  ['근태/급여 disabled 잔존 없음', !/근태[^\n]{0,120}disabled/.test(app) && !/급여[^\n]{0,120}disabled/.test(app), 'active modules must not be disabled'],
   ['Payroll 필수 탭', ['급여 입력','급여 조회','근태 조회','연차','일용직 급여','퇴직정산','연말정산','원천세 신고'].every(x=>payroll.includes(x)), 'PayrollPage required tabs'],
   ['WFM 필수 탭', ['근태 조회','연차 조회'].every(x=>attendance.includes(x)), 'AttendancePage required tabs'],
-  ['WFM 필터', ['전체 팀','전체 직급','전체 개인'].every(x=>attendance.includes(x)) && attendance.includes('type="month"'), 'team/grade/person/period filters'],
+  ['WFM 필터', ['전체 팀','전체 직급','전체 개인'].every(x=>attendance.includes(x)) && attendance.includes('MonthPicker'), 'team/grade/person/period filters'],
   ['초록 버전 안내 제거·버전 식별 유지',!app.includes('runtimeProof')&&app.includes('Build {BUILD_VERSION}'),'quiet build identity'],
   ['대시보드 조회대상 없음',!app.includes('조회대상'),'dashboard'],
   ['Core HR 검색 드롭다운·퇴사일',app.includes('SearchSelect')&&app.includes('<th>퇴사일</th>'),'core filters'],
@@ -72,4 +72,5 @@ const revisionTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'
 const summaryTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-summary.tsx')],{cwd:root,stdio:'inherit'});if(summaryTest.status!==0)process.exit(1)
 const latestTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-v073.tsx')],{cwd:root,stdio:'inherit'});if(latestTest.status!==0)process.exit(1)
 const currentTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-v074.ts')],{cwd:root,stdio:'inherit'});if(currentTest.status!==0)process.exit(1)
+const v075Test=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-v075.ts')],{cwd:root,stdio:'inherit'});if(v075Test.status!==0)process.exit(1)
 console.log(`\nRelease verification passed: v${version}`)

@@ -1,3 +1,4 @@
+import {demoNames} from '../modules/core-hr/nameValidation'
 import type {
   Address,
   Assignment,
@@ -51,7 +52,7 @@ const foreignProfiles = [
 ]
 
 export const organizations: Organization[] = [
-  { id:'ORG-000', companyId:'DEMO-CO-001', parentId:null, name:'가상 넥스트코드 주식회사', type:'COMPANY' },
+  { id:'ORG-000', companyId:'DEMO-CO-001', parentId:null, name:'lemonpAI', type:'COMPANY' },
   { id:'ORG-100', companyId:'DEMO-CO-001', parentId:'ORG-000', name:'경영지원본부', type:'DIVISION' },
   { id:'ORG-110', companyId:'DEMO-CO-001', parentId:'ORG-100', name:'인사팀', type:'TEAM' },
   { id:'ORG-111', companyId:'DEMO-CO-001', parentId:'ORG-110', name:'인사운영팀', type:'TEAM' },
@@ -166,7 +167,7 @@ export function createSeedBundle(): SeedBundle {
 
   const company: Company = {
     id: 'DEMO-CO-001',
-    name: '가상 넥스트코드 주식회사',
+    name: 'lemonpAI',
     countryCode: 'KR',
     employeeSizeBand: '300_PLUS',
     demoNotice: '모든 개인정보·식별번호·계좌·이력 데이터는 HR 실습을 위해 생성된 가상 정보입니다.',
@@ -442,6 +443,7 @@ export function createSeedBundle(): SeedBundle {
     detail:`가상 Employment ${total}명과 Employee Master 확장 데이터를 생성했습니다.`,
   })
 
+  for(const person of persons)if(person.domesticForeignType==='DOMESTIC'&&!person.id.startsWith('PER-DW-'))Object.assign(person,demoNames(person.fullName));
   return {
     company, organizations, persons, addresses, dependents, visas, bankAccounts, employments, assignments, compensations,
     taxProfiles, socialInsuranceProfiles, militaryServiceProfiles, educations, careers, certifications, skills, resumes, workSchedules,

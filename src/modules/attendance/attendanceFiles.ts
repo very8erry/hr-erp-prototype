@@ -1,7 +1,7 @@
 import type { AttendanceMonthlySummary, EmployeeView, LeaveCase } from '../../domain/types'
 import {leaveLabels} from './leaveLabels'
 export type FileFormat='csv'|'xlsx'|'json'
-export const columns=['귀속월','지급일','사번','성명','팀','직급','입사일','퇴사일','직무','소정시간','실근로시간','연장시간','야간시간','휴일시간','휴가일수','결근시간','지각분','조퇴분','수정이력','수정사유','휴직 유형','휴직 기간','유급병가 시간','무급병가 시간','무급근태 시간','기타메모']
+export const columns=['귀속월','지급일','사번','성명','팀','직급','입사일','퇴사일','직무','소정시간','실근로시간','연장시간','야간시간','휴일시간','휴가일수','결근시간','지각분','조퇴분','수정이력','수정사유','휴직 유형','휴직 기간','유급병가 시간','무급병가 시간','무급근태 시간']
 const keys=['scheduledHours','workedHours','overtimeHours','nightHours','holidayHours','leaveDays','absenceHours','lateMinutes','earlyLeaveMinutes'] as const
 const numberLabels=['소정시간','실근로시간','연장시간','야간시간','휴일시간','휴가일수','결근시간','지각분','조퇴분']
 export function attendanceIssue(r:AttendanceMonthlySummary){const gap=Math.max(0,r.scheduledHours-(r.workedHours+Math.max(r.paidCreditHours??0,r.leaveDays*8)));const issues=[gap>0?`소정시간 ${gap.toFixed(1)}시간 미달`:'',r.absenceHours?`결근 ${r.absenceHours}시간`:'',r.lateMinutes?`지각 ${r.lateMinutes}분`:'',r.earlyLeaveMinutes?`조퇴 ${r.earlyLeaveMinutes}분`:'',r.issueNote??''].filter(Boolean);return issues.length?issues.join(' · '):'정상'}
@@ -32,7 +32,7 @@ export async function readTable(file:File):Promise<Record<string,unknown>[]> {
 export function attendanceRows(rows:AttendanceMonthlySummary[],employees:EmployeeView[],leaves:LeaveCase[]=[],payDates:Record<string,string>={}){return rows.map(r=>{
  const e=employees.find(e=>e.employmentId===r.employmentId),end=new Date(Number(r.period.slice(0,4)),Number(r.period.slice(5)),0).getDate()
  const cases=leaves.filter(l=>l.employmentId===r.employmentId&&l.startDate<=`${r.period}-${end}`&&(!l.endDate||l.endDate>=`${r.period}-01`))
- return [r.period,payDates[r.period]??'',e?.employeeNumber??'',e?.name??'',r.organizationNameSnapshot,r.gradeSnapshot,e?.hireDate??'',e?.terminationDate??'',r.jobSnapshot,...keys.map(k=>r[k]),r.manualEdited?`수기 수정 · ${r.revision}차`:'원본',r.editReason??'자료 재업로드',cases.map(l=>leaveLabels[l.kind]).join(' / ')||'—',cases.map(l=>`${l.startDate} ~ ${l.endDate??'미정'}`).join(' / ')||'—',r.sickPaidHours??0,r.sickUnpaidHours??0,r.unpaidHours??0,r.issueNote??'']
+ return [r.period,payDates[r.period]??'',e?.employeeNumber??'',e?.name??'',r.organizationNameSnapshot,r.gradeSnapshot,e?.hireDate??'',e?.terminationDate??'',r.jobSnapshot,...keys.map(k=>r[k]),r.manualEdited?`수기 수정 · ${r.revision}차`:'원본',r.editReason??'자료 재업로드',cases.map(l=>leaveLabels[l.kind]).join(' / ')||'—',cases.map(l=>`${l.startDate} ~ ${l.endDate??'미정'}`).join(' / ')||'—',r.sickPaidHours??0,r.sickUnpaidHours??0,r.unpaidHours??0]
 })}
 export function parseAttendance(data:Record<string,unknown>[],employees:EmployeeView[],existing:AttendanceMonthlySummary[]):AttendanceMonthlySummary[]{
   if(!data.length)throw new Error('근태 데이터가 없습니다.')

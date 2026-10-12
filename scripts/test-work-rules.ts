@@ -1,0 +1,13 @@
+import 'fake-indexeddb/auto'
+import assert from 'node:assert/strict'
+import {seedWorkRules} from '../src/infrastructure/db/workRulesSeed'
+import {getAllFromStore,transactionDone} from '../src/infrastructure/db/idbUtils'
+import {STORES} from '../src/infrastructure/db/config'
+import type {PolicyDocument} from '../src/modules/operations/operations'
+import {monthlyStatus} from '../src/app/monthlyStatus'
+const db=await new Promise<IDBDatabase>((resolve,reject)=>{const r=indexedDB.open('workrules-test',1);r.onupgradeneeded=()=>{for(const name of [STORES.meta,STORES.policyDocuments])r.result.createObjectStore(name,{keyPath:'id'})};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+await seedWorkRules(db);let rows=await getAllFromStore<PolicyDocument>(db,STORES.policyDocuments);assert.equal(rows.length,2);const policy=rows.find(r=>r.purpose==='WORK_RULES')!,notice=rows.find(r=>r.purpose==='NOTICE')!;assert.equal(policy.workflow?.length,7);assert.equal(policy.workflow?.filter(s=>s.status==='완료').length,0);assert.equal(notice.notice?.state,'게시');assert(policy.attachments![0].name.includes('색상'));assert(notice.attachments![0].name.includes('배경색없음'));
+const tx=db.transaction(STORES.policyDocuments,'readwrite'),done=transactionDone(tx);policy.workflow![0]={...policy.workflow![0],owner:'인사팀',note:'검토 자료 확인',status:'보류'};tx.objectStore(STORES.policyDocuments).put(policy);await done;await seedWorkRules(db);rows=await getAllFromStore<PolicyDocument>(db,STORES.policyDocuments);assert.equal(rows.find(r=>r.id===policy.id)?.workflow?.[0].status,'보류');assert.equal(rows.length,2);db.close();
+const date='2026-10-12',record=(id:string,activity:string,note='')=>({employmentId:id,workDate:date,activity,note,absence:false}) as any;
+const records=[record('A','SICK'),record('A','SICK'),record('B','ANNUAL_LEAVE'),record('C','OFF'),record('D','WORK','임신기 단축근무'),record('E','WORK'),record('F','MATERNITY')];const issues:any=[{employmentId:'E',status:'OPEN',occurredDate:'2026-10-01',category:'산재·요양'}];const result=monthlyStatus(records,date,[],issues,date);assert.deepEqual([result.sick,result.annual,result.off,result.other,result.total,result.recorded],[1,1,1,3,6,6]);assert.equal(result.details['임신'],1);assert.equal(result.details['산재'],1);assert.equal(result.details['출산'],1);assert.equal(Object.values(result.details).reduce((a,b)=>a+b,0),result.other);assert.equal(monthlyStatus([],date,[],issues,date).total,0);assert.equal(monthlyStatus(records,date,[],issues,'2026-10-13').details['산재'],0);
+console.log('PASS work-rules attachment seeding, seven-step persistence, idempotence and current-status stacked chart deduplication')

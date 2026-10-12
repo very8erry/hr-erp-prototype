@@ -180,6 +180,7 @@ export function upgradeDatabaseStructure(db: IDBDatabase, tx: IDBTransaction, ol
   if (oldVersion < 6) {
     for (const name of [STORES.attendanceDailyRecords, STORES.leaveCases, STORES.payrollSettingsHistory]) ensureIndexes(ensureObjectStore(db,tx,name),name)
   }
+  if(oldVersion<7){for(const name of [STORES.calendarEvents,STORES.issues,STORES.complianceSettings,STORES.policyDocuments,STORES.welfareCases,STORES.occupationCodeMappings,STORES.filingDrafts])ensureIndexes(ensureObjectStore(db,tx,name),name)}
   const meta = ensureObjectStore(db, tx, STORES.meta)
   meta.put({ id: 'dbVersion', value: String(DB_VERSION) })
 }
@@ -427,6 +428,7 @@ export async function runDataMigrations(db: IDBDatabase): Promise<void> {
     await writeMigrationMeta(db,schemaVersion,6)
     schemaVersion=6
   }
+  if(schemaVersion<7){await writeMigrationMeta(db,schemaVersion,7);schemaVersion=7}
   if (schemaVersion > SCHEMA_VERSION) {
     throw new Error(`현재 앱보다 새로운 데이터 스키마(v${schemaVersion})입니다. 앱을 업데이트한 뒤 다시 시도하세요.`)
   }

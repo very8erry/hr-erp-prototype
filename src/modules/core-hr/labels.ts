@@ -9,7 +9,7 @@ export const employmentTypeLabel = {
 } as const
 
 export const eventLabel: Record<PersonnelEventType,string> = {
-  ORG_TRANSFER:'부서이동', PROMOTION:'승진/직급변경', TITLE_CHANGE:'직책변경', STATUS_CHANGE:'재직상태변경',
+  JOB_CHANGE:'직무변경', LOCATION_CHANGE:'근무지변경', ORG_TRANSFER:'부서이동', PROMOTION:'승진/직급변경', TITLE_CHANGE:'직책변경', STATUS_CHANGE:'재직상태변경',
 }
 
 export function money(value:number) { return new Intl.NumberFormat('ko-KR').format(value) }

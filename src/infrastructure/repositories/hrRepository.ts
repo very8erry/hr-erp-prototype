@@ -16,6 +16,10 @@ import type {
 } from '../../domain/types'
 
 export interface HrRepository {
+  saveResume(employmentId:string,file:import('../../domain/attachments').StoredFile):Promise<void>
+  editMaster(input:import('../../domain/masterEdit').MasterEdit):Promise<void>
+  savePersonNames(id:string,names:{fullName:string;englishName:string;hanjaName:string},reviewed:boolean):Promise<void>
+  registerEmployee(input:import('../../modules/core-hr/nameValidation').EmployeeRegistration):Promise<string>
   initialize(): Promise<void>
   getCompany(): Promise<Company>
   listEmployees(): Promise<EmployeeView[]>

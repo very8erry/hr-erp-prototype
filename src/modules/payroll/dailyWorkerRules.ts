@@ -30,6 +30,7 @@ export function calculateDailyWorkRecord(
   return {
     id: `DWR-${worker.id}-${workDate}`,
     dailyWorkerId: worker.id,
+    occupationCodeSnapshot:worker.occupationCode,
     workDate,
     hours: safeHours,
     ...amounts,

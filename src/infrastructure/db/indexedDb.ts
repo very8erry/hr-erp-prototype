@@ -1,3 +1,13 @@
+import {seedStaffNotices} from './staffNoticesSeed'
+import {seedWorkRules} from './workRulesSeed'
+import {upgradeLemonOperations,seedLemonRetirement,repairLemonOccupationMapping} from './lemonUpgrade'
+import {validateConnection} from '../../modules/recruiting/integrationValidation'
+import {retirementByPlan} from '../../modules/payroll/retirementCalculation'
+import {correctedDemoDay,repairDemoOperations,summaryFromDaily} from './operationsUpgrade'
+import {operationStores,calendarSeed,validateOperation,exceptionEmployeeIds,issueForAttendance,dayPolicy,occupationCode,type OperationsData,type OperationStore,type CalendarEvent,type OccupationMapping} from '../../modules/operations/operations'
+import {upgradeRecruiting,saveEvaluation,saveTemplate,saveOffer,decideCandidate,type OnboardingInput} from '../../modules/recruiting/evaluations'
+import {selectionAuditChanges} from '../../modules/recruiting/selectionAudit'
+import {reviewNames,demoNames,type EmployeeRegistration} from '../../modules/core-hr/nameValidation'
 import {demoDay,scenarioIds,holidays2026} from '../../fixtures/scenarios'
 import {simplifiedTax} from '../../modules/payroll/ntsTax'
 import {recruitingSeed,type RecruitingState} from '../../modules/recruiting/recruiting'
@@ -54,13 +64,12 @@ import type {
 } from '../../domain/types'
 import {defaultCompanyInfo,defaultSettlements,seoulDate,type CompanyInfo,type SettlementSetting} from '../../modules/payroll/companyInfo'
 import {calculateDailyWorkRecord} from '../../modules/payroll/dailyWorkerRules'
-import {withDemoClassification} from '../../modules/payroll/itemDefaults'
 import { extraItems } from '../../modules/payroll/itemDefaults'
 import { calculateAttendanceDay } from '../../modules/attendance/timeRules'
 import { createSeedBundle } from '../../fixtures/seed'
 import type { HrRepository } from '../repositories/hrRepository'
 import type { PayrollRepository } from '../../modules/payroll/payrollRepository'
-import { calculatePayrollEntry, calculateRetirementRule, PAYROLL_RULE_VERSION } from '../../modules/payroll/payrollRules'
+import { calculatePayrollEntry, PAYROLL_RULE_VERSION } from '../../modules/payroll/payrollRules'
 import { DB_NAME, DB_VERSION, SCHEMA_VERSION, SEED_VERSION, STORES, type StoreName } from './config'
 import { requestToPromise, transactionDone as txDone } from './idbUtils'
 import { isDatabaseSeeded, markCurrentDbVersion, readTransientV032Bundle, runDataMigrations, runSeedMigrations, upgradeDatabaseStructure } from './migrations'
@@ -179,7 +188,35 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       await markCurrentDbVersion(this.db)
     }
 
+
+    await this.persistSelectionUpgrade()
+    await this.initializeOperations()
+    await upgradeLemonOperations(this.requireDb(),await this.listEmployees());await repairLemonOccupationMapping(this.requireDb(),await this.listEmployees());await seedWorkRules(this.requireDb());await seedStaffNotices(this.requireDb())
     await this.applyDueEvents()
+  }
+
+  async saveResume(employmentId:string,file:import('../../domain/attachments').StoredFile):Promise<void>{if(!await this.getEmployee(employmentId))throw new Error('직원을 찾을 수 없습니다.');if(file.size>10*1024*1024||!file.dataUrl.startsWith('data:'))throw new Error('첨부파일을 확인하세요.');const resumes=(await this.getAll<ResumeDocument>(STORES.resumes)).filter(r=>r.employmentId===employmentId),row:ResumeDocument={id:crypto.randomUUID(),employmentId,fileName:file.name,version:Math.max(0,...resumes.map(r=>r.version))+1,uploadedAt:new Date().toISOString(),uploadedBy:'HR_ADMIN',status:'CURRENT',storedFile:file};const tx=this.requireDb().transaction([STORES.resumes,STORES.auditLogs],'readwrite'),done=txDone(tx);resumes.filter(r=>r.status==='CURRENT').forEach(r=>tx.objectStore(STORES.resumes).put({...r,status:'ARCHIVED'}));tx.objectStore(STORES.resumes).put(row);tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:row.uploadedAt,actor:'HR_ADMIN',action:'UPLOAD_RESUME',entityType:'RESUME',entityId:row.id,detail:JSON.stringify({employmentId,fileName:file.name,size:file.size,version:row.version})});await done}
+  async editMaster(input:import('../../domain/masterEdit').MasterEdit):Promise<void>{
+    if(!input.reason.trim())throw new Error('수정 사유가 필요합니다.');const detail=await this.getEmployeeMaster(input.employmentId);if(!detail)throw new Error('직원을 찾을 수 없습니다.');const {masterFields}=await import('../../domain/masterEdit');const fields:readonly string[]=masterFields[input.section];if(!fields||Object.keys(input.values).some(k=>!fields.includes(k)))throw new Error('수정할 수 없는 필드입니다.');const old=input.section==='occupation'?detail.assignmentHistory.find(a=>!a.effectiveTo):input.section==='person'?detail.person:input.section==='employment'?await this.getOne<Employment>(STORES.employments,input.employmentId):input.section==='address'?detail.address:input.section==='bank'?detail.bankAccounts.find(r=>!r.effectiveEndDate&&r.isPayrollAccount):input.section==='tax'?detail.taxProfile:detail.socialInsuranceProfile;if(!old)throw new Error('현재 원천정보가 없습니다. 해당 등록 기능을 먼저 사용하세요.');const next={...old,...input.values} as Record<string,unknown>;for(const [key,value]of Object.entries(input.values)){if(typeof (old as unknown as Record<string,unknown>)[key]==='boolean'&&typeof value!=='boolean')throw new Error('참/거짓 값을 확인하세요.')}if(input.section==='person'&&(!String(next.fullName).trim()||!['M','F'].includes(String(next.gender))))throw new Error('이름·성별 값을 확인하세요.');if(input.section==='employment'&&(!/^\d{4}-\d{2}-\d{2}$/.test(String(next.hireDate))||next.terminationDate&&String(next.terminationDate)<String(next.hireDate)))throw new Error('입사·퇴사일을 확인하세요.');if(input.section==='occupation'&&next.occupationCodeManual&&!/^\d{3}$/.test(String(next.occupationCode)))throw new Error('수동 신고 직종코드는 3자리입니다.');const store=input.section==='occupation'?STORES.assignments:input.section==='person'?STORES.persons:input.section==='employment'?STORES.employments:input.section==='address'?STORES.addresses:input.section==='bank'?STORES.bankAccounts:input.section==='tax'?STORES.taxProfiles:STORES.socialInsuranceProfiles;const tx=this.requireDb().transaction([store,STORES.auditLogs],'readwrite'),done=txDone(tx);tx.objectStore(store).put(next);tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'EDIT_EMPLOYEE_MASTER',entityType:input.section,entityId:old.id,detail:JSON.stringify({reason:input.reason,before:old,after:next})});await done
+  }
+  async savePersonNames(id:string,names:{fullName:string;englishName:string;hanjaName:string},reviewed:boolean){
+    const check=reviewNames(names.fullName,names.englishName,names.hanjaName);if(check.errors.length||check.warnings.length&&!reviewed)throw new Error([...check.errors,...check.warnings].join(' '));
+    const person=await this.getOne<Person>(STORES.persons,id);if(!person)throw new Error('직원을 찾을 수 없습니다.');
+    const tx=this.requireDb().transaction([STORES.persons,STORES.auditLogs],'readwrite');const done=txDone(tx);tx.objectStore(STORES.persons).put({...person,...names,fullName:names.fullName.trim()});tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'UPDATE_PERSON_NAMES',entityType:'PERSON',entityId:id,detail:'성명·영문명·한자명 검토 및 저장'});await done;
+  }
+  async registerEmployee(input:EmployeeRegistration){
+    const check=reviewNames(input.fullName,input.englishName,input.hanjaName);if(check.errors.length||check.warnings.length&&!input.nameReviewed)throw new Error([...check.errors,...check.warnings].join(' '));
+    if(!input.employeeNumber.trim()||!input.birthDate||!input.hireDate||input.birthDate>=input.hireDate||!Number.isFinite(input.annualSalary)||input.annualSalary<=0)throw new Error('사번·생년월일·입사일·연봉을 확인하세요.');
+    if((await this.listEmployees()).some(e=>e.employeeNumber===input.employeeNumber.trim()))throw new Error('이미 등록된 사번입니다.');
+    if(!(await this.listOrganizations()).some(o=>o.id===input.organizationId))throw new Error('조직을 선택하세요.');
+    if(!!input.bankName!==!!input.accountNumberMasked)throw new Error('은행과 실습용 계좌를 함께 입력하세요.');
+    const id='EMPLOY-'+crypto.randomUUID(),personId='PER-'+crypto.randomUUID(),stamp=new Date().toISOString();
+    const person:Person={id:personId,fullName:input.fullName.trim(),englishName:input.englishName.trim(),hanjaName:input.hanjaName.trim(),birthDate:input.birthDate,gender:input.gender,domesticForeignType:'DOMESTIC',nationality:'대한민국',reportingNationality:'대한민국',syntheticIdentifier:'SYN-'+crypto.randomUUID(),profileImageUrl:null,mobile:input.mobile,phone:'',email:'',emergencyContactName:'',emergencyContactPhone:'',emergencyContactRelation:''};
+    const tx=this.requireDb().transaction([STORES.persons,STORES.employments,STORES.assignments,STORES.compensations,STORES.bankAccounts,STORES.auditLogs],'readwrite'),done=txDone(tx);
+    tx.objectStore(STORES.persons).put(person);tx.objectStore(STORES.employments).put({id,personId,employeeNumber:input.employeeNumber.trim(),hireDate:input.hireDate,terminationDate:null,employmentType:'REGULAR',status:input.hireDate>stamp.slice(0,10)?'PRE_HIRE':'ACTIVE'});
+    tx.objectStore(STORES.assignments).put({id:crypto.randomUUID(),employmentId:id,organizationId:input.organizationId,grade:input.grade,title:'팀원',job:input.job,workLocation:'본사',effectiveFrom:input.hireDate,effectiveTo:null});tx.objectStore(STORES.compensations).put({id:crypto.randomUUID(),employmentId:id,annualSalary:input.annualSalary,effectiveFrom:input.hireDate,effectiveTo:null});
+    if(input.bankName)tx.objectStore(STORES.bankAccounts).put({id:crypto.randomUUID(),employmentId:id,bankName:input.bankName,accountNumberMasked:input.accountNumberMasked,accountHolder:input.fullName.trim(),isPayrollAccount:true,effectiveStartDate:input.hireDate,effectiveEndDate:null});
+    tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:stamp,actor:'HR_ADMIN',action:'REGISTER_EMPLOYEE',entityType:'EMPLOYMENT',entityId:id,detail:'직원 기본정보·조직·연봉 등록'});await done;return id;
   }
 
   private requireDb(): IDBDatabase {
@@ -268,6 +305,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     ;(bundle.attendanceDailyRecords??[]).forEach(v=>tx.objectStore(STORES.attendanceDailyRecords).put(v))
     ;(bundle.leaveCases??[]).forEach(v=>tx.objectStore(STORES.leaveCases).put(v))
     ;(bundle.payrollSettingsHistory??[]).forEach(v=>tx.objectStore(STORES.payrollSettingsHistory).put(v))
+    for(const name of operationStores)(bundle[name]??[]).forEach(v=>tx.objectStore(STORES[name]).put(v))
     tx.objectStore(STORES.meta).put({ id: 'dbVersion' , value: String(DB_VERSION) })
     tx.objectStore(STORES.meta).put({ id: 'seedVersion', value: String(SEED_VERSION) })
     tx.objectStore(STORES.meta).put({ id: 'schemaVersion', value: String(SCHEMA_VERSION) })
@@ -312,7 +350,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
         bankName:bank?.bankName ?? '-', bankAccount:bank?.accountNumberMasked ?? '-', hireDate:employment.hireDate,
         terminationDate:employment.terminationDate, employmentType:employment.employmentType, status:employment.status,
         organizationId:assignment.organizationId, organizationName:oMap.get(assignment.organizationId)?.name ?? '미지정',
-        grade:assignment.grade, title:assignment.title, job:assignment.job, workLocation:assignment.workLocation,
+        occupationCode:assignment.occupationCode,occupationCodeManual:assignment.occupationCodeManual,grade:assignment.grade, title:assignment.title, job:assignment.job, workLocation:assignment.workLocation,
         annualSalary:comp.annualSalary,
       }]
     })
@@ -444,6 +482,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const current = await this.currentAssignment(event.employmentId)
     const employment = await this.getOne<Employment>(STORES.employments,event.employmentId)
     if (!employment) throw new Error('Employment not found')
+    const mappings=(await this.operations()).occupationCodeMappings
     const tx = db.transaction([STORES.assignments,STORES.employments,STORES.personnelEvents,STORES.auditLogs],'readwrite')
     const done = txDone(tx)
 
@@ -456,6 +495,9 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       if (event.eventType==='ORG_TRANSFER') next.organizationId=String(event.after.organizationId)
       if (event.eventType==='PROMOTION') next.grade=String(event.after.grade)
       if (event.eventType==='TITLE_CHANGE') next.title=String(event.after.title)
+      if(event.eventType==='JOB_CHANGE')next.job=String(event.after.job)
+      if(event.eventType==='LOCATION_CHANGE')next.workLocation=String(event.after.workLocation)
+      if(!next.occupationCodeManual){next.occupationCode=occupationCode(mappings,event.effectiveDate,next.organizationId,next.job,'');next.occupationCodeSource='직종 매핑 · '+event.effectiveDate}
       tx.objectStore(STORES.assignments).put(next)
     }
     tx.objectStore(STORES.personnelEvents).put({...event,status:'APPLIED'})
@@ -484,6 +526,8 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     let after: Record<string,string|number|null>={}
     if (input.eventType==='ORG_TRANSFER') { before={organizationId:employee.organizationId,organizationName:employee.organizationName}; after={organizationId:input.value} }
     else if (input.eventType==='PROMOTION') { before={grade:employee.grade}; after={grade:input.value} }
+    else if(input.eventType==='JOB_CHANGE'){before={job:employee.job};after={job:input.value}}
+    else if(input.eventType==='LOCATION_CHANGE'){before={workLocation:employee.workLocation};after={workLocation:input.value}}
     else if (input.eventType==='TITLE_CHANGE') { before={title:employee.title}; after={title:input.value} }
     else { before={status:employee.status}; after={status:input.value} }
     const event: PersonnelEvent={
@@ -673,7 +717,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const previousResults=previousRun?await this.listPayrollResults(previousRun.id):[]
     const previousMap=new Map(previousResults.map((result)=>[result.employmentId,result]))
     const results=entries.map((entry)=>{
-      const result=calculatePayrollEntry(entry,run.period,items,effectiveOverrides,leaves)
+      const result=calculatePayrollEntry(entry,run.period,items,effectiveOverrides,leaves,run.payDate)
       const previous=previousMap.get(entry.employmentId)
       if(previous && previous.grossPay>0){
         const change=(result.grossPay-previous.grossPay)/previous.grossPay
@@ -733,8 +777,49 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     }catch(e){try{tx.abort()}catch{}await done.catch(()=>{});throw e}
   }
 
-  async recruiting(){const state=(await this.getCompany()).recruiting??recruitingSeed();return {...state,jobs:state.jobs.map(job=>job.id==='JOB-1'&&job.title==='HR Operations 담당자'?{...job,title:'인사운영 담당자'}:job)}}
-  async saveRecruiting(state:RecruitingState){const c=await this.getCompany();await this.put(STORES.company,{...c,recruiting:state})}
+  private async persistSelectionUpgrade(){const c=await this.getCompany();if(c.recruiting?.selectionVersion)return;const next=upgradeRecruiting(c.recruiting??recruitingSeed()),tx=this.requireDb().transaction([STORES.company,STORES.auditLogs],'readwrite'),done=txDone(tx);tx.objectStore(STORES.company).put({...c,recruiting:next});tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'UPGRADE_SELECTION_EVALUATION',entityType:'RECRUITING',entityId:c.id,detail:'기존 평가 사본과 원점수를 보존하며 역량·질문·Calibration 저장구조와 Payroll 평가 실습자료를 보강했습니다.'} satisfies AuditLog);await done}
+  async refreshIssues():Promise<void>{const [ops,employees,attendance,leaves,daily,runs,results,recruiting]=await Promise.all([this.operations(),this.listEmployees(),this.listAttendanceDailyRecords(),this.listLeaveCases(),this.listDailyWorkRecords(),this.listPayrollRuns(),this.getAll<PayrollResult>(STORES.payrollResults),this.recruiting()]);const generated:import('../../modules/operations/operations').Issue[]=[],now=new Date().toISOString();const add=(sourceType:string,sourceId:string,date:string,title:string,description:string,employmentId?:string,category=sourceType)=>generated.push({id:'ISS-'+sourceType+'-'+sourceId,occurredDate:date,title,description,sourceType,sourceId,employmentId,organizationId:employees.find(e=>e.employmentId===employmentId)?.organizationId,category,severity:'MEDIUM',status:'OPEN',manual:false,createdAt:now});const em=new Map(employees.map(e=>[e.employmentId,e]));for(const r of attendance){const issue=issueForAttendance(r,em.get(r.employmentId),ops.calendarEvents);if(issue)generated.push(issue);else if(r.absence||r.activity==='SICK')add('AttendanceDailyRecord',r.id,r.workDate,r.absence?'결근 확인':'병가 처리 확인',r.note||r.editReason||'근태·급여 지급 구분 확인',r.employmentId,'근태')}for(const l of leaves)add('LeaveCase',l.id,l.startDate,'휴직 및 보험 처리 검토',l.note,l.employmentId,'휴직');for(const r of daily)if(r.hours>0&&dayPolicy(r.workDate,ops.calendarEvents).off)add('DailyWorkRecord',r.id,r.workDate,'일용직 휴무일 근로',r.note||'실제 근로·휴일수당 근거 확인',undefined,'일용직');for(const r of results)if(r.errors.length||r.warnings.length){const run=runs.find(v=>v.id===r.runId);add('PayrollResult',r.id,(run?.period??now.slice(0,7))+'-01',r.errors.length?'급여 오류':'급여 검토사항',[...r.errors,...r.warnings].join(' / '),r.employmentId,'급여')}for(const e of ops.calendarEvents.filter(e=>e.scope==='HR'&&e.startDate===seoulDate()))add('CalendarEvent',e.id,e.startDate,'오늘 HR 일정 · '+e.title,e.note||'HR 일정 확인',undefined,'HR스케줄');for(const e of recruiting.events.filter(e=>e.status==='실패'))add('RecruitingEvent',e.id,now.slice(0,10),'채용 자동화 전달 실패',e.error||'연결 설정 확인',undefined,'채용');for(const e of employees)if(e.terminationDate&&e.terminationDate<e.hireDate)add('Employment',e.employmentId,seoulDate(),'고용기간 오류','입사·퇴사일 원천정보 확인',e.employmentId,'직원');const known=new Set(ops.issues.map(i=>i.id)),fresh=generated.filter(i=>!known.has(i.id));if(!fresh.length)return;const tx=this.requireDb().transaction([STORES.issues,STORES.auditLogs],'readwrite'),done=txDone(tx);fresh.forEach(i=>tx.objectStore(STORES.issues).put(i));tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:now,actor:'SYSTEM',action:'DERIVE_ISSUES',entityType:'ISSUE',entityId:'BATCH',detail:JSON.stringify({added:fresh.length,sourceIds:fresh.map(i=>i.sourceId)})});await done}
+  async operations():Promise<OperationsData>{const entries=await Promise.all(operationStores.map(async name=>[name,await this.getAll(STORES[name])] as const));return Object.fromEntries(entries) as unknown as OperationsData}
+  async saveOperation<K extends OperationStore>(name:K,row:OperationsData[K][number]){validateOperation(name,row,await this.listEmployees());const before=await this.getOne(STORES[name],row.id);if(name==='filingDrafts'&&before&&JSON.stringify(before)!==JSON.stringify(row))throw new Error('신고 초안 원천 스냅샷은 변경할 수 없습니다. 새 초안을 생성하세요.');const tx=this.requireDb().transaction([STORES[name],STORES.auditLogs],'readwrite'),done=txDone(tx);tx.objectStore(STORES[name]).put(structuredClone(row));tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:before?'UPDATE':'CREATE',entityType:name,entityId:row.id,detail:JSON.stringify({before,after:row})});await done}
+  private async initializeOperations(){const marker=await this.getOne(STORES.meta,'operationsV7');if(marker)return;const existing=await this.operations(),now=new Date().toISOString(),tx=this.requireDb().transaction([STORES.calendarEvents,STORES.policyDocuments,STORES.meta,STORES.auditLogs],'readwrite'),done=txDone(tx);for(const event of calendarSeed())if(!existing.calendarEvents.some(x=>x.id===event.id))tx.objectStore(STORES.calendarEvents).put(event);for(const doc of [{id:'POL-MOEL-2026',category:'MOEL_STANDARD',title:'2026년 표준취업규칙 · 고용노동부 원문 기준',source:'https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20260200740',contents:'고용노동부 2026년 표준취업규칙 (2026.2.13 게시). 위 출처의 원본 첨부파일을 기준으로 회사 적용안과 비교·검토하세요. 이 레코드는 정부 문서를 대체하는 원문 복제본이 아닌 원본 연결 정보입니다.'},{id:'POL-COMPANY',category:'COMPANY_OPERATION',title:'회사 운영 정책 초안',source:'회사 HR 검토 초안',contents:'근로조건: 근로계약서와 적용 법령을 따른다. 연장·야간·휴일근로는 실제 근로시간을 기록하고 법정 가산수당을 검토한다. 법정 휴가·휴직을 회사 승인 여부로 축소하지 않는다. 변경 시 근로자 의견청취 및 불이익 변경 동의 요건을 검토한다.'},{id:'POL-TECH',category:'TECH_OPERATION',title:'기술기업 운영 정책 초안',source:'회사 운영 초안 · 정부 표준과 별도',contents:'장애대응·온콜: 대기와 실제 근로를 구분하여 기록한다. 야간·휴일 실제 대응시간과 휴게를 기록하고 수당·대체휴일을 법령과 합의에 따라 검토한다. 유연근무는 해당 제도 요건과 근로자 동의를 확인한다. 보안·원격근무 규정은 법정 근로조건을 축소하지 않는다.'},{id:'POL-BYLAW',category:'BYLAW',title:'사규 초안',source:'회사 사규 · HR 검토 필요',contents:'규정 관리: 담당자·시행일·버전·변경 사유를 기록한다. 보안·복무·복리후생 세부 규칙은 근로계약·취업규칙·법령과 충돌하지 않도록 검토한다.'}])if(!existing.policyDocuments.some(d=>d.id===doc.id))tx.objectStore(STORES.policyDocuments).put({...doc,version:1,effectiveDate:'2026-02-13',status:'Draft',reviewRequired:true,history:[]});tx.objectStore(STORES.meta).put({id:'operationsV7' ,value:'1'});tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:now,actor:'SYSTEM',action:'MIGRATE_V7_ADDITIVE',entityType:'DATABASE',entityId:'v7',detail:'v0.7.5 기반 7개 신규 저장소와 법정 캘린더를 추가. 직원·급여·확정·수기·가져오기 데이터는 보존.'});await done}
+  async recruiting(){return upgradeRecruiting((await this.getCompany()).recruiting??recruitingSeed())}
+  async saveRecruiting(state:RecruitingState){
+    const c=await this.getCompany(),before=upgradeRecruiting(c.recruiting??recruitingSeed()),next=upgradeRecruiting(state),logs:AuditLog[]=[],now=new Date().toISOString()
+    const audit=(action:string,id:string,detail:unknown,actor='HR_ADMIN')=>logs.push({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor,action,entityType:'RECRUITING',entityId:id,detail:JSON.stringify(detail)})
+    for(const connection of next.integrationConnections??[])validateConnection(connection)
+    logs.push(...selectionAuditChanges(before,next))
+    for(const t of next.templates??[]){saveTemplate(next,t);const old=before.templates?.find(x=>x.id===t.id);if(old&&JSON.stringify(old)!==JSON.stringify(t)&&t.version!==old.version+1)throw new Error('평가표 수정 시 새 버전이 필요합니다.')}
+    for(const e of next.evaluations??[]){const old=before.evaluations?.find(x=>x.id===e.id);if(JSON.stringify(old)===JSON.stringify(e)||old&&old.status!=='DRAFT')continue;saveEvaluation({...before,candidates:next.candidates,interviews:next.interviews},e,e.status==='SUBMITTED');if(e.status==='SUBMITTED'){const checked=saveEvaluation({...before,candidates:next.candidates,interviews:next.interviews},e,true).evaluations!.find(x=>x.id===e.id)!;if(e.overallScore!==checked.overallScore)throw new Error('평가 총점을 확인하세요.')}if(e.status==='SUBMITTED')audit('SUBMIT_EVALUATION',e.id,e,e.evaluator)}
+    for(const d of next.decisions??[])if(JSON.stringify(before.decisions?.find(x=>x.candidateId===d.candidateId))!==JSON.stringify(d)){decideCandidate(before,d);audit('HIRING_DECISION',d.candidateId,d,d.decidedBy)}
+    for(const o of next.offers??[])if(JSON.stringify(before.offers?.find(x=>x.id===o.id))!==JSON.stringify(o)){saveOffer({...before,decisions:next.decisions},o);audit(before.offers?.some(x=>x.id===o.id)?'OFFER_STATUS_CHANGED':'CREATE_OFFER',o.id,o)}
+    for(const candidate of before.candidates){const updated=next.candidates.find(x=>x.id===candidate.id);if(candidate.employmentId&&(!updated||updated.employmentId!==candidate.employmentId||updated.personId!==candidate.personId||updated.stage!=='채용완료'))throw new Error('입사전환 연결을 변경할 수 없습니다.');if(!candidate.employmentId&&updated?.employmentId)throw new Error('입사전환 기능을 사용하세요.')}
+    const tx=this.requireDb().transaction([STORES.company,STORES.auditLogs],'readwrite'),done=txDone(tx);tx.objectStore(STORES.company).put({...c,recruiting:next});logs.forEach(l=>tx.objectStore(STORES.auditLogs).put(l));await done
+  }
+  async convertCandidate(input:OnboardingInput):Promise<{personId:string;employmentId:string}>{
+    const stores=[STORES.company,STORES.persons,STORES.employments,STORES.assignments,STORES.compensations,STORES.organizations,STORES.auditLogs]
+    const tx=this.requireDb().transaction(stores,'readwrite'),done=txDone(tx)
+    try{
+      const company=(await requestToPromise(tx.objectStore(STORES.company).getAll()))[0] as Company,state=upgradeRecruiting(company.recruiting??recruitingSeed()),candidate=state.candidates.find(c=>c.id===input.candidateId),offer=state.offers?.find(o=>o.id===input.offerId&&o.candidateId===input.candidateId)
+      if(!candidate||candidate.employmentId)throw new Error('이미 입사전환되었거나 지원자가 없습니다.')
+      if(!offer||offer.status!=='ACCEPTED')throw new Error('수락된 오퍼만 입사전환할 수 있습니다.')
+      if(!state.decisions?.some(d=>d.candidateId===candidate.id&&d.decision==='PASS'))throw new Error('최종 합격을 확인하세요.')
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(input.birthDate)||Number.isNaN(Date.parse(input.birthDate))||new Date(input.birthDate).toISOString().slice(0,10)!==input.birthDate||input.birthDate>=offer.startDate)throw new Error('생년월일을 확인하세요.')
+      if(!input.employeeNumber.trim()||!input.birthDate||!input.nationality.trim()||!input.workLocation.trim())throw new Error('사번·생년월일·국적·근무지를 입력하세요.')
+      const org=await requestToPromise(tx.objectStore(STORES.organizations).get(offer.organizationId));if(!org)throw new Error('오퍼 조직을 확인하세요.')
+      const existing=await requestToPromise(tx.objectStore(STORES.employments).getAll()) as Employment[];if(existing.some(e=>e.employeeNumber===input.employeeNumber.trim()))throw new Error('이미 사용 중인 사번입니다.')
+      const personId=`PERSON-${crypto.randomUUID()}`,employmentId=`EMPLOY-${crypto.randomUUID()}`,now=new Date().toISOString()
+      const person:Person={id:personId,fullName:candidate.name,englishName:'',hanjaName:'',birthDate:input.birthDate,gender:input.gender,domesticForeignType:input.nationality==='대한민국'?'DOMESTIC':'FOREIGN',nationality:input.nationality,reportingNationality:input.nationality,syntheticIdentifier:'',profileImageUrl:null,mobile:candidate.phone,phone:'',email:candidate.email,emergencyContactName:'',emergencyContactPhone:'',emergencyContactRelation:''}
+      tx.objectStore(STORES.persons).add(person)
+      tx.objectStore(STORES.employments).add({id:employmentId,personId,companyId:company.id,employeeNumber:input.employeeNumber.trim(),hireDate:offer.startDate,terminationDate:null,employmentType:'REGULAR',status:offer.startDate>seoulDate()?'PRE_HIRE':'ACTIVE'} satisfies Employment)
+      tx.objectStore(STORES.assignments).add({id:`ASN-${crypto.randomUUID()}`,employmentId,organizationId:offer.organizationId,job:offer.job,grade:offer.grade,title:offer.title,workLocation:input.workLocation,effectiveFrom:offer.startDate,effectiveTo:null} satisfies Assignment)
+      tx.objectStore(STORES.compensations).add({id:`COMP-${crypto.randomUUID()}`,employmentId,annualSalary:offer.annualSalary,effectiveFrom:offer.startDate,effectiveTo:null} satisfies CompensationSnapshot)
+      tx.objectStore(STORES.company).put({...company,recruiting:{...state,candidates:state.candidates.map(c=>c.id===candidate.id?{...c,personId,employmentId,stage:'채용완료',history:[...(c.history??[]),{date:now,stage:'채용완료'}]}:c)}})
+      tx.objectStore(STORES.auditLogs).add({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'CONVERT_CANDIDATE_TO_EMPLOYEE',entityType:'CANDIDATE',entityId:candidate.id,detail:JSON.stringify({personId,employmentId,offerId:offer.id})} satisfies AuditLog)
+      await done;return {personId,employmentId}
+    }catch(e){try{tx.abort()}catch{}await done.catch(()=>{});throw e}
+  }
+  async withholdingDraft(id:string){return (await this.getCompany()).withholdingDrafts?.[id]}
+  async saveWithholdingDraft(id:string,draft:import('../../modules/payroll/withholdingForm').WithholdingDraft){const c=await this.getCompany();await this.put(STORES.company,{...c,withholdingDrafts:{...c.withholdingDrafts,[id]:structuredClone(draft)}});await this.put(STORES.auditLogs,{id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'SAVE_WITHHOLDING_FORM',entityType:'PAYROLL_RUN',entityId:id,detail:'별지 제21호 신고서 작성값 저장'});}
   async companyInfo():Promise<CompanyInfo>{const c=await this.getCompany();return {...defaultCompanyInfo,name:c.name,...c.reportingInfo}}
   async saveCompanyInfo(info:CompanyInfo){
     if(!info.name.trim()||!info.address.trim()||!info.representative.trim()||!/^\d{3}-?\d{2}-?\d{5}$/.test(info.businessNumber)||!/^\d{11}$/.test(info.managementNumber)||!/^\d{2,3}-\d{3,4}-\d{4}$/.test(info.telephone)||!/^\d{3}$/.test(info.occupationCode)||![1,3,5].includes(info.insuranceCode)||![1,2,3].includes(info.departureCode))throw new Error('회사정보의 필수값·번호 형식을 확인하세요. 회사 전화번호는 02-0000-0000 형태로 입력하세요.')
@@ -763,60 +848,55 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const seasonal=[0,120000,70000,0,180000,90000,0,150000,50000,220000,80000,300000][month-1]
     const next={...entry,taxableAllowance:seasonal+(seq%7)*12000,bonus:month===2||month===9?Math.round(entry.monthlyBasePay*(0.1+(seq%3)*0.05)):0,memo:'가상 계절수당 · 국세청 간이세액표'}
     const ds=dependents.filter(d=>d.employmentId===entry.employmentId&&d.basicDeductionEligible&&inEffect(d.effectiveStartDate,d.effectiveEndDate,run.payDate)),children=ds.filter(d=>d.relation==='자녀'&&Number(run.payDate.slice(0,4))-Number(d.birthDate.slice(0,4))>=8&&Number(run.payDate.slice(0,4))-Number(d.birthDate.slice(0,4))<=20).length
-    next.basicDeductionCount=ds.length;next.childDeductionCount=children;const full=leaves.find(l=>l.employmentId===entry.employmentId&&l.companyPayRate===0&&l.startDate<=monthStart(run.period)&&(!l.endDate||l.endDate>=monthEnd(run.period)));if(full)next.employmentInsuranceBaseMonthly=next.taxableAllowance+next.bonus+next.otherEarnings
-    const estimate=calculatePayrollEntry(next,run.period,run.itemSnapshot??items,run.itemOverrides,leaves)
+    next.basicDeductionCount=ds.length+1;next.childDeductionCount=children;const full=leaves.find(l=>l.employmentId===entry.employmentId&&l.companyPayRate===0&&l.startDate<=monthStart(run.period)&&(!l.endDate||l.endDate>=monthEnd(run.period)));if(full)next.employmentInsuranceBaseMonthly=next.taxableAllowance+next.bonus+next.otherEarnings
+    const estimate=calculatePayrollEntry(next,run.period,run.itemSnapshot??items,run.itemOverrides,leaves,run.payDate)
     next.incomeTaxManual=simplifiedTax(estimate.taxableEarnings,ds.length+1,children,run.payDate)
-    const result=calculatePayrollEntry(next,run.period,run.itemSnapshot??items,run.itemOverrides,leaves)
+    const result=calculatePayrollEntry(next,run.period,run.itemSnapshot??items,run.itemOverrides,leaves,run.payDate)
     if(result.errors.length)throw new Error(run.period+': '+entry.employeeNameSnapshot+' 더미 급여 변경 검증 실패: '+result.errors.join(' / '))
     return {entry:next,result}
   }
   async ensureDemoHistory(){
+    if(await this.getOne(STORES.meta,'importedData'))return
     const c=await this.getCompany(),date=seoulDate(),employees=await this.listEmployees(),existing=await this.listAttendanceMonthlySummaries(),daily=await this.listAttendanceDailyRecords(),workers=await this.listDailyWorkers(),records=await this.listDailyWorkRecords()
+    const calendar=(await this.operations()).calendarEvents
     const additions:AttendanceMonthlySummary[]=[],newDaily:AttendanceDailyRecord[]=[],newRecords:DailyWorkRecord[]=[]
     const issueDays:AttendanceDailyRecord[]=[]
-    if(date>='2026-10-02'&&!c.attendanceClosed?.['2026-10'])for(const [index,e] of employees.entries()){
-      if(index%19!==0)continue
-      const row=daily.find(r=>r.employmentId===e.employmentId&&r.workDate==='2026-10-02'&&r.updatedBy==='DEMO')
-      const monthly=existing.find(r=>r.employmentId===e.employmentId&&r.period==='2026-10')
-      if(row&&row.activity==='WORK'&&!monthly?.manualEdited&&!monthly?.confirmedAt){Object.assign(row,{activity:'SICK',workedHours:0,editReason:'가상 병가 · 소정시간 미달'});issueDays.push(row)}
-    }
-
     // Only add absent demo rows. Imported/manual/confirmed records remain authoritative.
     if(!c.demoHistoryVersion){
-      const items=await this.listPayrollItemMasters();for(const item of items)await this.put(STORES.payrollItemMasters,withDemoClassification(item))
       for(let n=0;n<21;n++){const period=`${2025+Math.floor(n/12)}-${String(n%12+1).padStart(2,'0')}`
         for(const e of employees){if(e.hireDate>monthEnd(period)||(e.terminationDate&&e.terminationDate<monthStart(period))||existing.some(r=>r.employmentId===e.employmentId&&r.period===period))continue
           additions.push({id:`ATT-DEMO-${e.employmentId}-${period}`,employmentId:e.employmentId,period,organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,jobSnapshot:e.job,scheduledHours:160,workedHours:160,overtimeHours:0,nightHours:0,holidayHours:0,leaveDays:0,absenceHours:0,lateMinutes:0,earlyLeaveMinutes:0})}
         for(const w of workers){if(w.startDate>monthEnd(period)||w.endDate&&w.endDate<monthStart(period)||records.some(r=>r.dailyWorkerId===w.id&&r.workDate.startsWith(period)))continue
-          for(const day of [3,10,17,24].slice(0,2+(n+workers.indexOf(w))%3)){const workDate=`${period}-${String(day).padStart(2,'0')}`;if(workDate>=w.startDate&&(!w.endDate||workDate<=w.endDate))newRecords.push(calculateDailyWorkRecord(w,workDate,8,'가상 IT 이벤트 운영지원',{otherAllowance:20000,holidayAllowance:holidays2026[workDate]?Math.round(w.dailyRate*.5):0}))}}
+          for(const day of Array.from({length:28},(_,i)=>i+1).filter(day=>!dayPolicy(`${period}-${String(day).padStart(2,'0')}`,calendar).off).filter((_,i)=>i%5===0).slice(0,2+(n+workers.indexOf(w))%3)){const workDate=`${period}-${String(day).padStart(2,'0')}`;if(workDate>=w.startDate&&(!w.endDate||workDate<=w.endDate))newRecords.push(calculateDailyWorkRecord(w,workDate,8,'가상 IT 이벤트 운영지원',{otherAllowance:20000,holidayAllowance:holidays2026[workDate]?Math.round(w.dailyRate*.5):0}))}}
       }
     }
     const cutoff=date<'2026-10-31'?date:'2026-10-31'
     if(date>='2026-10-01')for(const e of employees){if(c.attendanceClosed?.['2026-10'])continue;const old=existing.find(r=>r.period==='2026-10'&&r.employmentId===e.employmentId);if(old?.confirmedAt||old?.manualEdited)continue
       for(let day=1;day<=Number(cutoff.slice(8));day++){const workDate=`2026-10-${String(day).padStart(2,'0')}`;if(e.hireDate>workDate||e.terminationDate&&e.terminationDate<workDate||daily.some(r=>r.employmentId===e.employmentId&&r.workDate===workDate))continue
-        if(c.demoScenarioVersion){newDaily.push(demoDay(e,workDate,scenarioIds(employees)));continue}const sick=workDate==='2026-10-02'&&employees.indexOf(e)%19===0;const off=[0,6].includes(new Date(workDate+'T00:00:00Z').getUTCDay());newDaily.push({id:`ATTD-DEMO-${e.employmentId}-${workDate}`,employmentId:e.employmentId,workDate,startTime:'09:00',endTime:'18:00',endNextDay:false,breakStart:'12:00',breakMinutes:60,holiday:false,absence:false,activity:off?'OFF':sick?'SICK':'WORK',workedHours:off||sick?0:8,overtimeHours:0,nightHours:0,holidayHours:0,holidayOvertimeHours:0,updatedAt:new Date().toISOString(),updatedBy:'DEMO',editReason:'서울 날짜까지 일별 누적'})}
+        if(c.demoScenarioVersion){newDaily.push(correctedDemoDay(e,workDate,employees,calendar));continue}const sick=workDate==='2026-10-02'&&employees.indexOf(e)%19===0;const off=[0,6].includes(new Date(workDate+'T00:00:00Z').getUTCDay());newDaily.push({id:`ATTD-DEMO-${e.employmentId}-${workDate}`,employmentId:e.employmentId,workDate,startTime:'09:00',endTime:'18:00',endNextDay:false,breakStart:'12:00',breakMinutes:60,holiday:false,absence:false,activity:off?'OFF':sick?'SICK':'WORK',workedHours:off||sick?0:8,overtimeHours:0,nightHours:0,holidayHours:0,holidayOvertimeHours:0,updatedAt:new Date().toISOString(),updatedBy:'DEMO',editReason:'서울 날짜까지 일별 누적'})}
       const days=[...daily,...newDaily].filter(r=>r.employmentId===e.employmentId&&r.workDate.startsWith('2026-10'));if(days.length)additions.push({id:old?.id??`ATT-DEMO-${e.employmentId}-2026-10`,employmentId:e.employmentId,period:'2026-10',organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,jobSnapshot:e.job,scheduledHours:days.filter(r=>r.offKind!=='WEEKEND'&&r.offKind!=='STATUTORY'&&(r.activity!=='OFF'||r.offKind==='PERSONAL')).length*8,workedHours:days.reduce((s,r)=>s+r.workedHours,0),overtimeHours:days.reduce((s,r)=>s+r.overtimeHours,0),nightHours:days.reduce((s,r)=>s+r.nightHours,0),holidayHours:days.reduce((s,r)=>s+r.holidayHours,0),leaveDays:days.reduce((s,r)=>s+(r.leaveHours??0)/8,0),absenceHours:days.filter(r=>r.activity==='ABSENT').length*8,paidCreditHours:days.reduce((s,r)=>s+(r.paidCreditHours??0),0),unpaidHours:days.filter(r=>r.payTreatment==='UNPAID').length*8,sickPaidHours:days.filter(r=>r.activity==='SICK'&&r.payTreatment==='PAID').length*8,sickUnpaidHours:days.filter(r=>r.activity==='SICK'&&r.payTreatment==='UNPAID').length*8,issueNote:[...new Set(days.filter(r=>!['WORK','OFF'].includes(r.activity??'WORK')||r.paidCreditHours).map(r=>`${r.workDate.slice(5)} ${r.note??r.activity} (${r.payTreatment==='UNPAID'?'무급':r.payTreatment==='BENEFIT'?'보험급여':'유급'})`))].join(' / '),lateMinutes:0,earlyLeaveMinutes:0})
     }
     if(date>='2026-10-01'&&!c.dailyClosed?.['2026-10'])for(const w of workers)for(let day=1;day<=Number(cutoff.slice(8));day++){
       const workDate=`2026-10-${String(day).padStart(2,'0')}`
-      if([0,6].includes(new Date(workDate+'T00:00:00Z').getUTCDay())||w.startDate>workDate||w.endDate&&w.endDate<workDate||records.some(r=>r.dailyWorkerId===w.id&&r.workDate===workDate))continue
+      if(dayPolicy(workDate,calendar).off||w.startDate>workDate||w.endDate&&w.endDate<workDate||records.some(r=>r.dailyWorkerId===w.id&&r.workDate===workDate))continue
       newRecords.push(calculateDailyWorkRecord(w,workDate,8,'가상 IT 이벤트 운영지원',{otherAllowance:20000,holidayAllowance:holidays2026[workDate]?Math.round(w.dailyRate*.5):0}))
     }
     const tx=this.requireDb().transaction([STORES.attendanceMonthlySummaries,STORES.attendanceDailyRecords,STORES.dailyWorkRecords],'readwrite'),done=txDone(tx)
     additions.forEach(r=>tx.objectStore(STORES.attendanceMonthlySummaries).put(r));[...newDaily,...issueDays].forEach(r=>tx.objectStore(STORES.attendanceDailyRecords).put(r));newRecords.forEach(r=>tx.objectStore(STORES.dailyWorkRecords).put(r));await done
+    await this.upgradeDemoScenarios()
     if(!c.demoHistoryVersion){const runs=await this.listPayrollRuns();for(let n=0;n<21;n++){const period=`${2025+Math.floor(n/12)}-${String(n%12+1).padStart(2,'0')}`;if(!runs.some(r=>r.period===period)){const run=await this.createPayrollRun({period,payDate:`${period}-25`,note:'가상 월별 실습 급여'},true);await this.calculatePayrollRun(run.id)}}await this.put(STORES.company,{...(await this.getCompany()),demoHistoryVersion:1,demoPayrollVersion:1})}
     if(!(await this.getCompany()).demoPayrollVersion){
       const runs=(await this.listPayrollRuns()).filter(r=>r.note==='가상 월별 실습 급여'),items=await this.listPayrollItemMasters(),leaves=await this.listLeaveCases(),dependents=await this.getAll<Dependent>(STORES.dependents)
       const edits:PayrollEntry[]=[],results:PayrollResult[]=[]
       for(const run of runs)for(const entry of await this.listPayrollEntries(run.id)){
-        if(entry.memo||entry.incomeTaxManual!==0||entry.taxableAllowance||entry.bonus||entry.overtimePay||entry.otherEarnings||entry.nonTaxableAllowance||entry.unpaidDeduction||entry.otherDeductions||Object.keys(entry.itemAmounts??{}).length)continue
+        if(['CONFIRMED','CLOSED','PAID'].includes(run.status)||entry.memo||entry.incomeTaxManual!==0||entry.taxableAllowance||entry.bonus||entry.overtimePay||entry.otherEarnings||entry.nonTaxableAllowance||entry.unpaidDeduction||entry.otherDeductions||Object.keys(entry.itemAmounts??{}).length)continue
         const {entry:next,result}=this.demoEntry(entry,run,items,leaves,dependents)
         edits.push(next);results.push(result)
       }
       const company=await this.getCompany(),tx=this.requireDb().transaction([STORES.payrollEntries,STORES.payrollResults,STORES.company,STORES.auditLogs],'readwrite'),done=txDone(tx)
       edits.forEach(e=>tx.objectStore(STORES.payrollEntries).put(e));results.forEach(r=>tx.objectStore(STORES.payrollResults).put(r));tx.objectStore(STORES.company).put({...company,demoPayrollVersion:1});tx.objectStore(STORES.auditLogs).put({id:'AUD-DEMO-TAX-V073',occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'UPGRADE_GENERATED_DEMO_PAYROLL',entityType:'PAYROLL_ENTRY',entityId:'DEMO',detail:JSON.stringify({count:edits.length,scope:'untouched generated entries only',taxSource:'소득세법 시행령 별표2 2026.2.27'})});await done
     }
-    const historical=(await this.listPayrollRuns()).filter(r=>r.period>='2025-01'&&r.period<='2026-09'&&r.status!=='PAID')
+    const historical=(await this.listPayrollRuns()).filter(r=>r.note==='가상 월별 실습 급여'&&r.period>='2025-01'&&r.period<='2026-09'&&!['CONFIRMED','CLOSED','PAID'].includes(r.status))
     if(historical.length){
       // Validate snapshots once and atomically install the historical demo baseline.
       const allEntries=await this.getAll<PayrollEntry>(STORES.payrollEntries),allResults=await this.getAll<PayrollResult>(STORES.payrollResults)
@@ -830,7 +910,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
         nextRuns.push({...latest,status:'PAID',validatedAt:latest.validatedAt??now,confirmedAt:latest.confirmedAt??now,closedAt:latest.closedAt??now,paidAt:`${latest.payDate}T09:00:00+09:00`})
       }
       const company=await this.getCompany(),attendanceClosed={...company.attendanceClosed};nextRuns.forEach(r=>attendanceClosed[r.period]=now)
-      const tx=this.requireDb().transaction([STORES.payrollRuns,STORES.attendanceMonthlySummaries,STORES.company,STORES.auditLogs],'readwrite'),done=txDone(tx)
+      const tx=this.requireDb().transaction([STORES.payrollRuns,STORES.attendanceMonthlySummaries,STORES.company,STORES.leaveCases,STORES.auditLogs],'readwrite'),done=txDone(tx)
       nextRuns.forEach(r=>tx.objectStore(STORES.payrollRuns).put(r))
       attendance.filter(r=>nextRuns.some(run=>run.period===r.period)&&!r.confirmedAt).forEach(r=>tx.objectStore(STORES.attendanceMonthlySummaries).put({...r,confirmedAt:now,confirmedBy:'HR_ADMIN'}))
       tx.objectStore(STORES.company).put({...company,attendanceClosed})
@@ -838,22 +918,15 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       await done
     }
     await this.upgradeDemoScenarios()
+    await repairDemoOperations(this.requireDb(),await this.listEmployees())
+    await seedLemonRetirement(this.requireDb(),await this.listEmployees())
   }
   private async upgradeDemoScenarios(){
-    const company=await this.getCompany();if((company.demoScenarioVersion??0)>=3)return
-    const oldCases=await this.listLeaveCases(),oldDemoMaternity=new Set(oldCases.filter(l=>l.id.startsWith('LC-DEMO-V074-maternity')).map(l=>l.employmentId));const seed=createSeedBundle(),oldEmployments=await this.getAll<Employment>(STORES.employments),oldOrganizations=await this.getAll<Organization>(STORES.organizations)
-    const employments=oldEmployments.map(e=>{const target=seed.employments.find(s=>s.id===e.id);return target?{...e,hireDate:target.hireDate,terminationDate:target.terminationDate,employmentType:target.employmentType,...(e.status==='LEAVE'&&target.status==='ACTIVE'&&oldDemoMaternity.has(e.id)&&!oldCases.some(l=>l.employmentId===e.id&&!l.id.startsWith('LC-DEMO-')&&l.startDate<=seoulDate()&&(!l.endDate||l.endDate>=seoulDate()))?{status:target.status}:{})}:e})
-    const renamed=new Map(seed.organizations.map(o=>[o.id,o.name]));for(const o of oldOrganizations)await this.put(STORES.organizations,{...o,name:renamed.get(o.id)??o.name})
-    for(const e of employments)await this.put(STORES.employments,e)
-    for(const a of await this.getAll<Assignment>(STORES.assignments)){const e=employments.find(e=>e.id===a.employmentId);if(e&&a.id.endsWith('-001'))await this.put(STORES.assignments,{...a,effectiveFrom:e.hireDate,...(['EMPLOY-00201','EMPLOY-00202','EMPLOY-00203'].includes(e.id)?{job:e.id==='EMPLOY-00201'?'클라우드 프로젝트 운영지원':'소프트웨어 개발 인턴',title:e.id==='EMPLOY-00201'?'프로젝트 파견계약':'개발 인턴'}:{})})}
-    for(const a of await this.getAll<CompensationSnapshot>(STORES.compensations)){const e=employments.find(e=>e.id===a.employmentId);if(e&&a.id.endsWith('-001'))await this.put(STORES.compensations,{...a,effectiveFrom:e.hireDate})}
-    const employees=await this.listEmployees(),ids=scenarioIds(employees),today=seoulDate(),oldDaily=await this.listAttendanceDailyRecords(),oldMonthly=await this.listAttendanceMonthlySummaries()
-    const maternityEmployment=employments.find(e=>e.id===ids.maternity);if(maternityEmployment&&today>='2026-07-19'&&today<='2026-10-16')await this.put(STORES.employments,{...maternityEmployment,status:'LEAVE'});
-    const existing=new Map(oldDaily.map(r=>[`${r.employmentId}|${r.workDate}`,r])),summaries=new Map(oldMonthly.map(r=>[`${r.employmentId}|${r.period}`,r])),days:AttendanceDailyRecord[]=[],months:AttendanceMonthlySummary[]=[]
-    for(const e of employees){const byMonth=new Map<string,AttendanceDailyRecord[]>();for(let t=new Date('2026-01-01T00:00:00Z');t.toISOString().slice(0,10)<=today;t.setUTCDate(t.getUTCDate()+1)){const date=t.toISOString().slice(0,10);if(e.hireDate>date||e.terminationDate&&e.terminationDate<date)continue;const old=existing.get(`${e.employmentId}|${date}`),monthly=summaries.get(`${e.employmentId}|${date.slice(0,7)}`);const r=old&&old.updatedBy!=='DEMO'?old:monthly?.manualEdited?old:demoDay(e,date,ids);if(!r)continue;if(r!==old)days.push({...r,id:old?.id??r.id});const group=byMonth.get(date.slice(0,7))??[];group.push(r);byMonth.set(date.slice(0,7),group)}
-      for(const [period,rows] of byMonth){const old=summaries.get(`${e.employmentId}|${period}`);if(old?.manualEdited)continue;const notes=[...new Set(rows.filter(r=>!['WORK','OFF'].includes(r.activity??'WORK')||r.paidCreditHours).map(r=>`${r.workDate.slice(5)} ${r.note??r.activity} (${r.payTreatment==='UNPAID'?'무급':r.payTreatment==='BENEFIT'?'보험급여':'유급'})`))];months.push({...old,id:old?.id??`ATT-DEMO-${e.employmentId}-${period}`,employmentId:e.employmentId,period,organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,jobSnapshot:e.job,scheduledHours:rows.filter(r=>r.offKind!=='WEEKEND'&&r.offKind!=='STATUTORY').length*8,workedHours:rows.reduce((s,r)=>s+r.workedHours,0),overtimeHours:rows.reduce((s,r)=>s+r.overtimeHours,0),nightHours:rows.reduce((s,r)=>s+r.nightHours,0),holidayHours:rows.reduce((s,r)=>s+r.holidayHours,0),leaveDays:rows.reduce((s,r)=>s+(r.leaveHours??0)/8,0),absenceHours:rows.filter(r=>r.activity==='ABSENT').length*8,paidCreditHours:rows.reduce((s,r)=>s+(r.paidCreditHours??0),0),unpaidHours:rows.filter(r=>r.payTreatment==='UNPAID').length*8,sickPaidHours:rows.filter(r=>r.activity==='SICK'&&r.payTreatment==='PAID').length*8,sickUnpaidHours:rows.filter(r=>r.activity==='SICK'&&r.payTreatment==='UNPAID').length*8,issueNote:notes.join(' / '),lateMinutes:0,earlyLeaveMinutes:0})}
-    }
-    const leaves=await this.listLeaveCases(),added:LeaveCase[]=[]
+    const company=await this.getCompany();if((company.demoScenarioVersion??0)>=3||await this.getOne(STORES.meta,'importedData'))return
+    const employees=await this.listEmployees(),calendar=(await this.operations()).calendarEvents,daily=await this.listAttendanceDailyRecords(),summaries=await this.listAttendanceMonthlySummaries(),runs=await this.listPayrollRuns(),now=new Date().toISOString(),days:AttendanceDailyRecord[]=[],months:AttendanceMonthlySummary[]=[]
+    const summaryMap=new Map(summaries.map(r=>[r.employmentId+'|'+r.period,r]));const existing=new Map(daily.map(r=>[r.employmentId+'|'+r.workDate,r])),closed=(period:string)=>company.attendanceClosed?.[period]||runs.some(r=>r.period===period&&['CONFIRMED','CLOSED','PAID'].includes(r.status))
+    for(const e of employees){const byMonth=new Map<string,AttendanceDailyRecord[]>();for(let time=new Date('2026-01-01T00:00:00Z');time.toISOString().slice(0,10)<=seoulDate();time.setUTCDate(time.getUTCDate()+1)){const date=time.toISOString().slice(0,10),period=date.slice(0,7),summary=summaryMap.get(e.employmentId+'|'+period);if(e.hireDate>date||e.terminationDate&&e.terminationDate<date||closed(period)||summary?.confirmedAt||summary?.manualEdited)continue;const old=existing.get(e.employmentId+'|'+date);const row=old&&(old.updatedBy!=='DEMO'||old.manualEdited||old.confirmedAt)?old:correctedDemoDay(e,date,employees,calendar);if(row!==old)days.push({...row,id:old?.id??row.id});byMonth.set(period,[...(byMonth.get(period)??[]),row])}for(const [period,rows] of byMonth){const old=summaryMap.get(e.employmentId+'|'+period);if(old)months.push(summaryFromDaily(old,rows))}}
+    const leaves=await this.listLeaveCases(),added:LeaveCase[]=[],ids=scenarioIds(employees)
     const add=(key:string,kind:LeaveCase['kind'],startDate:string,endDate:string,companyPayRate:number,note:string)=>added.push({id:'LC-DEMO-V074-'+key,employmentId:ids[key],kind,startDate,endDate,companyPayRate,pensionExceptionApproved:false,healthDeferred:false,healthPremiumOverride:null,employmentBaseOverride:null,benefitAmount:0,averageWageExcluded:kind==='MATERNITY',yearEndNote:'회사 고정수당 계속 지급',note,updatedAt:new Date().toISOString()})
     add('maternity','MATERNITY','2026-07-19','2026-09-16',1,'출산전후휴가 최초 60일 · 회사 통상임금 지급')
     added.push({...added[0],id:'LC-DEMO-V074-maternity-benefit',startDate:'2026-09-17',endDate:'2026-10-16',companyPayRate:0,benefitAmount:2200000,note:'출산전후휴가 나머지 30일 · 고용보험 급여 예상 상한 · 회사 고정수당 별도 지급'})
@@ -864,15 +937,8 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     add('family','FAMILY_CARE','2026-10-02','2026-10-02',0,'부모 병원 동행 · 무급 가족돌봄휴가 · 고정수당 지급')
     add('fertility','PERSONAL','2026-09-09','2026-09-14',0,'난임치료휴가 무급 4근무일 · 주말은 차감 제외')
     added[added.length-1].endDate='2026-09-11';added.push({...added[added.length-1],id:'LC-DEMO-V074-fertility-last',startDate:'2026-09-14',endDate:'2026-09-14'})
-    const byEmployee=new Map(employees.map(e=>[e.employmentId,e]));const invalidMonthly=oldMonthly.filter(r=>{const e=byEmployee.get(r.employmentId);return !r.manualEdited&&r.id.startsWith('ATT-DEMO-')&&e&&(e.hireDate>monthEnd(r.period)||e.terminationDate&&e.terminationDate<monthStart(r.period))}),invalidDaily=oldDaily.filter(r=>{const e=byEmployee.get(r.employmentId);return r.updatedBy==='DEMO'&&e&&(e.hireDate>r.workDate||e.terminationDate&&e.terminationDate<r.workDate)});const tx=this.requireDb().transaction([STORES.attendanceMonthlySummaries,STORES.attendanceDailyRecords,STORES.leaveCases],'readwrite'),done=txDone(tx);invalidMonthly.forEach(r=>tx.objectStore(STORES.attendanceMonthlySummaries).delete(r.id));invalidDaily.forEach(r=>tx.objectStore(STORES.attendanceDailyRecords).delete(r.id));days.forEach(r=>tx.objectStore(STORES.attendanceDailyRecords).put(r));months.forEach(r=>tx.objectStore(STORES.attendanceMonthlySummaries).put(r));added.forEach(r=>tx.objectStore(STORES.leaveCases).put(r));await done
-    const items=await this.listPayrollItemMasters(),dependents=await this.getAll<Dependent>(STORES.dependents),entries=await this.getAll<PayrollEntry>(STORES.payrollEntries),results:PayrollResult[]=[],edits:PayrollEntry[]=[],removed:string[]=[],runs=await this.listPayrollRuns()
-    for(const run of runs.filter(r=>r.note==='가상 월별 실습 급여')){for(const entry of entries.filter(e=>e.runId===run.id)){const e=employees.find(e=>e.employmentId===entry.employmentId);if(!e||e.hireDate>monthEnd(run.period)||e.terminationDate&&e.terminationDate<monthStart(run.period)){removed.push(entry.id);continue}if(entry.memo&&!entry.memo.startsWith('가상 계절수당'))continue;const length=new Date(Number(run.period.slice(0,4)),Number(run.period.slice(5)),0).getDate(),start=e.hireDate>monthStart(run.period)?Number(e.hireDate.slice(8)):1,end=e.terminationDate&&e.terminationDate<monthEnd(run.period)?Number(e.terminationDate.slice(8)):length;const enriched=this.demoEntry({...entry,hireDateSnapshot:e.hireDate,terminationDateSnapshot:e.terminationDate,organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,prorationRate:(end-start+1)/length},run,items,[...leaves,...added],dependents);edits.push(enriched.entry);results.push(enriched.result)}}
-    for(const run of runs.filter(r=>r.note==='가상 월별 실습 급여'))for(const e of employees){if(e.hireDate>monthEnd(run.period)||e.terminationDate&&e.terminationDate<monthStart(run.period)||entries.some(a=>a.runId===run.id&&a.employmentId===e.employmentId))continue;const template=entries.find(a=>a.employmentId===e.employmentId);if(!template)continue;const length=new Date(Number(run.period.slice(0,4)),Number(run.period.slice(5)),0).getDate(),start=e.hireDate>monthStart(run.period)?Number(e.hireDate.slice(8)):1,end=e.terminationDate&&e.terminationDate<monthEnd(run.period)?Number(e.terminationDate.slice(8)):length;const next=this.demoEntry({...template,id:`PAYENT-${run.id}-${e.employmentId}`,runId:run.id,hireDateSnapshot:e.hireDate,terminationDateSnapshot:e.terminationDate,organizationNameSnapshot:e.organizationName,prorationRate:(end-start+1)/length},run,items,[...leaves,...added],dependents);edits.push(next.entry);results.push(next.result)}
-    const final=await this.getCompany(),info={...defaultCompanyInfo,...final.reportingInfo};for(const key of ['businessNumber','managementNumber','telephone'] as const)if(!info[key].replace(/[-0]/g,''))info[key]=defaultCompanyInfo[key];if(info.name==='Demo Company'||info.name==='가상 HR 트레이닝 주식회사')info.name=defaultCompanyInfo.name
-    const removedIds=new Set(removed),removedKeys=new Set(entries.filter(e=>removedIds.has(e.id)).map(e=>e.runId+'|'+e.employmentId));const allResults=await this.getAll<PayrollResult>(STORES.payrollResults),allWorkers=await this.listDailyWorkers(),allDailyWork=await this.listDailyWorkRecords();const tx2=this.requireDb().transaction([STORES.payrollEntries,STORES.payrollResults,STORES.company,STORES.dailyWorkers,STORES.dailyWorkRecords,STORES.auditLogs],'readwrite'),done2=txDone(tx2);edits.forEach(r=>tx2.objectStore(STORES.payrollEntries).put(r));results.forEach(r=>tx2.objectStore(STORES.payrollResults).put(r));removed.forEach(id=>tx2.objectStore(STORES.payrollEntries).delete(id));for(const r of allResults)if(removedKeys.has(r.runId+'|'+r.employmentId))tx2.objectStore(STORES.payrollResults).delete(r.id)
-    for(const record of allDailyWork){const worker=allWorkers.find(w=>w.id===record.dailyWorkerId);if(worker&&!record.confirmedAt&&record.note.startsWith('가상'))tx2.objectStore(STORES.dailyWorkRecords).put({...record,...calculateDailyWorkRecord(worker,record.workDate,record.hours,'가상 IT 이벤트 운영지원',{otherAllowance:20000,holidayAllowance:holidays2026[record.workDate]?Math.round(worker.dailyRate*.5):0})})}
-    for(const w of allWorkers)tx2.objectStore(STORES.dailyWorkers).put({...w,job:'IT 이벤트 운영지원'})
-    tx2.objectStore(STORES.company).put({...final,name:info.name,reportingInfo:info,recruiting:final.recruiting?{...final.recruiting,candidates:final.recruiting.candidates.map(c=>c.id.startsWith('CAND-')&&!c.documents?.length?{...c,documents:recruitingSeed().candidates.find(d=>d.id===c.id)?.documents}:c)}:undefined,demoScenarioVersion:3});tx2.objectStore(STORES.auditLogs).put({id:'AUD-DEMO-SCENARIOS-V074',occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'UPGRADE_IT_DEMO_SCENARIOS',entityType:'DEMO',entityId:'V074',detail:JSON.stringify({caseIds:ids,dailyCount:days.length})});await done2
+    const safeAdded=added.filter(l=>!leaves.some(old=>old.id===l.id||old.employmentId===l.employmentId&&old.startDate<=(l.endDate??'9999-12-31')&&(old.endDate??'9999-12-31')>=l.startDate)&&!runs.some(r=>r.period>=l.startDate.slice(0,7)&&r.period<=(l.endDate??'9999-12-31').slice(0,7)&&['CONFIRMED','CLOSED','PAID'].includes(r.status)))
+    const tx=this.requireDb().transaction([STORES.attendanceDailyRecords,STORES.attendanceMonthlySummaries,STORES.company,STORES.leaveCases,STORES.auditLogs],'readwrite'),done=txDone(tx);safeAdded.forEach(r=>tx.objectStore(STORES.leaveCases).put(r));days.forEach(r=>tx.objectStore(STORES.attendanceDailyRecords).put(r));months.forEach(r=>tx.objectStore(STORES.attendanceMonthlySummaries).put(r));tx.objectStore(STORES.company).put({...company,demoScenarioVersion:3});tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:now,actor:'SYSTEM',action:'ADD_UNCONFIRMED_DEMO_SCENARIOS_V7',entityType:'ATTENDANCE',entityId:'DEMO',detail:JSON.stringify({daily:days.length,months:months.length,protected:'master / confirmed / closed / manual / imported'})});await done
   }
   async listAttendanceDailyRecords():Promise<AttendanceDailyRecord[]> { return this.getAll(STORES.attendanceDailyRecords) }
   async listLeaveCases():Promise<LeaveCase[]> { return this.getAll(STORES.leaveCases) }
@@ -889,7 +955,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     if(runs.some(r=>periods.has(r.period)&&['CONFIRMED','CLOSED','PAID'].includes(r.status))) throw new Error('확정·마감 급여월 근태는 수정할 수 없습니다. 정정 급여 절차가 필요합니다.')
     for(const d of daily)if(existing.some(r=>r.employmentId===d.employmentId&&r.period===d.workDate.slice(0,7)&&r.confirmedAt))throw new Error('확정된 월의 일별 근태는 수정할 수 없습니다.')
     const seen=new Set<string>()
-    const next=summaries.map(r=>{
+    const next:AttendanceMonthlySummary[]=summaries.map(r=>{
       const e=employeeMap.get(r.employmentId);if(!e)throw new Error('사번에 해당하는 직원을 찾을 수 없습니다.')
       if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(r.period))throw new Error('귀속월 형식을 확인하세요.')
       const key=`${r.employmentId}-${r.period}`;if(seen.has(key))throw new Error('직원·귀속월이 중복되었습니다.');seen.add(key)
@@ -900,12 +966,14 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       return {...r,confirmedAt:old?.confirmedAt,confirmedBy:old?.confirmedBy,id:old?.id??`ATT-${key}`,organizationNameSnapshot:old?.organizationNameSnapshot??e.organizationName,gradeSnapshot:old?.gradeSnapshot??e.grade,jobSnapshot:old?.jobSnapshot??e.job,manualEdited:true,revision:(old?.revision??0)+1,updatedAt:now,updatedBy:'HR_ADMIN',editReason:reason}
     })
     const dailySeen=new Set<string>()
+    const calendar=(await this.operations()).calendarEvents
     const nextDaily=daily.map(r=>{
       const e=employeeMap.get(r.employmentId)
       if(!e||!/^\d{4}-\d{2}-\d{2}$/.test(r.workDate)||new Date(r.workDate+'T00:00:00Z').toISOString().slice(0,10)!==r.workDate||r.workDate<e.hireDate||(e.terminationDate&&r.workDate>e.terminationDate))throw new Error('근무일과 재직기간을 확인하세요.')
       const key=`${r.employmentId}-${r.workDate}`;if(dailySeen.has(key))throw new Error('직원·근무일이 중복되었습니다.');dailySeen.add(key)
-      return {...r,...calculateAttendanceDay(r),id:`ATTD-${key}`,updatedAt:now,updatedBy:'HR_ADMIN',editReason:reason}
+      const policy=dayPolicy(r.workDate,calendar,e),effective={...r,holiday:r.holiday||policy.off};return {...effective,...calculateAttendanceDay(effective),manualEdited:true,source:'MANUAL',exceptionWork:policy.off&&r.workedHours>0,id:`ATTD-${key}`,updatedAt:now,updatedBy:'HR_ADMIN',editReason:reason}
     })
+    const existingDaily=await this.listAttendanceDailyRecords();const mergedDaily=new Map(existingDaily.map(r=>[r.employmentId+'|'+r.workDate,r]));nextDaily.forEach(r=>mergedDaily.set(r.employmentId+'|'+r.workDate,r));for(const r of nextDaily){const period=r.workDate.slice(0,7);if(next.some(n=>n.employmentId===r.employmentId&&n.period===period))continue;const e=employeeMap.get(r.employmentId)!;const old=existing.find(n=>n.employmentId===r.employmentId&&n.period===period)??{id:`ATT-${r.employmentId}-${period}`,employmentId:r.employmentId,period,organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,jobSnapshot:e.job,scheduledHours:0,workedHours:0,overtimeHours:0,nightHours:0,holidayHours:0,leaveDays:0,absenceHours:0,lateMinutes:0,earlyLeaveMinutes:0};next.push({...summaryFromDaily(old,[...mergedDaily.values()].filter(d=>d.employmentId===r.employmentId&&d.workDate.startsWith(period))),manualEdited:true,updatedBy:'HR_ADMIN',updatedAt:now,editReason:reason})}
     const tx=this.requireDb().transaction([STORES.attendanceMonthlySummaries,STORES.attendanceDailyRecords,STORES.payrollRuns,STORES.payrollResults,STORES.auditLogs],'readwrite');const done=txDone(tx)
     next.forEach(r=>tx.objectStore(STORES.attendanceMonthlySummaries).put(r));nextDaily.forEach(r=>tx.objectStore(STORES.attendanceDailyRecords).put(r))
     runs.filter(r=>periods.has(r.period)).forEach(r=>{tx.objectStore(STORES.payrollRuns).put({...r,status:'DRAFT',attendanceStale:true,validatedAt:null,calculatedAt:null});})
@@ -977,9 +1045,9 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   }
 
   async saveDailyWorkersBatch(workers:DailyWorker[]):Promise<void>{
-    const existing=await this.listDailyWorkers(),records=await this.listDailyWorkRecords(),orgs=await this.listOrganizations(),seen=new Set<string>()
+    const mappings=(await this.operations()).occupationCodeMappings,company=await this.getCompany();const existing=await this.listDailyWorkers(),records=await this.listDailyWorkRecords(),orgs=await this.listOrganizations(),seen=new Set<string>()
     const validDate=(d:string)=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d))&&new Date(d).toISOString().slice(0,10)===d
-    const next=workers.map(w=>{const old=existing.find(e=>e.id===w.id);if(!old||seen.has(w.id))throw new Error('중복·잘못된 일용직입니다.');seen.add(w.id);if(records.some(r=>r.dailyWorkerId===w.id&&r.confirmedAt))throw new Error('확정된 근무기록이 있는 일용직 정보는 수정할 수 없습니다.');if(!orgs.some(o=>o.id===w.organizationId)||!w.job.trim()||!['ACTIVE','ENDED'].includes(w.status))throw new Error('일용직 조직·직무·상태를 확인하세요.');if(!Number.isFinite(w.dailyRate)||w.dailyRate<0||!validDate(w.startDate)||(w.endDate&&(!validDate(w.endDate)||w.endDate<w.startDate)))throw new Error('일용직 일급·기간을 확인하세요.');if(records.some(r=>r.dailyWorkerId===w.id&&(r.workDate<w.startDate||(w.endDate&&r.workDate>w.endDate))))throw new Error('기존 근무기록을 포함하는 근무기간으로 입력하세요.');return {...w,personId:old.personId,workerNumber:old.workerNumber,workerNameSnapshot:old.workerNameSnapshot}})
+    const next=workers.map(w=>{const old=existing.find(e=>e.id===w.id);if(!old||seen.has(w.id))throw new Error('중복·잘못된 일용직입니다.');seen.add(w.id);if(records.some(r=>r.dailyWorkerId===w.id&&r.confirmedAt))throw new Error('확정된 근무기록이 있는 일용직 정보는 수정할 수 없습니다.');if(!orgs.some(o=>o.id===w.organizationId)||!w.job.trim()||!['ACTIVE','ENDED'].includes(w.status))throw new Error('일용직 조직·직무·상태를 확인하세요.');if(!Number.isFinite(w.dailyRate)||w.dailyRate<0||!validDate(w.startDate)||(w.endDate&&(!validDate(w.endDate)||w.endDate<w.startDate)))throw new Error('일용직 일급·기간을 확인하세요.');if(records.some(r=>r.dailyWorkerId===w.id&&(r.workDate<w.startDate||(w.endDate&&r.workDate>w.endDate))))throw new Error('기존 근무기록을 포함하는 근무기간으로 입력하세요.');return {...w,occupationCode:w.occupationCodeManual?w.occupationCode:occupationCode(mappings,w.startDate,w.organizationId,w.job,company.reportingInfo?.occupationCode??defaultCompanyInfo.occupationCode),personId:old.personId,workerNumber:old.workerNumber,workerNameSnapshot:old.workerNameSnapshot}})
     const tx=this.requireDb().transaction([STORES.dailyWorkers,STORES.auditLogs],'readwrite'),done=txDone(tx);next.forEach(w=>tx.objectStore(STORES.dailyWorkers).put(w));tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'EDIT_DAILY_WORKERS',entityType:'DAILY_WORKER',entityId:[...seen].join(','),detail:JSON.stringify({before:existing.filter(w=>seen.has(w.id)),after:next})});await done
   }
   async upsertDailyWorker(worker:DailyWorker):Promise<DailyWorker>{await this.saveDailyWorkersBatch([worker]);return worker}
@@ -992,7 +1060,8 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const workerNumber=input.workerNumber?.trim() || `D${String(existingNumbers.size+1).padStart(4,'0')}`
     if(existingNumbers.has(workerNumber)) throw new Error('이미 사용 중인 일용직 번호입니다.')
     const person:Person={id:personId,fullName:input.name.trim(),englishName:'',hanjaName:'',birthDate:input.birthDate||'1990-01-01',gender:'F',domesticForeignType:'DOMESTIC',nationality:'대한민국',reportingNationality:'대한민국',syntheticIdentifier:`SYN-DW-${crypto.randomUUID().slice(0,8)}`,profileImageUrl:null,mobile:input.mobile,phone:'',email:'',emergencyContactName:'',emergencyContactPhone:'',emergencyContactRelation:''}
-    const worker:DailyWorker={id,personId,workerNumber,workerNameSnapshot:person.fullName,organizationId:input.organizationId,job:input.job,status:input.status,startDate:input.startDate,endDate:input.endDate,dailyRate:input.dailyRate,bankName:input.bankName,accountNumberMasked:input.accountNumberMasked}
+    const company=await this.getCompany(),mappings=(await this.operations()).occupationCodeMappings
+    const worker:DailyWorker={occupationCode:occupationCode(mappings,input.startDate,input.organizationId,input.job,company.reportingInfo?.occupationCode??defaultCompanyInfo.occupationCode),occupationCodeManual:false,id,personId,workerNumber,workerNameSnapshot:person.fullName,organizationId:input.organizationId,job:input.job,status:input.status,startDate:input.startDate,endDate:input.endDate,dailyRate:input.dailyRate,bankName:input.bankName,accountNumberMasked:input.accountNumberMasked}
     const db=this.requireDb(); const tx=db.transaction([STORES.persons,STORES.dailyWorkers,STORES.auditLogs],'readwrite'); const done=txDone(tx)
     tx.objectStore(STORES.persons).put(person); tx.objectStore(STORES.dailyWorkers).put(worker)
     tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'CREATE_DAILY_WORKER',entityType:'DAILY_WORKER',entityId:id,detail:`일용직 ${workerNumber} ${person.fullName}을 등록했습니다.`} satisfies AuditLog)
@@ -1029,7 +1098,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   }
   async saveRetirementBatch(rows:RetirementSettlement[],reason:string):Promise<void>{
     if(!reason.trim())throw new Error('퇴직정산 수정 사유를 입력하세요.');const employees=await this.listEmployees(),existing=await this.listRetirementSettlements(),seen=new Set<string>()
-    const next=rows.map(r=>{const e=employees.find(e=>e.employmentId===r.employmentId);if(!e?.terminationDate||r.terminationDate!==e.terminationDate)throw new Error('직원 퇴사일을 확인하세요.');if(existing.some(x=>x.employmentId===r.employmentId&&x.status==='CONFIRMED'))throw new Error('확정된 퇴직정산은 수정할 수 없습니다.');if(seen.has(r.employmentId))throw new Error('중복 퇴직정산입니다.');seen.add(r.employmentId);if([r.serviceDays,r.averageDailyWage,r.ordinaryDailyWage,r.appliedDailyWage,r.retirementPay].some(v=>!Number.isFinite(v)||v<0)||!Number.isInteger(r.serviceDays))throw new Error('퇴직정산 숫자를 확인하세요.');if(!/^\d{4}-\d{2}-\d{2}$/.test(r.calculationDate)||!Number.isFinite(Date.parse(r.calculationDate))||new Date(r.calculationDate).toISOString().slice(0,10)!==r.calculationDate)throw new Error('계산일을 확인하세요.');return {...r,id:existing.find(x=>x.employmentId===r.employmentId)?.id??`RET-${r.employmentId}`,status:'DRAFT' as const,manualEdited:true,updatedAt:new Date().toISOString(),editReason:reason}})
+    const next=rows.map(r=>{const e=employees.find(e=>e.employmentId===r.employmentId);if(!e?.terminationDate||r.terminationDate!==e.terminationDate)throw new Error('직원 퇴사일을 확인하세요.');if(existing.some(x=>x.employmentId===r.employmentId&&x.status==='CONFIRMED'))throw new Error('확정된 퇴직정산은 수정할 수 없습니다.');if(seen.has(r.employmentId))throw new Error('중복 퇴직정산입니다.');seen.add(r.employmentId);if(r.planType&&!['DB','DC'].includes(r.planType))throw new Error('DB 또는 DC 제도를 선택하세요.');if([r.dcAnnualWages,r.dcAdditionalWages,r.dcPaidContribution,r.dcAccountBalance,r.dcExcludedMonths,r.dcExcludedWages,r.dcPriorAnnualContribution,r.weeklyContractHours].some(v=>v!=null&&(!Number.isFinite(v)||v<0))||(r.dcExcludedMonths??0)>12)throw new Error('DC 부담금 기초자료를 확인하세요.');if([r.serviceDays,r.averageDailyWage,r.ordinaryDailyWage,r.appliedDailyWage,r.retirementPay].some(v=>!Number.isFinite(v)||v<0)||!Number.isInteger(r.serviceDays))throw new Error('퇴직정산 숫자를 확인하세요.');if(!/^\d{4}-\d{2}-\d{2}$/.test(r.calculationDate)||!Number.isFinite(Date.parse(r.calculationDate))||new Date(r.calculationDate).toISOString().slice(0,10)!==r.calculationDate)throw new Error('계산일을 확인하세요.');return {...r,id:existing.find(x=>x.employmentId===r.employmentId)?.id??`RET-${r.employmentId}`,status:'DRAFT' as const,manualEdited:true,updatedAt:new Date().toISOString(),editReason:reason}})
     await this.saveManualLedger(STORES.retirementSettlements,next,existing.filter(r=>seen.has(r.employmentId)),reason)
   }
   async saveYearEndBatch(rows:YearEndTaxCase[],reason:string):Promise<void>{
@@ -1043,11 +1112,8 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     if(!employee.terminationDate) throw new Error('퇴직일이 등록된 직원만 퇴직정산할 수 있습니다.')
     if((await this.listRetirementSettlements()).some(r=>r.employmentId===employmentId&&r.status==='CONFIRMED'))throw new Error('확정된 퇴직정산은 재계산할 수 없습니다.')
     const terminationDate=employee.terminationDate
-    const serviceDays=Math.max(0,Math.round((new Date(`${terminationDate}T00:00:00Z`).getTime()-new Date(`${employee.hireDate}T00:00:00Z`).getTime())/86400000)+1)
-    const results=await this.getAll<PayrollResult>(STORES.payrollResults); const runs=await this.getAll<PayrollRun>(STORES.payrollRuns)
-    const runMap=new Map(runs.map(r=>[r.id,r])); const prior=results.filter(r=>r.employmentId===employmentId && (runMap.get(r.runId)?.period??'')<=terminationDate.slice(0,7)).sort((a,b)=>(runMap.get(b.runId)?.period??'').localeCompare(runMap.get(a.runId)?.period??'')).slice(0,3)
-    const retirement=calculateRetirementRule(serviceDays,prior.map(r=>r.grossPay),employee.annualSalary)
-    const row:RetirementSettlement={id:`RET-${employmentId}`,employmentId,calculationDate:today(),terminationDate,serviceDays,...retirement,status:'DRAFT',ruleVersion:'KR-RBA-2026-8',note:'검토용 추정값: 3개월 실제 달력일수·상여 3/12·연차수당·휴직 제외기간을 반영한 법정 최종 계산이 아닙니다. '+(prior.length?'최근 급여결과 월평균/30 가정':'급여결과가 부족하여 연봉 기준 추정값 사용')}
+    const [results,runs,entries,settlements]=await Promise.all([this.getAll<PayrollResult>(STORES.payrollResults),this.listPayrollRuns(),this.getAll<PayrollEntry>(STORES.payrollEntries),this.listRetirementSettlements()]);const basis=settlements.find(r=>r.employmentId===employmentId),retirement=retirementByPlan(employee.hireDate,terminationDate,runs,results.filter(r=>r.employmentId===employmentId),entries.filter(e=>e.employmentId===employmentId),basis)
+    const row:RetirementSettlement={...basis,id:basis?.id??`RET-${employmentId}`,employmentId,calculationDate:today(),terminationDate,...retirement,status:'DRAFT',ruleVersion:'KR-RBA-2026-DB-DC-1'}
     await this.put(STORES.retirementSettlements,row); return row
   }
 
@@ -1070,7 +1136,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   }
 
   async listAuditLogs():Promise<AuditLog[]>{return (await this.getAll<AuditLog>(STORES.auditLogs)).sort((a,b)=>b.occurredAt.localeCompare(a.occurredAt))}
-  async resetDemo():Promise<void>{await this.seed(createSeedBundle())}
+  async resetDemo():Promise<void>{await this.seed(createSeedBundle());await this.persistSelectionUpgrade();await this.initializeOperations();await upgradeLemonOperations(this.requireDb(),await this.listEmployees());await repairLemonOccupationMapping(this.requireDb(),await this.listEmployees());await seedWorkRules(this.requireDb());await seedStaffNotices(this.requireDb())}
   private async bundle(): Promise<SeedBundle> {
     const company=await this.getCompany()
     const [organizations,persons,addresses,dependents,visas,bankAccounts,employments,assignments,compensations,taxProfiles,socialInsuranceProfiles,militaryServiceProfiles,educations,careers,certifications,skills,resumes,workSchedules,attendanceSettings,managerRelationships,personnelEvents,auditLogs,payrollRuns,payrollEntries,payrollResults,attendanceMonthlySummaries,annualLeaveLedgers,dailyWorkers,dailyWorkRecords,retirementSettlements,yearEndTaxCases,payrollItemMasters]=await Promise.all([
@@ -1086,7 +1152,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       this.getAll<DailyWorker>(STORES.dailyWorkers),this.getAll<DailyWorkRecord>(STORES.dailyWorkRecords),this.getAll<RetirementSettlement>(STORES.retirementSettlements),
       this.getAll<YearEndTaxCase>(STORES.yearEndTaxCases),this.getAll<PayrollItemMaster>(STORES.payrollItemMasters),
     ])
-    return {attendanceDailyRecords:await this.listAttendanceDailyRecords(),leaveCases:await this.listLeaveCases(),payrollSettingsHistory:await this.getAll(STORES.payrollSettingsHistory),company,organizations,persons,addresses,dependents,visas,bankAccounts,employments,assignments,compensations,taxProfiles,socialInsuranceProfiles,militaryServiceProfiles,educations,careers,certifications,skills,resumes,workSchedules,attendanceSettings,managerRelationships,personnelEvents,auditLogs,payrollRuns,payrollEntries,payrollResults,attendanceMonthlySummaries,annualLeaveLedgers,dailyWorkers,dailyWorkRecords,retirementSettlements,yearEndTaxCases,payrollItemMasters}
+    return {...await this.operations(),attendanceDailyRecords:await this.listAttendanceDailyRecords(),leaveCases:await this.listLeaveCases(),payrollSettingsHistory:await this.getAll(STORES.payrollSettingsHistory),company,organizations,persons,addresses,dependents,visas,bankAccounts,employments,assignments,compensations,taxProfiles,socialInsuranceProfiles,militaryServiceProfiles,educations,careers,certifications,skills,resumes,workSchedules,attendanceSettings,managerRelationships,personnelEvents,auditLogs,payrollRuns,payrollEntries,payrollResults,attendanceMonthlySummaries,annualLeaveLedgers,dailyWorkers,dailyWorkRecords,retirementSettlements,yearEndTaxCases,payrollItemMasters}
   }
 
   async exportDatabase(): Promise<DatabaseExport> {
@@ -1123,7 +1189,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       }
       await this.seed(upgraded)
     } else {
-      if (![2,3,4,5,SCHEMA_VERSION].includes(raw.schemaVersion)) throw new Error(`지원하지 않는 스키마 버전입니다: ${raw.schemaVersion}`)
+      if (![2,3,4,5,6,SCHEMA_VERSION].includes(raw.schemaVersion)) throw new Error(`지원하지 않는 스키마 버전입니다: ${raw.schemaVersion}`)
       if (!payload.data?.company || !Array.isArray(payload.data.persons)) throw new Error('올바른 HR Simulator 백업 파일이 아닙니다.')
       if (raw.schemaVersion < SCHEMA_VERSION) {
         const legacy = payload.data as unknown as Partial<SeedBundle>
@@ -1142,6 +1208,8 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
         await this.seed(payload.data)
       }
     }
+    await this.put(STORES.meta,{id:'importedData',value:'1'})
+    await this.persistSelectionUpgrade();await this.initializeOperations()
     await this.put(STORES.auditLogs,{
       id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'IMPORT_DATABASE',
       entityType:'DATABASE',entityId:(await this.getCompany()).id,detail:`${raw.exportedAt} 백업을 가져왔습니다.`,

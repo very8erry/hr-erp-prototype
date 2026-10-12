@@ -1,9 +1,10 @@
+import type {OperationsData} from '../modules/operations/operations'
 export type EmploymentStatus = 'ACTIVE' | 'LEAVE' | 'TERMINATED' | 'PRE_HIRE'
 export type EmploymentType = 'REGULAR' | 'CONTRACT' | 'INTERN' | 'DAILY' | 'DISPATCH'
 export type Gender = 'F' | 'M'
 export type DomesticForeignType = 'DOMESTIC' | 'FOREIGN'
 export type ResidentType = 'RESIDENT' | 'NON_RESIDENT'
-export type PersonnelEventType = 'ORG_TRANSFER' | 'PROMOTION' | 'TITLE_CHANGE' | 'STATUS_CHANGE'
+export type PersonnelEventType = 'ORG_TRANSFER' | 'PROMOTION' | 'TITLE_CHANGE' | 'JOB_CHANGE' | 'LOCATION_CHANGE' | 'STATUS_CHANGE'
 export type PersonnelEventStatus = 'SCHEDULED' | 'APPLIED'
 export type SkillCategory = 'Language' | 'IT' | 'Soft Skill' | 'Programming' | 'HR' | 'Finance' | 'Other'
 export type MilitaryServiceStatus = 'COMPLETED' | 'SERVING' | 'EXEMPT' | 'NOT_APPLICABLE'
@@ -13,6 +14,7 @@ export type PayrollCalculationMethod = 'MASTER' | 'FORMULA' | 'OVERTIME' | 'MANU
 
 
 export interface Company {
+  withholdingDrafts?:Record<string,import('../modules/payroll/withholdingForm').WithholdingDraft>
   recruiting?: import("../modules/recruiting/recruiting").RecruitingState
   demoPayrollVersion?:number
   reportingInfo?: import("../modules/payroll/companyInfo").CompanyInfo
@@ -123,6 +125,9 @@ export interface Employment {
 }
 
 export interface Assignment {
+  occupationCode?:string
+  occupationCodeSource?:string
+  occupationCodeManual?:boolean
   id: string
   employmentId: string
   organizationId: string
@@ -233,6 +238,7 @@ export interface EmployeeSkill {
 }
 
 export interface ResumeDocument {
+  storedFile?:import('./attachments').StoredFile
   id: string
   employmentId: string
   fileName: string
@@ -345,6 +351,8 @@ export interface AnnualLeaveLedger {
 }
 
 export interface DailyWorker {
+  occupationCode?:string
+  occupationCodeManual?:boolean
   id: string
   personId: string
   workerNumber: string
@@ -377,6 +385,10 @@ export interface DailyWorkerInput {
 }
 
 export interface DailyWorkRecord {
+  occupationCodeSnapshot?:string
+  manualEdited?:boolean
+  source?:string
+  exceptionWork?:boolean
   confirmedAt?: string
   confirmedBy?: string
   overtimeAllowance?: number
@@ -402,6 +414,30 @@ export interface DailyWorkRecord {
 }
 
 export interface RetirementSettlement {
+  planType?:'DB'|'DC'
+  dcSourceAnnualWages?:number
+  dcAnnualWages?:number|null
+  dcAdditionalWages?:number
+  dcPaidContribution?:number|null
+  dcAccountBalance?:number|null
+  dcRequiredContribution?:number
+  dcUnpaidContribution?:number
+  dcExcludedMonths?:number
+  dcExcludedWages?:number
+  dcPriorAnnualContribution?:number|null
+  weeklyContractHours?:number
+  demoSource?:boolean
+
+  annualBonus?:number|null
+  annualLeaveAllowance?:number|null
+  excludedDays?:number
+  excludedWages?:number
+  interimSettlementDate?:string|null
+  calculationWindowStart?:string
+  calculationWindowEnd?:string
+  calendarDays?:number
+  sourcePayrollIds?:string[]
+  reviewRequired?:boolean
   manualEdited?: boolean
   editReason?: string
   updatedAt?: string
@@ -458,6 +494,8 @@ export interface PayrollItemMaster {
 }
 
 export interface EmployeeView {
+  occupationCode?:string
+  occupationCodeManual?:boolean
   employmentId: string
   personId: string
   employeeNumber: string
@@ -517,7 +555,7 @@ export interface PayrollDependentInfo {
   childDeductionCount: number
 }
 
-export interface SeedBundle {
+export interface SeedBundle extends Partial<OperationsData> {
   company: Company
   organizations: Organization[]
   persons: Person[]
@@ -663,6 +701,10 @@ export interface PayrollEntry {
 }
 
 export interface PayrollResult {
+  payrollRuleVersion?:string
+  insuranceRuleVersion?:string
+  taxTableVersion?:string
+  relevantRates?:Record<string,number|string>
   id: string
   runId: string
   employmentId: string
@@ -728,8 +770,12 @@ export interface PayrollRunSummary {
 
 export type AttendanceActivity='WORK'|'ANNUAL_LEAVE'|'OFF'|'SICK'|'ABSENT'|'MATERNITY'|'TRAINING'|'PRENATAL'|'FAMILY_CARE'|'PARENTAL'|'SPOUSE_BIRTH'|'FERTILITY'
 export interface AttendanceDailyRecord {
+  confirmedAt?:string
+  manualEdited?:boolean
+  source?:string
+  exceptionWork?:boolean
   payTreatment?: 'PAID'|'UNPAID'|'BENEFIT'
-  offKind?: 'PERSONAL'|'WEEKEND'|'STATUTORY'
+  offKind?: 'PERSONAL'|'WEEKEND'|'STATUTORY'|'COMPANY'
   note?:string
   paidCreditHours?:number
   attachments?:import("./attachments").StoredFile[]

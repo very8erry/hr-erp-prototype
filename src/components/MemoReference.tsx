@@ -1,0 +1,13 @@
+import { Button } from './ui/button'
+import {createContext,useContext,useState,type ReactNode} from 'react'
+import type {AttendanceMonthlySummary,AttendanceDailyRecord} from '../domain/types'
+import type {PayrollService} from '../modules/payroll/payrollService'
+import {attendanceIssue} from '../modules/attendance/attendanceFiles'
+const MemoContext=createContext<{attendance:AttendanceMonthlySummary[];service:PayrollService}|null>(null)
+export function MemoProvider({attendance,service,children}:{attendance:AttendanceMonthlySummary[];service:PayrollService;children:ReactNode}){return <MemoContext.Provider value={{attendance,service}}>{children}</MemoContext.Provider>}
+export function MemoReference({employmentId,period,payrollMemo='',state=false}:{employmentId:string;period:string;payrollMemo?:string;state?:boolean}){
+ const context=useContext(MemoContext),summary=context?.attendance.find(r=>r.employmentId===employmentId&&r.period===period),issue=summary?attendanceIssue(summary):'정상';const present=issue!=='정상'||!!payrollMemo.trim();
+ const [popup,setPopup]=useState<{x:number;y:number}|null>(null),[daily,setDaily]=useState<AttendanceDailyRecord[]>([]),[loading,setLoading]=useState(false),[error,setError]=useState('');
+ if(!present)return <>{state?'정상':'—'}</>;
+ return <><Button type="button" className="memoReference" onClick={e=>{e.stopPropagation();setPopup({x:Math.max(12,Math.min(e.clientX,window.innerWidth-440)),y:Math.max(12,Math.min(e.clientY,window.innerHeight-420))});setLoading(true);setError('');void context?.service.dailyAttendance().then(rows=>setDaily(rows.filter(r=>r.employmentId===employmentId&&r.workDate.startsWith(period)&&(r.note||r.attachments?.length)))).catch(e=>setError(e.message)).finally(()=>setLoading(false))}}>기타메모참조</Button>{popup&&<div className="memoScrim" onClick={e=>{e.stopPropagation();setPopup(null)}}><div role="dialog" aria-label="기타메모 원본" className="memoContext" style={{left:popup.x,top:popup.y}} onClick={e=>e.stopPropagation()} onKeyDown={e=>{if(e.key==='Escape')setPopup(null)}} tabIndex={0}><div className="memoHead"><strong>{period} · 기타메모 원본</strong><Button type="button" onClick={()=>setPopup(null)}>닫기</Button></div>{issue!=='정상'&&<p><strong>상태·이슈</strong><br/>{issue}</p>}{payrollMemo&&<p><strong>급여 메모</strong><br/>{payrollMemo}</p>}{loading?<p>원본 불러오는 중</p>:daily.map(r=><div className="memoDay" key={r.id}><strong>{r.workDate} · {r.payTreatment==='UNPAID'?'무급':r.payTreatment==='BENEFIT'?'고용보험 급여':'유급'}</strong><p>{r.note||'첨부 증빙'}</p>{r.attachments?.map(a=><a key={a.id} href={a.dataUrl} download={a.name}>{a.name}</a>)}</div>)}{error&&<p role="alert">{error}</p>}</div></div>}</>
+}

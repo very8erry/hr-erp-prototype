@@ -1,3 +1,12 @@
+import { Textarea } from '../../components/ui/textarea'
+import { Input } from '../../components/ui/input'
+import { NativeSelect } from '../../components/ui/native-select'
+import { Modal } from '../../components/ui/modal'
+import { Card } from '../../components/ui/card'
+import { Button } from '../../components/ui/button'
+import {storeFile} from '../../domain/attachments'
+import {MasterEditor} from './MasterEditor'
+import {NameEditor} from './EmployeeRegistration'
 import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from 'react'
 import type {
   Dependent,
@@ -30,6 +39,7 @@ export function EmployeeDetail({ service, employee, employees, organizations, on
   const [dependentEdit,setDependentEdit]=useState<Dependent|'NEW'|null>(null)
   const [showManager,setShowManager]=useState(false)
   const [showMilitary,setShowMilitary]=useState(false)
+  const [showNames,setShowNames]=useState(false),[masterEdit,setMasterEdit]=useState(false),[action,setAction]=useState(false),[actionType,setActionType]=useState<import('../../domain/types').PersonnelEventType>('ORG_TRANSFER'),[actionValue,setActionValue]=useState(''),[actionDate,setActionDate]=useState(todayLocal()),[actionReason,setActionReason]=useState('')
   const [error,setError]=useState('')
 
   const reload=async()=>{
@@ -42,7 +52,7 @@ export function EmployeeDetail({ service, employee, employees, organizations, on
 
   useEffect(()=>{ void reload().catch(err=>setError(err instanceof Error?err.message:'직원 상세 조회 실패')) },[employee.employmentId])
 
-  if (!detail) return <section><button className="back" onClick={onBack}>← 직원 목록</button><div className="panel">{error || 'Employee Master를 불러오는 중입니다…'}</div></section>
+  if (!detail) return <section><Button className="back" onClick={onBack}>← 직원 목록</Button><Card className="panel">{error || 'Employee Master를 불러오는 중입니다…'}</Card></section>
 
   const currentVisa=detail.visas.find(v=>v.effectiveEndDate===null)
   const currentBank=detail.bankAccounts.find(v=>v.effectiveEndDate===null && v.isPayrollAccount)
@@ -52,16 +62,20 @@ export function EmployeeDetail({ service, employee, employees, organizations, on
   const saved=async(message:string)=>{ await onChanged(message); await reload() }
 
   return <section>
-    <button className="back" onClick={onBack}>← 직원 목록</button>
+    <Button className="back" onClick={onBack}>← 직원 목록</Button>
     <div className="employeeHero">
       <div><div className="avatar">{employee.name.slice(-2)}</div><div><h2>{employee.name} <small>{employee.employeeNumber}</small></h2><p>{employee.organizationName} · {employee.grade} · {employee.title} · {employee.job}</p><div className="heroTags"><span>{statusLabel[employee.status]}</span><span>{employee.domesticForeignType==='FOREIGN'?'외국인':'내국인'}</span>{currentVisa&&<VisaBadge expiryDate={currentVisa.expiryDate}/>}</div></div></div>
     </div>
 
+    <Button onClick={()=>setMasterEdit(true)}>직원 정보 수정</Button><Button onClick={()=>setAction(true)}>인사발령 등록</Button>
+    <Button className="back" onClick={()=>setShowNames(true)}>이름 검토 · 수정</Button>
+    {showNames&&<NameEditor person={detail.person} onClose={()=>setShowNames(false)} onSave={async(n,r)=>{await service.savePersonNames(detail.person.id,n,r);setShowNames(false);await saved('직원 이름을 저장했습니다.')}}/>}
+    <label>이력서 원본 업로드<input type="file" accept=".pdf,.doc,.docx,.hwp,.hwpx,.txt" onChange={e=>{const file=e.target.files?.[0];e.currentTarget.value='';if(file)void storeFile(file).then(f=>service.saveResume(employee.employmentId,f)).then(()=>saved('이력서 원본을 저장했습니다.')).catch(e=>setError(String(e)))}}/></label>{error&&<p role="alert">{error}</p>}
     <div className="detailTabs" role="tablist">
       {([
         ['summary','요약'],['personal','개인정보'],['employment','고용정보'],['payroll','급여/세무'],
         ['capability','이력/역량'],['attendance','근태설정'],['history','인사이력'],['documents','첨부문서'],
-      ] as Array<[DetailTab,string]>).map(([key,label])=><button key={key} className={tab===key?'active':''} onClick={()=>setTab(key)}>{label}</button>)}
+      ] as Array<[DetailTab,string]>).map(([key,label])=><Button key={key} className={tab===key?'active':''} onClick={()=>setTab(key)}>{label}</Button>)}
     </div>
 
     {tab==='summary' && <SummaryTab detail={detail} payrollDependent={payrollDependent} currentVisa={currentVisa} currentBank={currentBank} managerName={managerName}/>} 
@@ -73,6 +87,8 @@ export function EmployeeDetail({ service, employee, employees, organizations, on
     {tab==='history' && <HistoryTab detail={detail} organizations={organizations}/>} 
     {tab==='documents' && <DocumentsTab detail={detail}/>} 
 
+    {masterEdit&&<MasterEditor detail={detail} service={service} onClose={()=>setMasterEdit(false)} onSaved={async()=>{setMasterEdit(false);await saved('직원 원천정보를 저장했습니다.')}}/>}
+    {action&&<Modal onClose={()=>setAction(false)} className="modalBackdrop"><form className="modal" role="dialog" aria-label="인사발령 등록" onSubmit={e=>{e.preventDefault();void service.createPersonnelAction({employmentId:employee.employmentId,eventType:actionType,value:actionValue,effectiveDate:actionDate,reason:actionReason}).then(async()=>{setAction(false);await saved('인사발령을 저장했습니다.')}).catch(e=>setError(String(e)))}}><h3>인사발령 등록</h3><label>발령 유형<NativeSelect value={actionType} onChange={e=>{setActionType(e.target.value as typeof actionType);setActionValue('')}}>{Object.entries(eventLabel).map(([k,v])=><option key={k} value={k}>{v}</option>)}</NativeSelect></label><label>변경값{actionType==='ORG_TRANSFER'?<NativeSelect required value={actionValue} onChange={e=>setActionValue(e.target.value)}><option value="">조직 선택</option>{organizations.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</NativeSelect>:actionType==='STATUS_CHANGE'?<NativeSelect required value={actionValue} onChange={e=>setActionValue(e.target.value)}><option value="">상태 선택</option>{Object.entries(statusLabel).map(([k,v])=><option key={k} value={k}>{v}</option>)}</NativeSelect>:<Input required value={actionValue} onChange={e=>setActionValue(e.target.value)}/>}</label><label>효력일<Input required type="date" min={employee.hireDate} value={actionDate} onChange={e=>setActionDate(e.target.value)}/></label><label>사유<Input required value={actionReason} onChange={e=>setActionReason(e.target.value)}/></label>{error&&<p role="alert">{error}</p>}<Button>발령 저장</Button><Button type="button" onClick={()=>setAction(false)}>닫기</Button></form></Modal>}
     {dependentEdit && <DependentModal service={service} employmentId={employee.employmentId} initial={dependentEdit==='NEW'?null:dependentEdit} onClose={()=>setDependentEdit(null)} onSaved={async()=>{setDependentEdit(null);await saved('가족/부양가족 정보를 저장했습니다.')}}/>}
     {showMilitary && <MilitaryServiceModal service={service} employmentId={employee.employmentId} initial={detail.militaryServiceProfile} onClose={()=>setShowMilitary(false)} onSaved={async()=>{setShowMilitary(false);await saved('병역정보를 저장했습니다.')}}/>}
     {showManager && <ManagerModal service={service} employmentId={employee.employmentId} employees={employees} initial={relation} onClose={()=>setShowManager(false)} onSaved={async()=>{setShowManager(false);await saved('Manager/Approver 관계를 저장했습니다.')}}/>}
@@ -87,7 +103,7 @@ function SummaryTab({detail,payrollDependent,currentVisa,currentBank,managerName
       <Section title="개인정보 요약"><Info label="생년월일" value={person.birthDate}/><Info label="국적" value={person.nationality}/><Info label="휴대전화" value={person.mobile}/><Info label="주소" value={address?`${address.addressLine1} ${address.addressLine2}`:'-'}/><Info label="가상 식별값" value={person.syntheticIdentifier}/></Section>
       <Section title="Downstream 기준정보"><Info label="현재 연봉" value={`${money(employee.annualSalary)}원`}/><Info label="급여계좌" value={currentBank?`${currentBank.bankName} ${currentBank.accountNumberMasked}`:'-'}/><Info label="기본공제 대상 가족" value={`${payrollDependent?.basicDeductionCount??0}명`}/><Info label="현재 비자" value={currentVisa?`${currentVisa.visaType} / ${currentVisa.expiryDate}`:'해당 없음'}/><Info label="직속 관리자" value={managerName(managerRelationship?.directManagerId)}/></Section>
     </div>
-    <div className="panel sourceOfTruth"><h3>Employee Master = Single Source of Truth</h3><p>이 화면의 원천정보를 Payroll, 연말정산, 퇴직정산, 근태, Compliance가 참조합니다. 업무 계산 결과 자체는 Employee Master에 저장하지 않습니다.</p><div className="sourceFlow"><span>Dependent</span><b>→</b><span>Payroll / Year-end Tax</span><span>Employment</span><b>→</b><span>Leave / Retirement</span><span>Compensation</span><b>→</b><span>Payroll / Retirement</span></div></div>
+    <Card className="panel sourceOfTruth"><h3>Employee Master = Single Source of Truth</h3><p>이 화면의 원천정보를 Payroll, 연말정산, 퇴직정산, 근태, Compliance가 참조합니다. 업무 계산 결과 자체는 Employee Master에 저장하지 않습니다.</p><div className="sourceFlow"><span>Dependent</span><b>→</b><span>Payroll / Year-end Tax</span><span>Employment</span><b>→</b><span>Leave / Retirement</span><span>Compensation</span><b>→</b><span>Payroll / Retirement</span></div></Card>
   </>
 }
 
@@ -98,11 +114,11 @@ function PersonalTab({detail,currentVisa,currentBank,onAddDependent,onEditDepend
       <Section title="기본정보"><Info label="성명" value={person.fullName}/><Info label="영문명" value={person.englishName||'-'}/><Info label="한자명" value={person.hanjaName||'-'}/><Info label="생년월일" value={person.birthDate}/><Info label="성별" value={person.gender==='F'?'여성':'남성'}/><Info label="구분" value={person.domesticForeignType==='FOREIGN'?'외국인':'내국인'}/><Info label="가상 식별번호" value={person.syntheticIdentifier}/></Section>
       <Section title="연락처 / 주소"><Info label="휴대전화" value={person.mobile}/><Info label="전화번호" value={person.phone}/><Info label="이메일" value={person.email}/><Info label="우편번호" value={address?.postalCode??'-'}/><Info label="주소" value={address?`${address.addressLine1} ${address.addressLine2}`:'-'}/><Info label="비상연락처" value={`${person.emergencyContactName} / ${person.emergencyContactPhone}`}/><Info label="관계" value={person.emergencyContactRelation}/></Section>
       <Section title="국적 / 거주자 기준"><Info label="국적" value={person.nationality}/><Info label="신고용 국적" value={person.reportingNationality}/><Info label="거주자 구분" value={detail.taxProfile?.residentType==='NON_RESIDENT'?'비거주자':'거주자'}/><Info label="거주지국" value={detail.taxProfile?.residenceCountry??'-'}/><Info label="거주지국 코드" value={detail.taxProfile?.residenceCountryCode??'-'}/></Section>
-      <Section title="병역정보" action={<button className="smallButton" onClick={onEditMilitary}>병역 수정</button>}><Info label="병역상태" value={detail.militaryServiceProfile?militaryStatusLabel(detail.militaryServiceProfile.status):'-'}/><Info label="복무형태" value={detail.militaryServiceProfile?.serviceType||'-'}/><Info label="군별 / 계급" value={detail.militaryServiceProfile?.branch?`${detail.militaryServiceProfile.branch} / ${detail.militaryServiceProfile.rank}`:'-'}/><Info label="복무기간" value={detail.militaryServiceProfile?.serviceStartDate?`${detail.militaryServiceProfile.serviceStartDate} ~ ${detail.militaryServiceProfile.serviceEndDate??'-'}`:'-'}/><Info label="예비군/병역 공가 기준" value={detail.militaryServiceProfile?.militaryDutyLeaveEligible?'대상':'해당 없음'}/><Info label="비고" value={detail.militaryServiceProfile?.note||'-'}/></Section>
+      <Section title="병역정보" action={<Button className="smallButton" onClick={onEditMilitary}>병역 수정</Button>}><Info label="병역상태" value={detail.militaryServiceProfile?militaryStatusLabel(detail.militaryServiceProfile.status):'-'}/><Info label="복무형태" value={detail.militaryServiceProfile?.serviceType||'-'}/><Info label="군별 / 계급" value={detail.militaryServiceProfile?.branch?`${detail.militaryServiceProfile.branch} / ${detail.militaryServiceProfile.rank}`:'-'}/><Info label="복무기간" value={detail.militaryServiceProfile?.serviceStartDate?`${detail.militaryServiceProfile.serviceStartDate} ~ ${detail.militaryServiceProfile.serviceEndDate??'-'}`:'-'}/><Info label="예비군/병역 공가 기준" value={detail.militaryServiceProfile?.militaryDutyLeaveEligible?'대상':'해당 없음'}/><Info label="비고" value={detail.militaryServiceProfile?.note||'-'}/></Section>
     </div>
 
-    <Section title="가족 / 부양가족" action={<button className="smallButton" onClick={onAddDependent}>+ 가족 추가</button>}>
-      {detail.dependents.length===0?<p className="empty">등록된 가족정보가 없습니다.</p>:<div className="miniTable"><div className="miniHead"><span>관계</span><span>성명</span><span>생년월일</span><span>기본공제</span><span>자녀공제</span><span></span></div>{detail.dependents.map(d=><div key={d.id}><span>{d.relation}</span><span>{d.name}</span><span>{d.birthDate}</span><span>{yesNo(d.basicDeductionEligible)}</span><span>{yesNo(d.childDeductionEligible)}</span><span><button className="linkButton" onClick={()=>onEditDependent(d)}>수정</button></span></div>)}</div>}
+    <Section title="가족 / 부양가족" action={<Button className="smallButton" onClick={onAddDependent}>+ 가족 추가</Button>}>
+      {detail.dependents.length===0?<p className="empty">등록된 가족정보가 없습니다.</p>:<div className="miniTable"><div className="miniHead"><span>관계</span><span>성명</span><span>생년월일</span><span>기본공제</span><span>자녀공제</span><span></span></div>{detail.dependents.map(d=><div key={d.id}><span>{d.relation}</span><span>{d.name}</span><span>{d.birthDate}</span><span>{yesNo(d.basicDeductionEligible)}</span><span>{yesNo(d.childDeductionEligible)}</span><span><Button className="linkButton" onClick={()=>onEditDependent(d)}>수정</Button></span></div>)}</div>}
     </Section>
 
     <div className="grid2">
@@ -116,11 +132,10 @@ function PersonalTab({detail,currentVisa,currentBank,onAddDependent,onEditDepend
 }
 
 function EmploymentTab({detail,managerName,onEditManagers}:{detail:EmployeeMasterDetail;managerName:(id:string|null|undefined)=>string;onEditManagers:()=>void}) {
-  const e=detail.employee; const r=detail.managerRelationship
-  return <div className="detailGrid">
+  const e=detail.employee;const r=detail.managerRelationship;return <div className="detailGrid">
     <Section title="Employment"><Info label="사번" value={e.employeeNumber}/><Info label="재직상태" value={statusLabel[e.status]}/><Info label="고용형태" value={employmentTypeLabel[e.employmentType]}/><Info label="입사일" value={e.hireDate}/><Info label="퇴직일" value={shortDate(e.terminationDate)}/></Section>
     <Section title="Assignment"><Info label="조직" value={e.organizationName}/><Info label="직급" value={e.grade}/><Info label="직책" value={e.title}/><Info label="직무" value={e.job}/><Info label="근무지" value={e.workLocation}/><Info label="근무제" value={detail.workSchedule?.name??'-'}/></Section>
-    <Section title="Manager / Approver" action={<button className="smallButton" onClick={onEditManagers}>관계 수정</button>}><Info label="직속 관리자" value={managerName(r?.directManagerId)}/><Info label="HR 담당자" value={managerName(r?.hrManagerId)}/><Info label="휴가 승인자" value={managerName(r?.leaveApproverId)}/><Info label="근태 승인자" value={managerName(r?.attendanceApproverId)}/><Info label="평가자" value={managerName(r?.performanceReviewerId)}/></Section>
+    <Section title="승인자/관리자 라인" action={<Button className="smallButton" onClick={onEditManagers}>관계 수정</Button>}><Info label="직속 관리자" value={managerName(r?.directManagerId)}/><Info label="HR 담당자" value={managerName(r?.hrManagerId)}/><Info label="업무 승인자" value={managerName(r?.leaveApproverId)}/><Info label="평가자" value={managerName(r?.performanceReviewerId)}/></Section>
   </div>
 }
 
@@ -150,12 +165,11 @@ function CapabilityTab({detail}:{detail:EmployeeMasterDetail}) {
   </div>
 }
 
-function AttendanceTab({detail,managerName,onEditManagers}:{detail:EmployeeMasterDetail;managerName:(id:string|null|undefined)=>string;onEditManagers:()=>void}) {
-  const a=detail.attendanceSetting; const w=detail.workSchedule; const r=detail.managerRelationship
-  return <div className="detailGrid">
+function AttendanceTab({detail}:{detail:EmployeeMasterDetail;managerName:(id:string|null|undefined)=>string;onEditManagers:()=>void}) {
+  const a=detail.attendanceSetting; const w=detail.workSchedule;   return <div className="detailGrid">
     <Section title="Work Schedule"><Info label="근무제" value={w?.name??'-'}/><Info label="근무시간" value={w?`${w.startTime} ~ ${w.endTime}`:'-'}/><Info label="휴게" value={w?`${w.breakMinutes}분`:'-'}/><Info label="Timezone" value={a?.timezone??'Asia/Seoul'}/></Section>
     <Section title="근태 식별정보"><Info label="PIN" value={a?.attendancePin??'-'}/><Info label="Badge ID" value={a?.badgeId??'-'}/><Info label="RFID" value={a?.rfidId??'-'}/><p className="sectionNote">모든 값은 출퇴근 연동 실습을 위한 Dummy Value입니다.</p></Section>
-    <Section title="승인자" action={<button className="smallButton" onClick={onEditManagers}>승인자 수정</button>}><Info label="휴가 승인자" value={managerName(r?.leaveApproverId)}/><Info label="근태 승인자" value={managerName(r?.attendanceApproverId)}/><Info label="평가자" value={managerName(r?.performanceReviewerId)}/></Section>
+
   </div>
 }
 
@@ -187,11 +201,11 @@ function VisaBadge({expiryDate}:{expiryDate:string}) {
   return <span className={className}>{label}</span>
 }
 
-function Section({title,action,children}:{title:string;action?:ReactNode;children:ReactNode}) { return <div className="panel sectionPanel"><div className="sectionHead"><h3>{title}</h3>{action}</div>{children}</div> }
+function Section({title,action,children}:{title:string;action?:ReactNode;children:ReactNode}) { return <Card className="panel sectionPanel"><div className="sectionHead"><h3>{title}</h3>{action}</div>{children}</Card> }
 function Info({label,value}:{label:string;value:string}) { return <div className="info"><span>{label}</span><strong>{value}</strong></div> }
 function RecordCard({title,lines}:{title:string;lines:string[]}) { return <div className="recordCard"><strong>{title}</strong>{lines.map((v,i)=><span key={`${v}-${i}`}>{v}</span>)}</div> }
 function HistoryRows({rows}:{rows:string[][]}) { return rows.length?<div className="historyRows">{rows.map((r,i)=><div key={`${r.join('-')}-${i}`}><span>{r[0]}</span><span>{r[1]}</span><strong>{r[2]}</strong></div>)}</div>:<p className="empty">이력이 없습니다.</p> }
-function ResumeList({rows}:{rows:EmployeeMasterDetail['resumes']}) { return rows.length?<div className="resumeList">{rows.map(r=><div key={r.id}><div><strong>{r.fileName}</strong><span>v{r.version} · {new Date(r.uploadedAt).toLocaleDateString('ko-KR')} · {r.uploadedBy}</span></div><em className={r.status==='CURRENT'?'badge':'badge muted'}>{r.status}</em></div>)}</div>:<p className="empty">Resume 메타데이터가 없습니다.</p> }
+function ResumeList({rows}:{rows:EmployeeMasterDetail['resumes']}) { return rows.length?<div className="resumeList">{rows.map(r=><div key={r.id}><div><strong>{r.fileName}</strong><span>v{r.version} · {new Date(r.uploadedAt).toLocaleDateString('ko-KR')} · {r.uploadedBy}</span></div><span>{r.storedFile?<a href={r.storedFile.dataUrl} download={r.storedFile.name}>원본 다운로드</a>:"저장된 원본 파일 없음"}</span><em className={r.status==='CURRENT'?'badge':'badge muted'}>{r.status}</em></div>)}</div>:<p className="empty">Resume 메타데이터가 없습니다.</p> }
 
 function DependentModal({service,employmentId,initial,onClose,onSaved}:{service:HrService;employmentId:string;initial:Dependent|null;onClose:()=>void;onSaved:()=>Promise<void>}) {
   const [relation,setRelation]=useState<Dependent['relation']>(initial?.relation??'자녀')
@@ -209,14 +223,14 @@ function DependentModal({service,employmentId,initial,onClose,onSaved}:{service:
     await service.saveDependent(input)
     await onSaved()
   }
-  return <div className="modalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><form className="modal wideModal" onSubmit={e=>{e.preventDefault();setError('');void submit().catch(err=>setError(err instanceof Error?err.message:'저장 실패'))}}><ModalHead title={initial?'가족정보 수정':'가족정보 추가'} onClose={onClose}/><div className="formGrid"><label>관계<select value={relation} onChange={e=>setRelation(e.target.value as Dependent['relation'])}>{['배우자','자녀','부','모','형제자매','기타'].map(v=><option key={v}>{v}</option>)}</select></label><label>성명<input value={name} onChange={e=>setName(e.target.value)} required/></label><label>생년월일<input type="date" value={birthDate} onChange={e=>setBirthDate(e.target.value)} required/></label><label>적용 시작일<input type="date" value={effectiveStartDate} onChange={e=>setStart(e.target.value)} required/></label><label>적용 종료일<input type="date" value={effectiveEndDate} onChange={e=>setEnd(e.target.value)}/></label></div><div className="checks"><label><input type="checkbox" checked={cohabitation} onChange={e=>setCohabitation(e.target.checked)}/> 동거</label><label><input type="checkbox" checked={disabilityStatus} onChange={e=>setDisabilityStatus(e.target.checked)}/> 장애 여부</label><label><input type="checkbox" checked={basicDeductionEligible} onChange={e=>setBasic(e.target.checked)}/> 기본공제 대상</label><label><input type="checkbox" disabled={relation!=='자녀'} checked={relation==='자녀'&&childDeductionEligible} onChange={e=>setChild(e.target.checked)}/> 자녀공제 대상</label></div><p className="hint">공제 여부는 Employee Master의 원천 기준값입니다. 실제 연말정산 계산은 별도 Module에서 수행합니다.</p>{error&&<p className="formError">{error}</p>}<ModalActions onClose={onClose}/></form></div>
+  return <Modal className="modalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><form className="modal wideModal" onSubmit={e=>{e.preventDefault();setError('');void submit().catch(err=>setError(err instanceof Error?err.message:'저장 실패'))}}><ModalHead title={initial?'가족정보 수정':'가족정보 추가'} onClose={onClose}/><div className="formGrid"><label>관계<NativeSelect value={relation} onChange={e=>setRelation(e.target.value as Dependent['relation'])}>{['배우자','자녀','부','모','형제자매','기타'].map(v=><option key={v}>{v}</option>)}</NativeSelect></label><label>성명<Input value={name} onChange={e=>setName(e.target.value)} required/></label><label>생년월일<Input type="date" value={birthDate} onChange={e=>setBirthDate(e.target.value)} required/></label><label>적용 시작일<Input type="date" value={effectiveStartDate} onChange={e=>setStart(e.target.value)} required/></label><label>적용 종료일<Input type="date" value={effectiveEndDate} onChange={e=>setEnd(e.target.value)}/></label></div><div className="checks"><label><input type="checkbox" checked={cohabitation} onChange={e=>setCohabitation(e.target.checked)}/> 동거</label><label><input type="checkbox" checked={disabilityStatus} onChange={e=>setDisabilityStatus(e.target.checked)}/> 장애 여부</label><label><input type="checkbox" checked={basicDeductionEligible} onChange={e=>setBasic(e.target.checked)}/> 기본공제 대상</label><label><input type="checkbox" disabled={relation!=='자녀'} checked={relation==='자녀'&&childDeductionEligible} onChange={e=>setChild(e.target.checked)}/> 자녀공제 대상</label></div><p className="hint">공제 여부는 Employee Master의 원천 기준값입니다. 실제 연말정산 계산은 별도 Module에서 수행합니다.</p>{error&&<p className="formError">{error}</p>}<ModalActions onClose={onClose}/></form></Modal>
 }
 
 function MilitaryServiceModal({service,employmentId,initial,onClose,onSaved}:{service:HrService;employmentId:string;initial:MilitaryServiceProfile|null;onClose:()=>void;onSaved:()=>Promise<void>}) {
   const [form,setForm]=useState<MilitaryServiceProfile>(initial ?? {id:`MIL-${employmentId}`,employmentId,status:'NOT_APPLICABLE',serviceType:'',branch:'',rank:'',serviceStartDate:null,serviceEndDate:null,dischargeType:'',exemptionReason:'',reserveForcesEligible:false,reserveForcesEndDate:null,militaryDutyLeaveEligible:false,note:''})
   const [error,setError]=useState('')
   const text=(key:keyof MilitaryServiceProfile)=>(e:ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>setForm(v=>({...v,[key]:e.target.value||null}))
-  return <div className="modalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><form className="modal wideModal" onSubmit={e=>{e.preventDefault();setError('');void service.saveMilitaryServiceProfile(form).then(onSaved).catch(err=>setError(err instanceof Error?err.message:'저장 실패'))}}><ModalHead title="병역정보 수정" subtitle="향후 예비군·민방위·병역 관련 공가/휴가 Rule에서 참조하는 원천정보입니다." onClose={onClose}/><div className="formGrid"><label>병역상태<select value={form.status} onChange={e=>setForm({...form,status:e.target.value as MilitaryServiceProfile['status']})}><option value="COMPLETED">군필</option><option value="SERVING">복무중</option><option value="EXEMPT">면제</option><option value="NOT_APPLICABLE">해당없음</option></select></label><label>복무형태<input value={form.serviceType} onChange={text('serviceType')}/></label><label>군별<input value={form.branch} onChange={text('branch')}/></label><label>계급<input value={form.rank} onChange={text('rank')}/></label><label>복무 시작일<input type="date" value={form.serviceStartDate??''} onChange={e=>setForm({...form,serviceStartDate:e.target.value||null})}/></label><label>복무 종료일<input type="date" value={form.serviceEndDate??''} onChange={e=>setForm({...form,serviceEndDate:e.target.value||null})}/></label><label>전역구분<input value={form.dischargeType} onChange={text('dischargeType')}/></label><label>면제사유<input value={form.exemptionReason} onChange={text('exemptionReason')}/></label><label>예비군 종료일<input type="date" value={form.reserveForcesEndDate??''} onChange={e=>setForm({...form,reserveForcesEndDate:e.target.value||null})}/></label></div><div className="checks"><label><input type="checkbox" checked={form.reserveForcesEligible} onChange={e=>setForm({...form,reserveForcesEligible:e.target.checked})}/> 예비군 대상</label><label><input type="checkbox" checked={form.militaryDutyLeaveEligible} onChange={e=>setForm({...form,militaryDutyLeaveEligible:e.target.checked})}/> 병역 관련 공가/휴가 기준 대상</label></div><label>비고<textarea value={form.note} onChange={e=>setForm({...form,note:e.target.value})}/></label>{error&&<p className="formError">{error}</p>}<ModalActions onClose={onClose}/></form></div>
+  return <Modal className="modalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><form className="modal wideModal" onSubmit={e=>{e.preventDefault();setError('');void service.saveMilitaryServiceProfile(form).then(onSaved).catch(err=>setError(err instanceof Error?err.message:'저장 실패'))}}><ModalHead title="병역정보 수정" subtitle="향후 예비군·민방위·병역 관련 공가/휴가 Rule에서 참조하는 원천정보입니다." onClose={onClose}/><div className="formGrid"><label>병역상태<NativeSelect value={form.status} onChange={e=>setForm({...form,status:e.target.value as MilitaryServiceProfile['status']})}><option value="COMPLETED">군필</option><option value="SERVING">복무중</option><option value="EXEMPT">면제</option><option value="NOT_APPLICABLE">해당없음</option></NativeSelect></label><label>복무형태<Input value={form.serviceType} onChange={text('serviceType')}/></label><label>군별<Input value={form.branch} onChange={text('branch')}/></label><label>계급<Input value={form.rank} onChange={text('rank')}/></label><label>복무 시작일<Input type="date" value={form.serviceStartDate??''} onChange={e=>setForm({...form,serviceStartDate:e.target.value||null})}/></label><label>복무 종료일<Input type="date" value={form.serviceEndDate??''} onChange={e=>setForm({...form,serviceEndDate:e.target.value||null})}/></label><label>전역구분<Input value={form.dischargeType} onChange={text('dischargeType')}/></label><label>면제사유<Input value={form.exemptionReason} onChange={text('exemptionReason')}/></label><label>예비군 종료일<Input type="date" value={form.reserveForcesEndDate??''} onChange={e=>setForm({...form,reserveForcesEndDate:e.target.value||null})}/></label></div><div className="checks"><label><input type="checkbox" checked={form.reserveForcesEligible} onChange={e=>setForm({...form,reserveForcesEligible:e.target.checked})}/> 예비군 대상</label><label><input type="checkbox" checked={form.militaryDutyLeaveEligible} onChange={e=>setForm({...form,militaryDutyLeaveEligible:e.target.checked})}/> 병역 관련 공가/휴가 기준 대상</label></div><label>비고<Textarea value={form.note} onChange={e=>setForm({...form,note:e.target.value})}/></label>{error&&<p className="formError">{error}</p>}<ModalActions onClose={onClose}/></form></Modal>
 }
 
 function ManagerModal({service,employmentId,employees,initial,onClose,onSaved}:{service:HrService;employmentId:string;employees:EmployeeView[];initial:EmployeeMasterDetail['managerRelationship'];onClose:()=>void;onSaved:()=>Promise<void>}) {
@@ -226,9 +240,9 @@ function ManagerModal({service,employmentId,employees,initial,onClose,onSaved}:{
   const candidates=useMemo(()=>employees.filter(e=>e.employmentId!==employmentId&&e.status!=='TERMINATED'&&(`${e.name} ${e.employeeNumber} ${e.organizationName}`.toLowerCase().includes(query.toLowerCase()))),[employees,employmentId,query])
   const selectedIds=new Set([form.directManagerId,form.hrManagerId,form.leaveApproverId,form.attendanceApproverId,form.performanceReviewerId].filter(Boolean))
   const options=[...employees.filter(e=>selectedIds.has(e.employmentId)),...candidates].filter((v,i,a)=>a.findIndex(x=>x.employmentId===v.employmentId)===i)
-  const row=(key:Exclude<keyof ManagerRelationshipInput,'employmentId'>,label:string)=><label>{label}<select value={form[key]??''} onChange={e=>setForm({...form,[key]:e.target.value||null})}><option value="">미지정</option>{options.map(e=><option key={e.employmentId} value={e.employmentId}>{e.name} · {e.employeeNumber} · {e.organizationName}</option>)}</select></label>
-  return <div className="modalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><form className="modal wideModal" onSubmit={e=>{e.preventDefault();setError('');void service.saveManagerRelationship(form).then(onSaved).catch(err=>setError(err instanceof Error?err.message:'저장 실패'))}}><ModalHead title="Manager / Approver 설정" onClose={onClose}/><label>직원 검색<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="이름, 사번, 조직 검색"/></label><div className="formGrid">{row('directManagerId','직속 관리자')}{row('hrManagerId','HR 담당자')}{row('leaveApproverId','휴가 승인자')}{row('attendanceApproverId','근태 승인자')}{row('performanceReviewerId','평가자')}</div>{error&&<p className="formError">{error}</p>}<ModalActions onClose={onClose}/></form></div>
+  const row=(key:Exclude<keyof ManagerRelationshipInput,'employmentId'>,label:string)=><label>{label}<NativeSelect value={form[key]??''} onChange={e=>setForm({...form,[key]:e.target.value||null})}><option value="">미지정</option>{options.map(e=><option key={e.employmentId} value={e.employmentId}>{e.name} · {e.employeeNumber} · {e.organizationName}</option>)}</NativeSelect></label>
+  return <Modal className="modalBackdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><form className="modal wideModal" onSubmit={e=>{e.preventDefault();setError('');void service.saveManagerRelationship(form).then(onSaved).catch(err=>setError(err instanceof Error?err.message:'저장 실패'))}}><ModalHead title="승인자/관리자 라인 설정" onClose={onClose}/><label>직원 검색<Input value={query} onChange={e=>setQuery(e.target.value)} placeholder="이름, 사번, 조직 검색"/></label><div className="formGrid">{row('directManagerId','직속 관리자')}{row('hrManagerId','HR 담당자')}{row('leaveApproverId','업무 승인자')}{row('performanceReviewerId','평가자')}</div>{error&&<p className="formError">{error}</p>}<ModalActions onClose={onClose}/></form></Modal>
 }
 
-function ModalHead({title,subtitle,onClose}:{title:string;subtitle?:string;onClose:()=>void}) { return <div className="modalHead"><div><h3>{title}</h3>{subtitle&&<p>{subtitle}</p>}</div><button type="button" onClick={onClose}>×</button></div> }
-function ModalActions({onClose}:{onClose:()=>void}) { return <div className="modalActions"><button type="button" onClick={onClose}>취소</button><button className="primary" type="submit">저장</button></div> }
+function ModalHead({title,subtitle,onClose}:{title:string;subtitle?:string;onClose:()=>void}) { return <div className="modalHead"><div><h3>{title}</h3>{subtitle&&<p>{subtitle}</p>}</div><Button type="button" onClick={onClose}>×</Button></div> }
+function ModalActions({onClose}:{onClose:()=>void}) { return <div className="modalActions"><Button type="button" onClick={onClose}>취소</Button><Button className="primary" type="submit">저장</Button></div> }

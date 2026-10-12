@@ -1,7 +1,7 @@
 import type {PayrollItemMaster} from '../../domain/types'
 export const formulaVariables=['기존금액','항목금액','월기준급여','일할비율','휴직차감비율','과세수당','비과세수당','연장수당','상여','소급금','기타지급','무급공제','기타공제','연금보수','건보보수','고용보수','수기소득세','총지급액','건강보험료','소득세','연금요율','건보전체요율','요양비율','고용요율','지방세율','연금하한','연금상한','건보최저','건보최고','건보총보험료','회사건보고지액','회사고용보수'] as const
 export function standardFormula(code:string):string{
- const formulas:Record<string,string>={P101:'round(월기준급여 * max(0, 일할비율 - 휴직차감비율))',P138:'과세수당',P139:'비과세수당',P120:'연장수당',P130:'상여',P132:'소급금',P133:'기타지급',P140:'무급공제',T101:'floor10(수기소득세)',T102:'floor10(소득세 * 지방세율)',T103:'floor10(min(연금상한, max(연금하한, floor(연금보수 / 1000) * 1000)) * 연금요율)',T104:'floor10(min(건보최고, max(건보최저, floor10(건보보수 * 건보전체요율))) / 2)',T105:'floor10(floor10(건보총보험료 * 요양비율) / 2)',T106:'floor10(max(0, 회사고용보수) * 고용요율)',T107:'round(기타공제)'}
+ const formulas:Record<string,string>={P101:'round(월기준급여 * max(0, 일할비율 - 휴직차감비율))',P138:'과세수당',P139:'비과세수당',P120:'연장수당',P130:'상여',P132:'소급금',P133:'기타지급',P140:'무급공제',T101:'기존금액',T102:'floor10(소득세 * 지방세율)',T103:'floor10(min(연금상한, max(연금하한, floor(연금보수 / 1000) * 1000)) * 연금요율)',T104:'floor10(min(건보최고, max(건보최저, floor10(건보보수 * 건보전체요율))) / 2)',T105:'floor10(floor10(건보총보험료 * 요양비율) / 2)',T106:'floor10(max(0, 회사고용보수) * 고용요율)',T107:'round(기타공제)'}
  return formulas[code]??'항목금액'
 }
 // Restricted arithmetic grammar: no eval, properties, statements, or executable JavaScript.

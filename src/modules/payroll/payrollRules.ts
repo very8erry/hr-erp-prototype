@@ -1,3 +1,5 @@
+import {insuranceRules} from './insuranceRules'
+import {simplifiedTax} from './ntsTax'
 import {configuredAmount} from './itemCalculation'
 import type { PayrollEntry, PayrollResult, PayrollItemMaster, LeaveCase } from '../../domain/types'
 
@@ -25,7 +27,7 @@ function pensionBounds(period: string): { min: number; max: number } {
   return period >= '2026-07' ? { min: 410_000, max: 6_590_000 } : period >= '2025-07' ? { min: 400_000, max: 6_370_000 } : {min:390_000,max:6_170_000}
 }
 
-export function calculatePayrollEntry(entry: PayrollEntry, period: string, items:PayrollItemMaster[]=[],overrides?:Record<string,boolean>,leaves:LeaveCase[]=[]): PayrollResult {
+export function calculatePayrollEntry(entry: PayrollEntry, period: string, items:PayrollItemMaster[]=[],overrides?:Record<string,boolean>,leaves:LeaveCase[]=[],payDate=`${period}-25`): PayrollResult {
   const enabled=(code:string)=>overrides?.[code]??items.find(i=>i.code===code)?.active??true
   const value=(code:string,n:number)=>{if(!enabled(code))return 0;try{return configuredAmount(items.find(i=>i.code===code),n,{...context,항목금액:entry.itemAmounts?.[code]??0})}catch(e){errors.push(`${code}: ${(e as Error).message}`);return 0}}
   const monthStart=`${period}-01`;const days=new Date(Number(period.slice(0,4)),Number(period.slice(5)),0).getDate()
@@ -42,10 +44,9 @@ export function calculatePayrollEntry(entry: PayrollEntry, period: string, items
   if (entry.incomeTaxManual < 0) errors.push('소득세 입력값은 음수일 수 없습니다.')
 
   const proration = Math.min(1, Math.max(0, entry.prorationRate))
-  const rate=period<'2026-01'?{...payrollRuleInfo,nationalPensionEmployeeRate:0.045,healthInsuranceEmployeeRate:0.03545,healthInsuranceTotalRate:0.0709,longTermCareRateOfIncome:0.009182}:payrollRuleInfo
-  if(period<'2025-01'||period>'2026-12') errors.push('보험요율은 2025~2026 귀속월만 지원합니다.')
+  const rate=insuranceRules(period)
   const bounds=pensionBounds(period)
-  const context:Record<string,number>={월기준급여:entry.monthlyBasePay,일할비율:proration,휴직차감비율:leaveDeductionRate,과세수당:entry.taxableAllowance,비과세수당:entry.nonTaxableAllowance,연장수당:entry.overtimePay,상여:entry.bonus,소급금:entry.retroPay,기타지급:entry.otherEarnings,무급공제:entry.unpaidDeduction,기타공제:entry.otherDeductions,연금보수:entry.pensionBaseMonthly,건보보수:entry.healthBaseMonthly,고용보수:entry.employmentInsuranceBaseMonthly,수기소득세:entry.incomeTaxManual,총지급액:0,건강보험료:0,소득세:0,연금요율:rate.nationalPensionEmployeeRate,건보전체요율:rate.healthInsuranceTotalRate,요양비율:rate.longTermCareRateOfIncome/rate.healthInsuranceTotalRate,고용요율:rate.employmentInsuranceEmployeeRate,지방세율:rate.localIncomeTaxRate,연금하한:bounds.min,연금상한:bounds.max,건보최저:period<'2026-01'?19780:20160,건보최고:period<'2026-01'?9008340:9183480,건보총보험료:0,회사건보고지액:fullLeave?.healthPremiumOverride??0,회사고용보수:fullLeave?.employmentBaseOverride??entry.employmentInsuranceBaseMonthly}
+  const context:Record<string,number>={월기준급여:entry.monthlyBasePay,일할비율:proration,휴직차감비율:leaveDeductionRate,과세수당:entry.taxableAllowance,비과세수당:entry.nonTaxableAllowance,연장수당:entry.overtimePay,상여:entry.bonus,소급금:entry.retroPay,기타지급:entry.otherEarnings,무급공제:entry.unpaidDeduction,기타공제:entry.otherDeductions,연금보수:entry.pensionBaseMonthly,건보보수:entry.healthBaseMonthly,고용보수:entry.employmentInsuranceBaseMonthly,수기소득세:entry.incomeTaxManual,총지급액:0,건강보험료:0,소득세:0,연금요율:rate.nationalPensionEmployeeRate,건보전체요율:rate.healthInsuranceTotalRate,요양비율:rate.longTermCareHealthRatio,고용요율:rate.employmentInsuranceEmployeeRate,지방세율:rate.localIncomeTaxRate,연금하한:bounds.min,연금상한:bounds.max,건보최저:period<'2026-01'?19780:20160,건보최고:period<'2026-01'?9008340:9183480,건보총보험료:0,회사건보고지액:fullLeave?.healthPremiumOverride??0,회사고용보수:fullLeave?.employmentBaseOverride??entry.employmentInsuranceBaseMonthly}
   const basePay = value('P101',roundWon(entry.monthlyBasePay * Math.max(0,proration-leaveDeductionRate)))
   let additionalTax=0,additionalNonTax=0
   const legacyCodes=['P101','P138','P120','P130','P132','P133','P139','P140']
@@ -86,15 +87,15 @@ export function calculatePayrollEntry(entry: PayrollEntry, period: string, items
     if(!fullLeave?.healthDeferred&&fullLeave?.healthPremiumOverride==null)healthInsurance=value('T104',healthInsurance)
     context.건강보험료=healthInsurance
     if(fullLeave?.healthDeferred) warnings.push('건강보험 납입고지 유예: 면제가 아니며 복직 정산이 필요합니다.')
-    const totalLongTermCare = floor10(totalHealthPremium * (rate.longTermCareRateOfIncome / rate.healthInsuranceTotalRate))
-    longTermCareInsurance = enabled('T105')&&!fullLeave?.healthDeferred ? value('T105',fullLeave ? floor10(healthInsurance*(rate.longTermCareRateOfIncome/rate.healthInsuranceTotalRate)) : floor10(totalLongTermCare / 2)) : 0
+    const totalLongTermCare = floor10(totalHealthPremium * (rate.longTermCareHealthRatio))
+    longTermCareInsurance = enabled('T105')&&!fullLeave?.healthDeferred ? value('T105',fullLeave ? floor10(healthInsurance*(rate.longTermCareHealthRatio)) : floor10(totalLongTermCare / 2)) : 0
   }
 
   let employmentInsurance = entry.employmentInsuranceEligible && enabled('T106')
     ? value('T106',floor10(Math.max(0, fullLeave?.employmentBaseOverride??entry.employmentInsuranceBaseMonthly) * payrollRuleInfo.employmentInsuranceEmployeeRate))
     : 0
 
-  const incomeTax = value('T101',floor10(entry.incomeTaxManual))
+  const incomeTax = value('T101',simplifiedTax(taxableEarnings,Math.max(1,entry.basicDeductionCount),Math.min(Math.max(0,entry.childDeductionCount),Math.max(0,entry.basicDeductionCount-1)),payDate))
   context.소득세=incomeTax
   let localIncomeTax = value('T102',floor10(incomeTax * payrollRuleInfo.localIncomeTaxRate))
   const otherDeductions = value('T107',Math.max(0, roundWon(entry.otherDeductions)))
@@ -129,6 +130,7 @@ export function calculatePayrollEntry(entry: PayrollEntry, period: string, items
     netPay,
     calculatedAt: new Date().toISOString(),
     ruleVersion: PAYROLL_RULE_VERSION,
+    payrollRuleVersion:PAYROLL_RULE_VERSION,insuranceRuleVersion:rate.version,taxTableVersion:"NTS-2026-02-27",relevantRates:{...rate},
     warnings,
     errors,
   }

@@ -20,8 +20,14 @@ import type {
 
 export type ConfirmSection='attendance'|'annual'|'daily'|'retirement'|'yearend'
 export interface PayrollRepository {
+  refreshIssues():Promise<void>
+  convertCandidate(input:import("../recruiting/evaluations").OnboardingInput):Promise<{personId:string;employmentId:string}>
+  operations():Promise<import('../operations/operations').OperationsData>
+  saveOperation<K extends import('../operations/operations').OperationStore>(name:K,row:import('../operations/operations').OperationsData[K][number]):Promise<void>
   recruiting():Promise<import("../recruiting/recruiting").RecruitingState>
   saveRecruiting(state:import("../recruiting/recruiting").RecruitingState):Promise<void>
+  withholdingDraft(id:string):Promise<import('./withholdingForm').WithholdingDraft|undefined>
+  saveWithholdingDraft(id:string,draft:import('./withholdingForm').WithholdingDraft):Promise<void>
   companyInfo():Promise<import('./companyInfo').CompanyInfo>
   saveCompanyInfo(info:import('./companyInfo').CompanyInfo):Promise<void>
   settlements():Promise<import('./companyInfo').SettlementSetting[]>

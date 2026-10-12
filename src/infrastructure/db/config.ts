@@ -1,8 +1,8 @@
 export const DB_NAME = 'hr-training-simulator'
 export const TRANSIENT_V032_DB_NAME = 'hr-training-simulator-v2'
-export const DB_VERSION = 6
-export const SCHEMA_VERSION = 6
-export const SEED_VERSION = 5
+export const DB_VERSION = 7
+export const SCHEMA_VERSION = 7
+export const SEED_VERSION = 6
 
 export const STORES = {
   company: 'company',
@@ -41,6 +41,13 @@ export const STORES = {
   attendanceDailyRecords: 'attendanceDailyRecords',
   leaveCases: 'leaveCases',
   payrollSettingsHistory: 'payrollSettingsHistory',
+  calendarEvents: 'calendarEvents',
+  issues: 'issues',
+  complianceSettings: 'complianceSettings',
+  policyDocuments: 'policyDocuments',
+  welfareCases: 'welfareCases',
+  occupationCodeMappings: 'occupationCodeMappings',
+  filingDrafts: 'filingDrafts',
   meta: 'meta',
 } as const
 
@@ -88,6 +95,13 @@ export const STORE_DEFINITIONS: StoreDefinition[] = [
   { name: STORES.retirementSettlements, indexes: [{ name: 'byEmploymentId', keyPath: 'employmentId' }, { name: 'byStatus', keyPath: 'status' }] },
   { name: STORES.yearEndTaxCases, indexes: [{ name: 'byEmploymentId', keyPath: 'employmentId' }, { name: 'byTaxYear', keyPath: 'taxYear' }, { name: 'byEmploymentYear', keyPath: ['employmentId','taxYear'], unique: true }] },
   { name: STORES.payrollItemMasters, indexes: [{ name: 'byCode', keyPath: 'code', unique: true }, { name: 'byCategory', keyPath: 'category' }] },
+  { name: STORES.calendarEvents },
+  { name: STORES.issues },
+  { name: STORES.complianceSettings },
+  { name: STORES.policyDocuments },
+  { name: STORES.welfareCases },
+  { name: STORES.occupationCodeMappings },
+  { name: STORES.filingDrafts },
   { name: STORES.meta },
 ]
 

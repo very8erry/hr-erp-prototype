@@ -10,7 +10,7 @@ export function reportRows(workers:DailyWorker[],records:DailyWorkRecord[],perio
  const days=[...new Set(rows.map(r=>Number(r.workDate.slice(8))))];const sum=(key:keyof DailyWorkRecord)=>rows.reduce((s,r)=>s+Number(r[key]??0),0)
  const values:(string|number)[]=Array(54).fill('');values[0]=company.insuranceCode;values[1]=w.workerNameSnapshot;
  // Deliberately invalid identifiers: test data cannot be mistaken for real registration numbers.
- values[2]=`0000000${String(index+1).padStart(6,'0')}`;values[3]='100';values[4]='';values[5]=phone[0];values[6]=phone[1];values[7]=phone[2];values[8]=({'사무보조':'029','데이터정리':'029','행사지원':'617','매장지원':'616','물류지원':'624'} as Record<string,string>)[w.job]??company.occupationCode
+ values[2]=`0000000${String(index+1).padStart(6,'0')}`;values[3]='100';values[4]='';values[5]=phone[0];values[6]=phone[1];values[7]=phone[2];values[8]=w.occupationCode??company.occupationCode
  days.forEach(d=>{values[8+d]=1});values[40]=days.length;values[41]=Math.round(sum('hours')/days.length*100)/100;values[42]=days.length;values[43]=sum('grossPay')-sum('nonTaxablePay');values[44]=sum('grossPay');values[45]=company.insuranceCode===1?'':company.departureCode;values[48]='Y';values[49]=period.replace('-','');values[50]=sum('grossPay')-sum('nonTaxablePay');values[51]=sum('nonTaxablePay');values[52]=sum('incomeTax');values[53]=sum('localIncomeTax');return [values]
  })
 }
