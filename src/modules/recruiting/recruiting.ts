@@ -11,4 +11,24 @@ export function recruitingSeed():RecruitingState {return upgradeRecruiting({jobs
 export function queueEvent(state:RecruitingState,candidateId:string,type:string,message:string):RecruitingState {if(!state.candidates.some(c=>c.id===candidateId))throw new Error('지원자를 선택하세요.');return {...state,events:[...state.events,{id:crypto.randomUUID(),candidateId,type,message,created:new Date().toISOString(),status:'대기'}]}}
 export function scheduleInterview(state:RecruitingState,row:Interview):RecruitingState {if(!state.candidates.some(c=>c.id===row.candidateId))throw new Error('지원자를 선택하세요.');if(!row.interviewer.trim()||!row.start||row.end<=row.start)throw new Error('면접관과 시작·종료 시간을 확인하세요.');if(state.interviews.some(i=>i.id!==row.id&&i.status==='예정'&&i.start<row.end&&i.end>row.start&&(i.interviewer===row.interviewer||i.candidateId===row.candidateId)))throw new Error('지원자 또는 면접관의 일정이 겹칩니다.');return queueEvent({...state,interviews:[...state.interviews.filter(i=>i.id!==row.id),row]},row.candidateId,'INTERVIEW_SCHEDULED',JSON.stringify(row))}
 export async function deliverEvent(state:RecruitingState,id:string,send:typeof fetch=fetch):Promise<RecruitingState>{const event=state.events.find(e=>e.id===id);if(!event||event.status==='전달완료')throw new Error('전달할 대기 자료가 없습니다.');const candidate=state.candidates.find(c=>c.id===event.candidateId)!;if(!candidate.consent)throw new Error('지원자 연락·외부 연동 동의를 확인하세요.');const connection=state.integrationConnections?.find(c=>c.enabled&&c.type==='WEBHOOK'&&(c.eventMapping.includes(event.type)||c.eventMapping.includes('*')));if(connection?.secretReference)throw new Error('비밀키 참조가 있는 연결은 백엔드/브리지가 필요합니다.');const endpoint=connection?.endpoint??(!state.integrationConnections?.length?state.webhook:'');if(!/^https:\/\//.test(endpoint))throw new Error('HTTPS 자동화 웹훅을 연결하세요.');try{const response=await send(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':event.id},body:JSON.stringify({event,candidate,job:state.jobs.find(j=>j.id===candidate.jobId)})});if(!response.ok)throw new Error(`연동 응답 ${response.status}`);return {...state,events:state.events.map(e=>e.id===id?{...e,status:'전달완료',error:undefined}:e)}}catch(error){return {...state,events:state.events.map(e=>e.id===id?{...e,status:'실패',error:String(error)}:e)}}}
-export function calendarFile(rows:Interview[],candidates:Candidate[]){const escape=(s:string)=>s.replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/[,;]/g,'\\$&'),stamp=(s:string)=>new Date(s).toISOString().replace(/[-:]/g,'').replace('.000','');return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//HR Training//ATS//KO',...rows.filter(r=>r.status!=='취소').flatMap(r=>['BEGIN:VEVENT',`UID:${r.id}@hr-training.invalid`,`DTSTAMP:${stamp(new Date().toISOString())}`,`DTSTART:${stamp(r.start)}`,`DTEND:${stamp(r.end)}`,`SUMMARY:${escape((candidates.find(c=>c.id===r.candidateId)?.name??'지원자')+' 면접')}`,`LOCATION:${escape(r.location)}`,`DESCRIPTION:${escape(r.interviewer+' '+r.note)}`,'END:VEVENT']),'END:VCALENDAR'].join('\r\n')}
+// Interview form values have no offset and represent Korean company time.
+// Preserve explicit offsets in imported records; never use the machine's timezone.
+function calendarStamp(value:string){
+ const zoned=/Z$|[+-]\d{2}:?\d{2}$/i.test(value)?value:`${value}+09:00`
+ return new Date(zoned).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z')
+}
+export function calendarFile(rows:Interview[],candidates:Candidate[]){
+ const escape=(value:string)=>value.replace(/\\/g,'\\\\').replace(/\r\n|\r|\n/g,'\\n').replace(/[,;]/g,'\\$&')
+ return [
+  'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//HR Training//ATS//KO',
+  ...rows.filter(row=>row.status!=='취소').flatMap(row=>[
+   'BEGIN:VEVENT',`UID:${row.id}@hr-training.invalid`,
+   `DTSTAMP:${calendarStamp(new Date().toISOString())}`,
+   `DTSTART:${calendarStamp(row.start)}`,`DTEND:${calendarStamp(row.end)}`,
+   `SUMMARY:${escape((candidates.find(candidate=>candidate.id===row.candidateId)?.name??'지원자')+' 면접')}`,
+   `LOCATION:${escape(row.location)}`,`DESCRIPTION:${escape(row.interviewer+' '+row.note)}`,
+   'END:VEVENT',
+  ]),
+  'END:VCALENDAR',
+ ].join('\r\n')+'\r\n'
+}
