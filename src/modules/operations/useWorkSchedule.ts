@@ -1,0 +1,11 @@
+import {useCallback,useEffect,useRef,useState} from 'react'
+import type {CalendarEvent} from './operations'
+import type {PayrollService} from '../payroll/payrollService'
+import type {CompanyInfo} from '../payroll/companyInfo'
+import type {ScheduleSources} from './workSchedule'
+import {hrCalendarSeed} from './scheduleData'
+// Old generated HR defaults are projected into work tasks. Custom overrides survive.
+export function visibleCalendar(events:CalendarEvent[],year:number){const legacy=new Map(hrCalendarSeed(year).map(e=>[e.id,e]));return events.filter(e=>{if(e.work?.deletedAt||e.supersededBy)return false;const old=legacy.get(e.id);return !(old&&old.title===e.title&&old.startDate===e.startDate&&old.endDate===e.endDate&&old.note===e.note)})}
+export function useWorkSchedule(service:PayrollService,year:number){const [events,setEvents]=useState<CalendarEvent[]>([]),[info,setInfo]=useState<CompanyInfo|null>(null),[sources,setSources]=useState<ScheduleSources|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(true),seq=useRef(0);
+ const load=useCallback(async()=>{const token=++seq.current;try{await service.syncWorkYear(year);const [ops,i,s]=await Promise.all([service.operations(),service.companyInfo(),service.scheduleSources()]);if(token!==seq.current)return;setEvents(visibleCalendar(ops.calendarEvents,year));setInfo(i);setSources(s);setError('')}catch(e){if(token===seq.current)setError(e instanceof Error?e.message:String(e))}finally{if(token===seq.current)setBusy(false)}},[service,year]);
+ useEffect(()=>{void load();const refresh=()=>void load(),visible=()=>{if(document.visibilityState==='visible')refresh()},storage=(e:StorageEvent)=>{if(e.key==='workScheduleRevision')refresh()};window.addEventListener('focus',refresh);window.addEventListener('work-schedule-changed',refresh);window.addEventListener('storage',storage);document.addEventListener('visibilitychange',visible);return()=>{seq.current++;window.removeEventListener('focus',refresh);window.removeEventListener('work-schedule-changed',refresh);window.removeEventListener('storage',storage);document.removeEventListener('visibilitychange',visible)}},[load]);return {events,info,sources,error,setError,busy,reload:load}}

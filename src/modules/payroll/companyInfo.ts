@@ -1,4 +1,6 @@
 export interface CompanyInfo {
+  workPlanning?:import('../operations/workSchedule').WorkSettings
+
   industrialAccidentEmployerRate?:number|null;employmentInsuranceEmployerAdditionalRate?:number|null;insuranceRateSource?:string;insuranceRateEffectiveFrom?:string;
   externalContracts?:{id:string;name:string;project:string;startDate:string;endDate:string;monthlyFee:number;documents?:import("../../domain/attachments").StoredFile[]}[]
   industry?:string;industryCode?:string;

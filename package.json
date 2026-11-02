@@ -19,7 +19,8 @@
     "test:v073": "node --import tsx scripts/test-v073.tsx",
     "test:selection": "node --import tsx scripts/test-selection.tsx",
     "test:hris": "node --import tsx scripts/test-hris-v7.tsx",
-    "test:lemon": "node --import tsx scripts/test-lemon.tsx"
+    "test:lemon": "node --import tsx scripts/test-lemon.tsx",
+    "test:schedule": "node --import tsx scripts/test-work-schedule.tsx"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.2.0",

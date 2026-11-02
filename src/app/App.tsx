@@ -1,3 +1,4 @@
+import {WorkSchedulePage} from '../modules/operations/WorkSchedulePage'
 import {describeAudit} from './auditDescription'
 import {NoticeBoard} from '../modules/operations/WorkRulesPanel'
 import { LayoutDashboard, Users, CalendarDays, Wallet, HardHat, Building2, ScrollText, BriefcaseBusiness, HeartHandshake, PanelLeft, FlaskConical, CircleUserRound, ChevronRight, type LucideIcon } from 'lucide-react'
@@ -34,7 +35,7 @@ const repository = new IndexedDbHrRepository()
 const service = new HrService(repository)
 const payrollService = new PayrollService(repository)
 
-type View = 'dashboard' | 'employees' | 'audit' | 'attendance' | 'payroll' | 'daily' | 'company' | 'recruiting' | 'welfare' | 'notices'
+type View = 'dashboard' | 'employees' | 'audit' | 'attendance' | 'payroll' | 'daily' | 'company' | 'recruiting' | 'welfare' | 'notices' | 'workSchedule'
 
 export default function App() {
   const [showBuildNotice,setShowBuildNotice]=useState(()=>typeof localStorage!=='undefined'&&localStorage.getItem('dismissedBuild')!==BUILD_VERSION)
@@ -82,6 +83,7 @@ export default function App() {
       {showBuildNotice&&<Modal onClose={()=>{localStorage.setItem('dismissedBuild',BUILD_VERSION);setShowBuildNotice(false)}} className="modalBackdrop"><div className="modal" role="dialog" aria-modal="true" aria-label="개선사항 안내"><Button className="noticeClose" aria-label="닫기" onClick={()=>{localStorage.setItem('dismissedBuild',BUILD_VERSION);setShowBuildNotice(false)}}>×</Button><p>HRIS 개선사항 테스트 중.</p></div></Modal>}<div className="brand"><span className="brandMark">HR</span><div><strong>lemonpAI</strong><small>인사 실습 시스템</small><em className="buildBadge">Build {BUILD_VERSION}</em></div></div>
       <nav aria-label="주요 메뉴"><div className="navGroup">워크스페이스</div>
         <Nav active={view==='dashboard'} onClick={()=>setView('dashboard')}>대시보드</Nav>
+        <Nav active={view==='workSchedule'} onClick={()=>setView('workSchedule')}>업무일정</Nav>
         <Nav active={view==='employees'} onClick={()=>{setView('employees');setSelectedId(null)}}>직원 관리</Nav>
         <Nav active={view==='attendance'} onClick={()=>setView('attendance')}>근태</Nav>
         <Nav active={view==='payroll'} onClick={()=>setView('payroll')}>급여</Nav>
@@ -96,6 +98,7 @@ export default function App() {
       <header className="topbar"><div><div className="topbarTitleRow"><Button variant="outline" className="mobileMenuButton" aria-label="메뉴 열기" aria-expanded={sidebarOpen} onClick={()=>setSidebarOpen(true)}><PanelLeft aria-hidden="true"/></Button><h1>{company?.name}</h1></div><p>인사 통합 운영 워크스페이스 · 대한민국 · Build {BUILD_VERSION}</p><p className="demoNotice">{company?.demoNotice}</p></div><DataToolbar attendance={view==='attendance'} employees={employees} hr={service} payroll={payrollService} onImported={async()=>{await refresh();setSelectedId(null);setDataRevision(v=>v+1)}} onNotice={setNotice} onReset={resetDemo}/></header>
       {notice&&<div className="toast" role="status">{notice}<Button onClick={()=>setNotice('')}>×</Button></div>}
       {view==='dashboard'&&<OperationsDashboard key={dataRevision} employees={employees} service={payrollService}/>} 
+      {view==='workSchedule'&&<WorkSchedulePage key={dataRevision} service={payrollService}/>}
       {view==='employees'&&!selected&&<EmployeeList onRegister={()=>setShowRegister(true)} leaveCases={leaveCases} employees={employees} onSelect={setSelectedId}/>} 
       {showRegister&&<EmployeeRegistrationModal organizations={organizations} onClose={()=>setShowRegister(false)} onSave={async data=>{await service.registerEmployee(data);setShowRegister(false);await refresh()}}/>}
       {view==='employees'&&selected&&<EmployeeDetail service={service} employee={selected} employees={employees} organizations={organizations} onBack={()=>setSelectedId(null)} onChanged={async(message)=>{await refresh();setNotice(message)}}/>} 
@@ -109,7 +112,7 @@ export default function App() {
   </div>
 }
 
-const navIcons:Record<string,LucideIcon>={'대시보드':LayoutDashboard,'직원 관리':Users,'근태':CalendarDays,'급여':Wallet,'일용직':HardHat,'회사정보':Building2,'공지게시판':ScrollText,'감사로그':ScrollText,'채용':BriefcaseBusiness,'복지':HeartHandshake}
+const navIcons:Record<string,LucideIcon>={'업무일정':CalendarDays,'대시보드':LayoutDashboard,'직원 관리':Users,'근태':CalendarDays,'급여':Wallet,'일용직':HardHat,'회사정보':Building2,'공지게시판':ScrollText,'감사로그':ScrollText,'채용':BriefcaseBusiness,'복지':HeartHandshake}
 function Nav({active,onClick,children}:{active:boolean;onClick:()=>void;children:ReactNode}) { const label=Children.toArray(children).find(c=>typeof c==='string')?.toString().trim()??'';const Icon=navIcons[label]??LayoutDashboard;return <Button variant="ghost" className={`nav ${active?'active':''}`} aria-current={active?'page':undefined} onClick={onClick}><Icon aria-hidden="true"/><span className="navLabel">{children}</span></Button> }
 
 function Dashboard({summary,employees}:{summary:ReturnType<typeof HrService.summary>;employees:EmployeeView[]}) {

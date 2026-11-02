@@ -22,6 +22,9 @@ export type ConfirmSection='attendance'|'annual'|'daily'|'retirement'|'yearend'
 export interface PayrollRepository {
   refreshIssues():Promise<void>
   convertCandidate(input:import("../recruiting/evaluations").OnboardingInput):Promise<{personId:string;employmentId:string}>
+  scheduleSources():Promise<import('../operations/workSchedule').ScheduleSources>
+  syncWorkYear(year:number):Promise<void>
+  updatePayrollPayDate(id:string,payDate:string):Promise<void>
   operations():Promise<import('../operations/operations').OperationsData>
   saveOperation<K extends import('../operations/operations').OperationStore>(name:K,row:import('../operations/operations').OperationsData[K][number]):Promise<void>
   recruiting():Promise<import("../recruiting/recruiting").RecruitingState>
