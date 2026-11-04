@@ -1,9 +1,10 @@
+import {splitNonTax,nonTaxDescriptions} from './nonTaxRules'
 import {insuranceRules} from './insuranceRules'
 import {simplifiedTax} from './ntsTax'
 import {configuredAmount} from './itemCalculation'
 import type { PayrollEntry, PayrollResult, PayrollItemMaster, LeaveCase } from '../../domain/types'
 
-export const PAYROLL_RULE_VERSION = 'KR-2026-PAYROLL-0.6'
+export const PAYROLL_RULE_VERSION = 'KR-2026-PAYROLL-0.7.7'
 
 export const payrollRuleInfo = {
   nationalPensionEmployeeRate: 0.0475,
@@ -28,8 +29,9 @@ function pensionBounds(period: string): { min: number; max: number } {
 }
 
 export function calculatePayrollEntry(entry: PayrollEntry, period: string, items:PayrollItemMaster[]=[],overrides?:Record<string,boolean>,leaves:LeaveCase[]=[],payDate=`${period}-25`): PayrollResult {
+  const appliedItemAmounts:Record<string,number>={}
   const enabled=(code:string)=>overrides?.[code]??items.find(i=>i.code===code)?.active??true
-  const value=(code:string,n:number)=>{if(!enabled(code))return 0;try{return configuredAmount(items.find(i=>i.code===code),n,{...context,항목금액:entry.itemAmounts?.[code]??0})}catch(e){errors.push(`${code}: ${(e as Error).message}`);return 0}}
+  const value=(code:string,n:number)=>{if(!enabled(code)){appliedItemAmounts[code]=0;return 0}try{return appliedItemAmounts[code]=configuredAmount(items.find(i=>i.code===code),n,{...context,항목금액:entry.itemAmounts?.[code]??0})}catch(e){errors.push(`${code}: ${(e as Error).message}`);return 0}}
   const monthStart=`${period}-01`;const days=new Date(Number(period.slice(0,4)),Number(period.slice(5)),0).getDate()
   const monthEnd=`${period}-${String(days).padStart(2,'0')}`
   const applicable=leaves.filter(l=>l.employmentId===entry.employmentId&&l.startDate<=monthEnd&&(!l.endDate||l.endDate>=monthStart))
@@ -46,17 +48,21 @@ export function calculatePayrollEntry(entry: PayrollEntry, period: string, items
   const proration = Math.min(1, Math.max(0, entry.prorationRate))
   const rate=insuranceRules(period)
   const bounds=pensionBounds(period)
-  const context:Record<string,number>={월기준급여:entry.monthlyBasePay,일할비율:proration,휴직차감비율:leaveDeductionRate,과세수당:entry.taxableAllowance,비과세수당:entry.nonTaxableAllowance,연장수당:entry.overtimePay,상여:entry.bonus,소급금:entry.retroPay,기타지급:entry.otherEarnings,무급공제:entry.unpaidDeduction,기타공제:entry.otherDeductions,연금보수:entry.pensionBaseMonthly,건보보수:entry.healthBaseMonthly,고용보수:entry.employmentInsuranceBaseMonthly,수기소득세:entry.incomeTaxManual,총지급액:0,건강보험료:0,소득세:0,연금요율:rate.nationalPensionEmployeeRate,건보전체요율:rate.healthInsuranceTotalRate,요양비율:rate.longTermCareHealthRatio,고용요율:rate.employmentInsuranceEmployeeRate,지방세율:rate.localIncomeTaxRate,연금하한:bounds.min,연금상한:bounds.max,건보최저:period<'2026-01'?19780:20160,건보최고:period<'2026-01'?9008340:9183480,건보총보험료:0,회사건보고지액:fullLeave?.healthPremiumOverride??0,회사고용보수:fullLeave?.employmentBaseOverride??entry.employmentInsuranceBaseMonthly}
+  const inputs=entry.calculationInputs,monthlyHours=inputs?.ordinaryMonthlyHours??209;
+  if(monthlyHours<=0||!Number.isFinite(monthlyHours))errors.push('월 소정시간을 확인하세요.');
+  const context:Record<string,number>={통상임금월액:entry.monthlyBasePay,통상시급:entry.monthlyBasePay/Math.max(1,monthlyHours),월소정시간:monthlyHours,근태연동:inputs?1:0,연장시간:inputs?.overtimeHours??0,야간시간:inputs?.nightHours??0,휴일시간:inputs?.holidayHours??0,휴일초과시간:inputs?.holidayOvertimeHours??0,연장가산율:1.5,야간가산율:0.5,휴일가산율:1.5,휴일초과가산율:0.5,휴직요양산정:fullLeave?1:0,간이세액표세액:0,월기준급여:entry.monthlyBasePay,일할비율:proration,휴직차감비율:leaveDeductionRate,과세수당:entry.taxableAllowance,비과세수당:entry.nonTaxableAllowance,연장수당:entry.overtimePay,상여:entry.bonus,소급금:entry.retroPay,기타지급:entry.otherEarnings,무급공제:entry.unpaidDeduction,기타공제:entry.otherDeductions,연금보수:entry.pensionBaseMonthly,건보보수:entry.healthBaseMonthly,고용보수:entry.employmentInsuranceBaseMonthly,수기소득세:entry.incomeTaxManual,총지급액:0,건강보험료:0,소득세:0,연금요율:rate.nationalPensionEmployeeRate,건보전체요율:rate.healthInsuranceTotalRate,요양비율:rate.longTermCareHealthRatio,고용요율:rate.employmentInsuranceEmployeeRate,지방세율:rate.localIncomeTaxRate,연금하한:bounds.min,연금상한:bounds.max,건보최저:period<'2026-01'?19780:20160,건보최고:period<'2026-01'?9008340:9183480,건보총보험료:0,회사건보고지액:fullLeave?.healthPremiumOverride??0,회사고용보수:fullLeave?.employmentBaseOverride??entry.employmentInsuranceBaseMonthly}
   const basePay = value('P101',roundWon(entry.monthlyBasePay * Math.max(0,proration-leaveDeductionRate)))
+  const ordinarySource:Record<string,number>={P130:entry.bonus,P138:entry.taxableAllowance,P139:entry.nonTaxableAllowance};
+  const ordinaryExtra=items.filter(i=>i.ordinaryWage&&i.code!=='P101'&&!['P120','P121','P122'].includes(i.code)).reduce((sum,i)=>sum+value(i.code,ordinarySource[i.code]??entry.itemAmounts?.[i.code]??0),0);context.통상임금월액=entry.monthlyBasePay+ordinaryExtra;context.통상시급=context.통상임금월액/Math.max(1,monthlyHours);
   let additionalTax=0,additionalNonTax=0
   const legacyCodes=['P101','P138','P120','P130','P132','P133','P139','P140']
-  const additionalCodes=new Set([...Object.keys(entry.itemAmounts??{}),...items.filter(i=>i.category==='EARNING'&&i.calculationMode&&i.calculationMode!=='DEFAULT'&&!legacyCodes.includes(i.code)).map(i=>i.code)])
+  const additionalCodes=new Set([...(inputs?['P121','P122']:[]),...Object.keys(entry.itemAmounts??{}),...items.filter(i=>i.category==='EARNING'&&i.calculationMode&&i.calculationMode!=='DEFAULT'&&!legacyCodes.includes(i.code)).map(i=>i.code)])
   for(const code of additionalCodes){
     const amount=entry.itemAmounts?.[code]??0
     if(!enabled(code))continue
     const item=items.find(i=>i.code===code)
     if(!item||!Number.isFinite(amount)||amount<0){errors.push(`${code} 수당 설정·금액을 확인하세요.`);continue}
-    const applied=value(code,amount);if(item.taxable)additionalTax+=applied;else additionalNonTax+=applied
+    const applied=value(code,amount);if(item.taxable)additionalTax+=applied;else if(nonTaxDescriptions[code]){const split=splitNonTax(code,applied,payDate,entry.nonTaxEligibility);additionalTax+=split.taxable;additionalNonTax+=split.nonTaxable;if(split.taxable)warnings.push(`${item.name}: 요건 미확인·한도 초과 ${split.taxable.toLocaleString()}원 과세`)}else additionalNonTax+=applied
     if(['P104','P105','P135','P136','P137'].includes(code)&&amount>0)warnings.push(`${item.name}: 비과세 요건·한도와 증빙을 검토하세요.`)
   }
   const legacyAmounts:Array<[string,number,boolean]>=[['P101',basePay,true],['P138',value('P138',entry.taxableAllowance),true],['P120',value('P120',entry.overtimePay),true],['P130',value('P130',entry.bonus),true],['P132',value('P132',entry.retroPay),true],['P133',value('P133',entry.otherEarnings),true],['P139',value('P139',entry.nonTaxableAllowance),false]]
@@ -95,7 +101,8 @@ export function calculatePayrollEntry(entry: PayrollEntry, period: string, items
     ? value('T106',floor10(Math.max(0, fullLeave?.employmentBaseOverride??entry.employmentInsuranceBaseMonthly) * payrollRuleInfo.employmentInsuranceEmployeeRate))
     : 0
 
-  const incomeTax = value('T101',simplifiedTax(taxableEarnings,Math.max(1,entry.basicDeductionCount),Math.min(Math.max(0,entry.childDeductionCount),Math.max(0,entry.basicDeductionCount-1)),payDate))
+  context.간이세액표세액=simplifiedTax(taxableEarnings,Math.max(1,entry.basicDeductionCount),Math.min(Math.max(0,entry.childDeductionCount),Math.max(0,entry.basicDeductionCount-1)),payDate);
+  const incomeTax=value('T101',context.간이세액표세액)
   context.소득세=incomeTax
   let localIncomeTax = value('T102',floor10(incomeTax * payrollRuleInfo.localIncomeTaxRate))
   const otherDeductions = value('T107',Math.max(0, roundWon(entry.otherDeductions)))
@@ -116,6 +123,7 @@ export function calculatePayrollEntry(entry: PayrollEntry, period: string, items
     runId: entry.runId,
     employmentId: entry.employmentId,
     basePay,
+    appliedItemAmounts,
     taxableEarnings,
     nonTaxableEarnings,
     grossPay,

@@ -4,6 +4,9 @@ import type { FilingFormValues,RetirementSettlement,YearEndTaxCase,AnnualLeaveLe
 import type { PayrollRepository,ConfirmSection } from './payrollRepository'
 
 export class PayrollService {
+  populateWorkYear(year:number){return this.repository.populateWorkYear(year)}
+  async saveWorkEvents(events:import('../operations/operations').CalendarEvent[]){await this.repository.saveWorkEvents(events);this.workChanged()}
+  async applyWorkSettings(s:import('../operations/workSchedule').WorkSettings){validateWorkSettings(s);const c=await this.companyInfo();await this.saveCompanyInfo({...c,workPlanning:s})}
   planningReview(){return this.repository.planningReview()}
   async proposeWorkEvent(e:import('../operations/operations').CalendarEvent){const result=await this.repository.proposeWorkEvent(e);this.workChanged();return result}
   async proposeWorkSettings(s:import('../operations/workSchedule').WorkSettings){validateWorkSettings(s);await this.repository.proposeWorkSettings(s);this.workChanged()}
@@ -71,6 +74,8 @@ export class PayrollService {
 
   async saveEntries(inputs:PayrollEntryInput[]){return this.repository.savePayrollEntriesBatch(inputs)}
   async saveEntry(input: PayrollEntryInput) {
+    if(input.calculationInputs&&(Object.values(input.calculationInputs).some(v=>!Number.isFinite(v)||v<0)||input.calculationInputs.ordinaryMonthlyHours<=0))throw new Error('근태 시간·월 소정시간을 확인하세요.');
+    if(input.nonTaxEligibility?.childcareCount!==undefined&&(!Number.isInteger(input.nonTaxEligibility.childcareCount)||input.nonTaxEligibility.childcareCount<0))throw new Error('보육 대상 자녀 수를 확인하세요.');
     const numeric = [...Object.values(input.insuranceOverrides??{}),input.monthlyBasePay??0,input.prorationRate,input.taxableAllowance,input.nonTaxableAllowance,input.overtimePay,input.bonus,input.retroPay,input.otherEarnings,input.unpaidDeduction,input.otherDeductions,input.pensionBaseMonthly,input.healthBaseMonthly,input.employmentInsuranceBaseMonthly,input.incomeTaxManual]
     if (Object.values(input.itemAmounts??{}).some(v=>!Number.isFinite(v)||v<0)) throw new Error('수당은 0 이상의 숫자여야 합니다.')
     if (numeric.some((v)=>!Number.isFinite(v) || v < 0)) throw new Error('급여 입력값은 0 이상의 숫자여야 합니다.')
@@ -87,7 +92,7 @@ export class PayrollService {
       const extraOrdinary=Object.entries(e.itemAmounts??{}).reduce((sum,[code,v])=>sum+(items.find(i=>i.code===code)?.ordinaryWage?v:0),0)
       const hourly=(e.monthlyBasePay+extraOrdinary)/209
       const over8=daily.filter(r=>r.employmentId===e.employmentId&&r.workDate.startsWith(run.period)).reduce((s,r)=>s+r.holidayOvertimeHours,0)
-      await this.saveEntry({...e,overtimePay:Math.round(hourly*a.overtimeHours*1.5),itemAmounts:{...e.itemAmounts,P121:Math.round(hourly*a.nightHours*0.5),P122:Math.round(hourly*(a.holidayHours*1.5+over8*0.5))},memo:`${e.memo} / 근태 ${a.revision??0}차: 통상시급 ${Math.round(hourly)}원, 연장 ${a.overtimeHours}h, 야간 ${a.nightHours}h, 휴일 ${a.holidayHours}h, 휴일8h초과 ${over8}h (월209h 기준 검토)`})
+      await this.saveEntry({...e,calculationInputs:{ordinaryMonthlyHours:e.calculationInputs?.ordinaryMonthlyHours??209,overtimeHours:a.overtimeHours,nightHours:a.nightHours,holidayHours:a.holidayHours,holidayOvertimeHours:over8},overtimePay:Math.round(hourly*a.overtimeHours*1.5),itemAmounts:{...e.itemAmounts,P121:Math.round(hourly*a.nightHours*0.5),P122:Math.round(hourly*(a.holidayHours*1.5+over8*0.5))},memo:`${e.memo} / 근태 ${a.revision??0}차: 통상시급 ${Math.round(hourly)}원, 연장 ${a.overtimeHours}h, 야간 ${a.nightHours}h, 휴일 ${a.holidayHours}h, 휴일8h초과 ${over8}h (월209h 기준 검토)`})
     }
   }
   calculate(runId:string, overrides?:Record<string,boolean>|null) { return this.repository.calculatePayrollRun(runId,overrides) }

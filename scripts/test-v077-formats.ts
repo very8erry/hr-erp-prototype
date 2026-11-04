@@ -1,0 +1,9 @@
+import assert from 'node:assert/strict'
+import {exportTable,readTable,type FileFormat} from '../src/modules/attendance/attendanceFiles'
+import {createSeedBundle} from '../src/fixtures/seed'
+import {withDemoClassification} from '../src/modules/payroll/itemDefaults'
+import {settingsFields,settingsValues,importSettings} from '../src/modules/payroll/payrollSettingsFiles'
+import {blankFilingRow,fieldsFor,importFilingRows} from '../src/modules/payroll/filingWorksheet'
+let blob:Blob|undefined;Object.assign(globalThis,{document:{body:{appendChild(){}},createElement:()=>({click(){},remove(){}})}});URL.createObjectURL=(b:Blob)=>{blob=b;return 'blob:verification'};URL.revokeObjectURL=()=>{};const old=globalThis.setTimeout;globalThis.setTimeout=((fn:()=>void,ms:number)=>{const timer=old(fn,ms);if(ms===60000)timer.unref();return timer}) as typeof setTimeout
+const items=createSeedBundle().payrollItemMasters.map(withDemoClassification),fixture={...blankFilingRow(),name:'가상직원',hireDate:'2026-11-01',monthlyPay:3000000,companyName:'가상 IT',companyTelephone:'02-6847-3926'}
+for(const format of ['csv','xlsx','json'] as FileFormat[]){await exportTable('급여설정',settingsFields.map(([,l])=>l),items.map(settingsValues),format);const next=importSettings(await readTable(new File([blob!],`settings.${format}`)),items);assert.deepEqual(next.map(i=>i.code),items.map(i=>i.code));for(const kind of ['ACQUISITION','LOSS','SEPARATION'] as const){const fields=fieldsFor(kind);await exportTable(kind,fields.map(([,l])=>l),[fields.map(([k])=>fixture[k]??'')],format);const rows=importFilingRows(await readTable(new File([blob!],`filing.${format}`)),kind,[]);assert.equal(rows[0].companyTelephone,fixture.companyTelephone);assert.equal(rows[0].monthlyPay,3000000);assert.equal(rows[0].name,fixture.name)}console.log('PASS v077 '+format.toUpperCase()+' settings + acquisition/loss/separation real writer/reader round trip')}

@@ -1,7 +1,7 @@
 {
   "name": "hr-training-simulator",
   "private": true,
-  "version": "0.7.6",
+  "version": "0.7.7",
   "type": "module",
   "scripts": {
     "dev": "node scripts/start-mac.mjs",
@@ -21,7 +21,8 @@
     "test:hris": "node --import tsx scripts/test-hris-v7.tsx",
     "test:lemon": "node --import tsx scripts/test-lemon.tsx",
     "test:schedule": "node --import tsx scripts/test-work-schedule.tsx",
-    "test:planning": "node --import tsx scripts/test-planning-review.ts"
+    "test:planning": "node --import tsx scripts/test-planning-review.ts",
+    "test:v077": "node --import tsx scripts/test-v077.tsx"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.2.0",
