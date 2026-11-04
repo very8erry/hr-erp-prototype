@@ -1,17 +1,29 @@
+import {validateWorkSettings} from '../operations/workSchedule'
 import {calculateDailyWorkRecord} from './dailyWorkerRules'
 import type { FilingFormValues,RetirementSettlement,YearEndTaxCase,AnnualLeaveLedger, AttendanceDailyRecord, AttendanceMonthlySummary, LeaveCase, DailyWorkRecord, DailyWorker, DailyWorkerInput, PayrollEntryInput, PayrollItemMaster, PayrollRunInput, PayrollRunStatus } from '../../domain/types'
 import type { PayrollRepository,ConfirmSection } from './payrollRepository'
 
 export class PayrollService {
+  planningReview(){return this.repository.planningReview()}
+  async proposeWorkEvent(e:import('../operations/operations').CalendarEvent){const result=await this.repository.proposeWorkEvent(e);this.workChanged();return result}
+  async proposeWorkSettings(s:import('../operations/workSchedule').WorkSettings){validateWorkSettings(s);await this.repository.proposeWorkSettings(s);this.workChanged()}
+  async proposePayDate(id:string,date:string){await this.repository.proposePayDate(id,date);this.workChanged()}
+  async reviewPlanningChange(id:string,action:'승인'|'보류',note:string){const result=await this.repository.reviewPlanningChange(id,action,note);this.workChanged();return result}
+  async recordDocumentDelivery(row:import('../operations/planningReview').DeliveryRecord){await this.repository.recordDocumentDelivery(row);this.workChanged()}
+  scheduleSources(){return this.repository.scheduleSources()}
+  syncWorkYear(year:number){return this.repository.syncWorkYear(year)}
+  async updatePayDate(id:string,date:string){await this.repository.updatePayrollPayDate(id,date);this.workChanged()}
+  private workChanged(){if(typeof window!=='undefined'){window.dispatchEvent(new Event('work-schedule-changed'));try{localStorage.setItem('workScheduleRevision',String(Date.now()))}catch{}}}
+
   convertCandidate(input:import("../recruiting/evaluations").OnboardingInput){return this.repository.convertCandidate(input)}
   operations(){return this.repository.operations()}
-  saveOperation<K extends import('../operations/operations').OperationStore>(name:K,row:import('../operations/operations').OperationsData[K][number]){return this.repository.saveOperation(name,row)}
+  async saveOperation<K extends import('../operations/operations').OperationStore>(name:K,row:import('../operations/operations').OperationsData[K][number]){await this.repository.saveOperation(name,row);this.workChanged()}
   recruiting(){return this.repository.recruiting()}
   saveRecruiting(state:import("../recruiting/recruiting").RecruitingState){return this.repository.saveRecruiting(state)}
   withholdingDraft(id:string){return this.repository.withholdingDraft(id)}
   saveWithholdingDraft(id:string,draft:import('./withholdingForm').WithholdingDraft){return this.repository.saveWithholdingDraft(id,draft)}
   companyInfo(){return this.repository.companyInfo()}
-  saveCompanyInfo(info:import('./companyInfo').CompanyInfo){return this.repository.saveCompanyInfo(info)}
+  async saveCompanyInfo(info:import('./companyInfo').CompanyInfo){if(info.workPlanning)validateWorkSettings(info.workPlanning);await this.repository.saveCompanyInfo(info);this.workChanged()}
   settlements(){return this.repository.settlements()}
   saveSettlements(rows:import('./companyInfo').SettlementSetting[]){return this.repository.saveSettlements(rows)}
   isAttendanceClosed(period:string){return this.repository.isAttendanceClosed(period)}
@@ -51,7 +63,7 @@ export class PayrollService {
   async createRun(input: PayrollRunInput) {
     if (!/^\d{4}-\d{2}$/.test(input.period)) throw new Error('급여 귀속월을 선택하세요.')
     if (!input.payDate) throw new Error('지급일을 입력하세요.')
-    return this.repository.createPayrollRun(input)
+    const run=await this.repository.createPayrollRun(input);this.workChanged();return run
   }
 
   deleteRun(id: string) { return this.repository.deletePayrollRun(id) }

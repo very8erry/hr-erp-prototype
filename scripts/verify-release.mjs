@@ -73,4 +73,6 @@ const summaryTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'s
 const latestTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-v073.tsx')],{cwd:root,stdio:'inherit'});if(latestTest.status!==0)process.exit(1)
 const currentTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-v074.ts')],{cwd:root,stdio:'inherit'});if(currentTest.status!==0)process.exit(1)
 const v075Test=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-v075.ts')],{cwd:root,stdio:'inherit'});if(v075Test.status!==0)process.exit(1)
+const scheduleTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-work-schedule.tsx')],{cwd:root,stdio:'inherit'});if(scheduleTest.status!==0)process.exit(1)
+const planningTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-planning-review.ts')],{cwd:root,stdio:'inherit'});if(planningTest.status!==0)process.exit(1)
 console.log(`\nRelease verification passed: v${version}`)

@@ -14,6 +14,8 @@ export type PayrollCalculationMethod = 'MASTER' | 'FORMULA' | 'OVERTIME' | 'MANU
 
 
 export interface Company {
+  scheduleReview?:import('../modules/operations/planningReview').PlanningReview
+
   withholdingDrafts?:Record<string,import('../modules/payroll/withholdingForm').WithholdingDraft>
   recruiting?: import("../modules/recruiting/recruiting").RecruitingState
   demoPayrollVersion?:number
