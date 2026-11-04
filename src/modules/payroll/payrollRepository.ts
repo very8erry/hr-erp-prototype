@@ -22,6 +22,12 @@ export type ConfirmSection='attendance'|'annual'|'daily'|'retirement'|'yearend'
 export interface PayrollRepository {
   refreshIssues():Promise<void>
   convertCandidate(input:import("../recruiting/evaluations").OnboardingInput):Promise<{personId:string;employmentId:string}>
+  planningReview():Promise<import('../operations/planningReview').PlanningReview>
+  proposeWorkEvent(row:import('../operations/operations').CalendarEvent):Promise<string>
+  proposeWorkSettings(settings:import('../operations/workSchedule').WorkSettings):Promise<void>
+  proposePayDate(id:string,date:string):Promise<void>
+  reviewPlanningChange(id:string,action:'승인'|'보류',note:string):Promise<string>
+  recordDocumentDelivery(row:import('../operations/planningReview').DeliveryRecord):Promise<void>
   scheduleSources():Promise<import('../operations/workSchedule').ScheduleSources>
   syncWorkYear(year:number):Promise<void>
   updatePayrollPayDate(id:string,payDate:string):Promise<void>

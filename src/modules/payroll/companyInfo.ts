@@ -1,4 +1,6 @@
 export interface CompanyInfo {
+  defaultPayrollDay?:number
+
   workPlanning?:import('../operations/workSchedule').WorkSettings
 
   industrialAccidentEmployerRate?:number|null;employmentInsuranceEmployerAdditionalRate?:number|null;insuranceRateSource?:string;insuranceRateEffectiveFrom?:string;

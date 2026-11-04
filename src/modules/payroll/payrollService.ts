@@ -4,6 +4,12 @@ import type { FilingFormValues,RetirementSettlement,YearEndTaxCase,AnnualLeaveLe
 import type { PayrollRepository,ConfirmSection } from './payrollRepository'
 
 export class PayrollService {
+  planningReview(){return this.repository.planningReview()}
+  async proposeWorkEvent(e:import('../operations/operations').CalendarEvent){const result=await this.repository.proposeWorkEvent(e);this.workChanged();return result}
+  async proposeWorkSettings(s:import('../operations/workSchedule').WorkSettings){validateWorkSettings(s);await this.repository.proposeWorkSettings(s);this.workChanged()}
+  async proposePayDate(id:string,date:string){await this.repository.proposePayDate(id,date);this.workChanged()}
+  async reviewPlanningChange(id:string,action:'승인'|'보류',note:string){const result=await this.repository.reviewPlanningChange(id,action,note);this.workChanged();return result}
+  async recordDocumentDelivery(row:import('../operations/planningReview').DeliveryRecord){await this.repository.recordDocumentDelivery(row);this.workChanged()}
   scheduleSources(){return this.repository.scheduleSources()}
   syncWorkYear(year:number){return this.repository.syncWorkYear(year)}
   async updatePayDate(id:string,date:string){await this.repository.updatePayrollPayDate(id,date);this.workChanged()}
