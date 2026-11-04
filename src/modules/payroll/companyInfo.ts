@@ -1,4 +1,7 @@
 export interface CompanyInfo {
+  yearEndRequirements?:import('./yearEndDocuments').YearEndRequirement[]
+  withholdingChecklists?:Record<string,import('./WithholdingChecklist').WithholdingCheck[]>
+
   defaultPayrollDay?:number
 
   workPlanning?:import('../operations/workSchedule').WorkSettings

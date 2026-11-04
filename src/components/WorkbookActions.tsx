@@ -1,0 +1,5 @@
+import {useState} from 'react'
+import {Upload} from 'lucide-react'
+import {DownloadActions} from './DownloadActions'
+import {readTable} from '../modules/attendance/attendanceFiles'
+export function WorkbookActions({name,headers,rows,onImport,label='목록 다운로드'}:{name:string;headers:string[];rows:unknown[][];onImport:(rows:Record<string,unknown>[])=>Promise<void>;label?:string}){const [message,setMessage]=useState(''),[busy,setBusy]=useState(false);return <><div className="workbookActions"><DownloadActions name={name} headers={headers} rows={rows} label={label}/><label className="fileButton"><Upload size={15}/>파일 업로드<input aria-label={name+' 파일 업로드'} type="file" disabled={busy} accept=".xlsx,.csv,.json" onChange={e=>{const file=e.target.files?.[0];if(!file)return;setBusy(true);setMessage('');void readTable(file).then(onImport).then(()=>setMessage('파일을 반영했습니다.')).catch(e=>setMessage(e.message)).finally(()=>setBusy(false));e.target.value=''}}/></label></div>{message&&<p role="status">{message}</p>}</>}
