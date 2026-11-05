@@ -5,3 +5,30 @@ dist
 
 .cache
 test-output
+
+# Local credentials and private configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.ppk
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+.npmrc.local
+.netrc
+.pypirc
+.aws/
+.ssh/
+secrets/
+credentials.json
+credentials.*.json
+secrets.json
+secrets.*.json
+service-account*.json
+config.secret.*
+config.secrets.*
