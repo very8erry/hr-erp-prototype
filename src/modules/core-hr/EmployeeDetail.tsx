@@ -1,3 +1,5 @@
+import {Pencil,UserRoundPlus,SpellCheck,IdCard,Upload} from 'lucide-react'
+import {ScrollTable} from '../../components/ScrollTable'
 import { Textarea } from '../../components/ui/textarea'
 import { Input } from '../../components/ui/input'
 import { NativeSelect } from '../../components/ui/native-select'
@@ -67,10 +69,9 @@ export function EmployeeDetail({ service, employee, employees, organizations, on
       <div><div className="avatar">{employee.name.slice(-2)}</div><div><h2>{employee.name} <small>{employee.employeeNumber}</small></h2><p>{employee.organizationName} · {employee.grade} · {employee.title} · {employee.job}</p><div className="heroTags"><span>{statusLabel[employee.status]}</span><span>{employee.domesticForeignType==='FOREIGN'?'외국인':'내국인'}</span>{currentVisa&&<VisaBadge expiryDate={currentVisa.expiryDate}/>}</div></div></div>
     </div>
 
-    <Button onClick={()=>setMasterEdit(true)}>직원 정보 수정</Button><Button onClick={()=>setAction(true)}>인사발령 등록</Button>
-    <Button className="back" onClick={()=>setShowNames(true)}>이름 검토 · 수정</Button>
+    <div className="employeeActions"><Button onClick={()=>setMasterEdit(true)}><Pencil/>직원정보 수정</Button><Button onClick={()=>setAction(true)}><UserRoundPlus/>인사발령 등록</Button><Button onClick={()=>setShowNames(true)}><SpellCheck/>이름 검토 · 수정</Button><Button variant="ghost" aria-label="가상식별번호 기준" title="가상식별번호 기준" onClick={()=>window.alert('가상식별번호는 SYN 접두어와 내부 고유값으로 구성합니다. 주민등록번호로 사용하지 않습니다.\n현재 값: '+detail.person.syntheticIdentifier)}><IdCard/></Button></div>
     {showNames&&<NameEditor person={detail.person} onClose={()=>setShowNames(false)} onSave={async(n,r)=>{await service.savePersonNames(detail.person.id,n,r);setShowNames(false);await saved('직원 이름을 저장했습니다.')}}/>}
-    <label>이력서 원본 업로드<input type="file" accept=".pdf,.doc,.docx,.hwp,.hwpx,.txt" onChange={e=>{const file=e.target.files?.[0];e.currentTarget.value='';if(file)void storeFile(file).then(f=>service.saveResume(employee.employmentId,f)).then(()=>saved('이력서 원본을 저장했습니다.')).catch(e=>setError(String(e)))}}/></label>{error&&<p role="alert">{error}</p>}
+    {error&&<p role="alert">{error}</p>}
     <div className="detailTabs" role="tablist">
       {([
         ['summary','요약'],['personal','개인정보'],['employment','고용정보'],['payroll','급여/세무'],
@@ -78,14 +79,14 @@ export function EmployeeDetail({ service, employee, employees, organizations, on
       ] as Array<[DetailTab,string]>).map(([key,label])=><Button key={key} className={tab===key?'active':''} onClick={()=>setTab(key)}>{label}</Button>)}
     </div>
 
-    {tab==='summary' && <SummaryTab detail={detail} payrollDependent={payrollDependent} currentVisa={currentVisa} currentBank={currentBank} managerName={managerName}/>} 
-    {tab==='personal' && <PersonalTab detail={detail} currentVisa={currentVisa} currentBank={currentBank} onAddDependent={()=>setDependentEdit('NEW')} onEditDependent={setDependentEdit} onEditMilitary={()=>setShowMilitary(true)}/>} 
-    {tab==='employment' && <EmploymentTab detail={detail} managerName={managerName} onEditManagers={()=>setShowManager(true)}/>} 
-    {tab==='payroll' && <PayrollTaxTab detail={detail} payrollDependent={payrollDependent}/>} 
-    {tab==='capability' && <CapabilityTab detail={detail}/>} 
-    {tab==='attendance' && <AttendanceTab detail={detail} managerName={managerName} onEditManagers={()=>setShowManager(true)}/>} 
-    {tab==='history' && <HistoryTab detail={detail} organizations={organizations}/>} 
-    {tab==='documents' && <DocumentsTab detail={detail}/>} 
+    {tab==='summary' && <SummaryTab detail={detail} payrollDependent={payrollDependent} currentVisa={currentVisa} currentBank={currentBank} managerName={managerName}/>}
+    {tab==='personal' && <PersonalTab detail={detail} currentVisa={currentVisa} currentBank={currentBank} onAddDependent={()=>setDependentEdit('NEW')} onEditDependent={setDependentEdit} onEditMilitary={()=>setShowMilitary(true)}/>}
+    {tab==='employment' && <><EmploymentTab detail={detail} managerName={managerName} onEditManagers={()=>setShowManager(true)}/><div className="panel"><h3>신고 직종 · 이직사유</h3><p>직종코드: {employee.occupationCode||'미지정'}</p><p>이직사유: {detail.socialInsuranceProfile?.departureReasonCode||'미입력'} · {detail.socialInsuranceProfile?.departureReason||''}</p><Button onClick={()=>setMasterEdit(true)}>직종·4대보험 정보 수정</Button></div></>}
+    {tab==='payroll' && <PayrollTaxTab detail={detail} payrollDependent={payrollDependent}/>}
+    {tab==='capability' && <CapabilityTab detail={detail}/>}
+    {tab==='attendance' && <AttendanceTab detail={detail} managerName={managerName} onEditManagers={()=>setShowManager(true)}/>}
+    {tab==='history' && <HistoryTab detail={detail} organizations={organizations}/>}
+    {tab==='documents' && <DocumentsTab detail={detail} service={service} onSaved={()=>saved('첨부문서를 저장했습니다.')}/>}
 
     {masterEdit&&<MasterEditor detail={detail} service={service} onClose={()=>setMasterEdit(false)} onSaved={async()=>{setMasterEdit(false);await saved('직원 원천정보를 저장했습니다.')}}/>}
     {action&&<Modal onClose={()=>setAction(false)} className="modalBackdrop"><form className="modal" role="dialog" aria-label="인사발령 등록" onSubmit={e=>{e.preventDefault();void service.createPersonnelAction({employmentId:employee.employmentId,eventType:actionType,value:actionValue,effectiveDate:actionDate,reason:actionReason}).then(async()=>{setAction(false);await saved('인사발령을 저장했습니다.')}).catch(e=>setError(String(e)))}}><h3>인사발령 등록</h3><label>발령 유형<NativeSelect value={actionType} onChange={e=>{setActionType(e.target.value as typeof actionType);setActionValue('')}}>{Object.entries(eventLabel).map(([k,v])=><option key={k} value={k}>{v}</option>)}</NativeSelect></label><label>변경값{actionType==='ORG_TRANSFER'?<NativeSelect required value={actionValue} onChange={e=>setActionValue(e.target.value)}><option value="">조직 선택</option>{organizations.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</NativeSelect>:actionType==='STATUS_CHANGE'?<NativeSelect required value={actionValue} onChange={e=>setActionValue(e.target.value)}><option value="">상태 선택</option>{Object.entries(statusLabel).map(([k,v])=><option key={k} value={k}>{v}</option>)}</NativeSelect>:<Input required value={actionValue} onChange={e=>setActionValue(e.target.value)}/>}</label><label>효력일<Input required type="date" min={employee.hireDate} value={actionDate} onChange={e=>setActionDate(e.target.value)}/></label><label>사유<Input required value={actionReason} onChange={e=>setActionReason(e.target.value)}/></label>{error&&<p role="alert">{error}</p>}<Button>발령 저장</Button><Button type="button" onClick={()=>setAction(false)}>닫기</Button></form></Modal>}
@@ -184,12 +185,9 @@ function HistoryTab({detail,organizations}:{detail:EmployeeMasterDetail;organiza
   </div>
 }
 
-function DocumentsTab({detail}:{detail:EmployeeMasterDetail}) {
-  const certDocs=detail.certifications.filter(c=>c.attachmentName)
-  return <div className="grid2">
-    <Section title="Resume / 경력문서"><ResumeList rows={detail.resumes}/></Section>
-    <Section title="자격 첨부문서">{certDocs.length?certDocs.map(c=><RecordCard key={c.id} title={c.attachmentName??''} lines={[c.name,c.issuer,'Dummy File Metadata']}/>):<p className="empty">첨부문서 메타데이터가 없습니다.</p>}</Section>
-  </div>
+function DocumentsTab({detail,service,onSaved}:{detail:EmployeeMasterDetail;service:HrService;onSaved:()=>Promise<void>}) {
+ const [error,setError]=useState(''),[busy,setBusy]=useState(false);
+ return <section><div className="dashboardHeading"><h3>이력서 원본</h3><label className="fileAction"><Upload size={16}/>파일 업로드<input hidden type="file" disabled={busy} accept=".pdf,.doc,.docx,.hwp,.hwpx,.txt" onChange={e=>{const f=e.target.files?.[0];e.currentTarget.value='';if(f){setBusy(true);void storeFile(f).then(file=>service.saveResume(detail.employee.employmentId,file)).then(onSaved).catch(e=>setError(String(e))).finally(()=>setBusy(false))}}}/></label></div>{error&&<p role="alert">{error}</p>}<ScrollTable><table><thead><tr>{['파일명','버전','등록일','등록자','상태','다운로드'].map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>{detail.resumes.map(r=><tr key={r.id}><td>{r.fileName}</td><td>{r.version}</td><td>{r.uploadedAt.slice(0,10)}</td><td>{r.uploadedBy}</td><td>{r.status==='CURRENT'?'현재':'보관'}</td><td>{r.storedFile?<a href={r.storedFile.dataUrl} download={r.storedFile.name}>다운로드</a>:'원본 없음'}</td></tr>)}{!detail.resumes.length&&<tr><td colSpan={6}>등록된 이력서가 없습니다.</td></tr>}</tbody></table></ScrollTable></section>
 }
 
 function militaryStatusLabel(status:MilitaryServiceProfile['status']) { return status==='COMPLETED'?'군필':status==='SERVING'?'복무중':status==='EXEMPT'?'면제':'해당없음' }
