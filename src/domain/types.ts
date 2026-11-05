@@ -164,6 +164,8 @@ export interface TaxProfile {
 }
 
 export interface SocialInsuranceProfile {
+  departureReasonCode?:string
+  departureReason?:string
   id: string
   employmentId: string
   nationalPensionEligible: boolean
@@ -497,6 +499,8 @@ export interface PayrollItemMaster {
 }
 
 export interface EmployeeView {
+  departureReasonCode?:string
+  departureReason?:string
   occupationCode?:string
   occupationCodeManual?:boolean
   employmentId: string

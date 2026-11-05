@@ -1,4 +1,5 @@
 import * as React from "react"
+import { Modal } from "./modal"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -43,15 +44,27 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     variant ??= className?.split(/\s+/).includes("primary") ? "default" : className?.includes("danger") ? "destructive" : "outline"
+    const [pending,setPending]=React.useState<{context:string;proceed:()=>void}|null>(null)
     const Comp = asChild ? Slot : "button"
     return (
-      <Comp
+      <> <Comp
         data-slot="button"
         data-variant={variant}
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
-      />
+        onClick={(event:React.MouseEvent<HTMLButtonElement>)=>{
+          const button=event.currentTarget,title=button.getAttribute('aria-label')||button.textContent||'';
+          if((/삭제|제거/.test(title)||!!button.querySelector('[class*=trash]'))&&!String(props.onClick).includes('confirm(')){
+            event.preventDefault();event.stopPropagation();
+            const row=button.closest('tr,article,.manualDayRow,.policyAttachmentRow');
+            const context=(button.getAttribute('aria-label')||row?.querySelector('td,strong,h3,h4')?.textContent||title).trim().slice(0,120);
+            const replay={...event,currentTarget:button,target:event.target,preventDefault:()=>event.preventDefault(),stopPropagation:()=>event.stopPropagation()} as React.MouseEvent<HTMLButtonElement>;
+            setPending({context,proceed:()=>{if(props.onClick)props.onClick(replay);else if(button.type==='submit')button.form?.requestSubmit(button)}});return;
+          }
+          props.onClick?.(event)
+        }}
+      />{pending&&<Modal onClose={()=>setPending(null)}><div className="modal deleteConfirm" role="alertdialog" aria-label="삭제 확인"><h3>삭제 확인</h3><p>진짜 [{pending.context}] 삭제하시겠습니까?</p><div className="modalActions"><button type="button" onClick={()=>setPending(null)}>취소</button><button type="button" className="danger" onClick={()=>{const proceed=pending.proceed;setPending(null);proceed()}}>삭제</button></div></div></Modal>}</>
     )
   }
 )

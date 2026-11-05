@@ -1,3 +1,4 @@
+import {EmployeeIssueBoard} from './EmployeeIssueBoard'
 import {WorkSchedulePage} from '../modules/operations/WorkSchedulePage'
 import {describeAudit} from './auditDescription'
 import {NoticeBoard} from '../modules/operations/WorkRulesPanel'
@@ -35,7 +36,7 @@ const repository = new IndexedDbHrRepository()
 const service = new HrService(repository)
 const payrollService = new PayrollService(repository)
 
-type View = 'dashboard' | 'employees' | 'audit' | 'attendance' | 'payroll' | 'daily' | 'company' | 'recruiting' | 'welfare' | 'notices' | 'workSchedule'
+type View = 'dashboard' | 'employees' | 'audit' | 'attendance' | 'payroll' | 'daily' | 'company' | 'recruiting' | 'welfare' | 'notices' | 'workSchedule' | 'issues'
 
 export default function App() {
   const [showBuildNotice,setShowBuildNotice]=useState(()=>typeof localStorage!=='undefined'&&localStorage.getItem('dismissedBuild')!==BUILD_VERSION)
@@ -80,7 +81,7 @@ export default function App() {
 
   return <div className="shell">
     <TableControls/>{sidebarOpen&&<button className="mobileSidebarScrim" aria-label="메뉴 닫기" onClick={()=>setSidebarOpen(false)}/>}<aside className={`sidebar ${sidebarOpen?'isOpen':''}`}>
-      {showBuildNotice&&<Modal onClose={()=>{localStorage.setItem('dismissedBuild',BUILD_VERSION);setShowBuildNotice(false)}} className="modalBackdrop"><div className="modal" role="dialog" aria-modal="true" aria-label="개선사항 안내"><Button className="noticeClose" aria-label="닫기" onClick={()=>{localStorage.setItem('dismissedBuild',BUILD_VERSION);setShowBuildNotice(false)}}>×</Button><p>HRIS 개선사항 테스트 중.</p></div></Modal>}<div className="brand"><span className="brandMark">HR</span><div><strong>lemonpAI</strong><small>인사 실습 시스템</small><em className="buildBadge">Build {BUILD_VERSION}</em></div></div>
+      {showBuildNotice&&<Modal onClose={()=>{localStorage.setItem('dismissedBuild',BUILD_VERSION);setShowBuildNotice(false)}} className="modalBackdrop"><div className="modal" role="dialog" aria-modal="true" aria-label="개선사항 안내"><Button className="noticeClose" aria-label="닫기" onClick={()=>{localStorage.setItem('dismissedBuild',BUILD_VERSION);setShowBuildNotice(false)}}>×</Button><p>HRIS 개선사항 테스트 중.</p></div></Modal>}<div className="brand"><span className="brandMark">HR</span><div><strong>lemonpAI</strong><small>인사 실습･검토 시스템</small><em className="buildBadge">Build {BUILD_VERSION}</em></div></div>
       <nav aria-label="주요 메뉴"><div className="navGroup">워크스페이스</div>
         <Nav active={view==='dashboard'} onClick={()=>setView('dashboard')}>대시보드</Nav>
         <Nav active={view==='workSchedule'} onClick={()=>setView('workSchedule')}>업무일정</Nav>
@@ -89,15 +90,16 @@ export default function App() {
         <Nav active={view==='payroll'} onClick={()=>setView('payroll')}>급여</Nav>
         <Nav active={view==='daily'} onClick={()=>setView('daily')}>일용직</Nav>
         <Nav active={view==='company'} onClick={()=>setView('company')}>회사정보</Nav>
-        <Nav active={view==='notices'} onClick={()=>setView('notices')}>공지게시판</Nav><Nav active={view==='audit'} onClick={()=>{setView('audit');void refresh()}}>감사로그</Nav>
+        <Nav active={view==='issues'} onClick={()=>setView('issues')}>이슈업무 진행상황</Nav><Nav active={view==='audit'} onClick={()=>{setView('audit');void refresh()}}>로그</Nav>
         <Nav active={view==='recruiting'} onClick={()=>setView('recruiting')}>채용 <span className="badge muted">구조화중</span></Nav><Nav active={view==='welfare'} onClick={()=>setView('welfare')}>복지</Nav><div className="navGroup">확장 모듈</div>
-        {['인사평가','보상','인공지능 실습','인재개발','시뮬레이션'].map(label=><Button key={label} className="nav disabled" disabled title="다음 개발 단계에서 연결됩니다."><FlaskConical aria-hidden="true"/><span className="navLabel">{label}<span>추후</span></span></Button>)}
-      </nav><div className="sidebarFooter"><div><span className="adminAvatar"><CircleUserRound size={18} aria-hidden="true"/></span><div><strong>인사 관리자 모드</strong><small>교육용 가상 워크스페이스</small></div><ChevronRight size={14} aria-hidden="true"/></div></div>
+        {['인사평가','인공지능 실습','인재개발','시뮬레이션'].map(label=><Button key={label} className="nav disabled" disabled title="다음 개발 단계에서 연결됩니다."><FlaskConical aria-hidden="true"/><span className="navLabel">{label}<span>추후</span></span></Button>)}
+      </nav><div className="sidebarFooter"><div><span className="adminAvatar"><CircleUserRound size={18} aria-hidden="true"/></span><div><strong>인사 관리자 모드</strong><small>가상 워크스페이스</small></div><ChevronRight size={14} aria-hidden="true"/></div></div>
     </aside>
     <main className="main">
       <header className="topbar"><div><div className="topbarTitleRow"><Button variant="outline" className="mobileMenuButton" aria-label="메뉴 열기" aria-expanded={sidebarOpen} onClick={()=>setSidebarOpen(true)}><PanelLeft aria-hidden="true"/></Button><h1>{company?.name}</h1></div><p>인사 통합 운영 워크스페이스 · 대한민국 · Build {BUILD_VERSION}</p><p className="demoNotice">{company?.demoNotice}</p></div><DataToolbar attendance={view==='attendance'} employees={employees} hr={service} payroll={payrollService} onImported={async()=>{await refresh();setSelectedId(null);setDataRevision(v=>v+1)}} onNotice={setNotice} onReset={resetDemo}/></header>
       {notice&&<div className="toast" role="status">{notice}<Button onClick={()=>setNotice('')}>×</Button></div>}
       {view==='dashboard'&&<OperationsDashboard key={dataRevision} employees={employees} service={payrollService}/>} 
+      {view==='issues'&&<EmployeeIssueBoard employees={employees} leaves={leaveCases} today={seoulDate()} service={payrollService}/>}
       {view==='workSchedule'&&<WorkSchedulePage key={dataRevision} service={payrollService}/>}
       {view==='employees'&&!selected&&<EmployeeList onRegister={()=>setShowRegister(true)} leaveCases={leaveCases} employees={employees} onSelect={setSelectedId}/>} 
       {showRegister&&<EmployeeRegistrationModal organizations={organizations} onClose={()=>setShowRegister(false)} onSave={async data=>{await service.registerEmployee(data);setShowRegister(false);await refresh()}}/>}
@@ -112,7 +114,7 @@ export default function App() {
   </div>
 }
 
-const navIcons:Record<string,LucideIcon>={'업무일정':CalendarDays,'대시보드':LayoutDashboard,'직원 관리':Users,'근태':CalendarDays,'급여':Wallet,'일용직':HardHat,'회사정보':Building2,'공지게시판':ScrollText,'감사로그':ScrollText,'채용':BriefcaseBusiness,'복지':HeartHandshake}
+const navIcons:Record<string,LucideIcon>={'업무일정':CalendarDays,'대시보드':LayoutDashboard,'직원 관리':Users,'근태':CalendarDays,'급여':Wallet,'일용직':HardHat,'회사정보':Building2,'공지게시판':ScrollText,'로그':ScrollText,'채용':BriefcaseBusiness,'복지':HeartHandshake}
 function Nav({active,onClick,children}:{active:boolean;onClick:()=>void;children:ReactNode}) { const label=Children.toArray(children).find(c=>typeof c==='string')?.toString().trim()??'';const Icon=navIcons[label]??LayoutDashboard;return <Button variant="ghost" className={`nav ${active?'active':''}`} aria-current={active?'page':undefined} onClick={onClick}><Icon aria-hidden="true"/><span className="navLabel">{children}</span></Button> }
 
 function Dashboard({summary,employees}:{summary:ReturnType<typeof HrService.summary>;employees:EmployeeView[]}) {
@@ -134,4 +136,4 @@ export function EmployeeList({employees,onSelect,leaveCases,onRegister}:{onRegis
  const filtered=employees.filter(e=>Object.entries(filters).every(([k,v])=>v==='ALL'||e[k as keyof typeof filters]===v)&&`${e.name} ${e.englishName} ${e.employeeNumber}`.toLowerCase().includes(query.toLowerCase()))
  return <section><div className="pageTitle"><div><h2>직원 관리</h2></div><div className="toolbar">{onRegister&&<Button onClick={onRegister}>직원 등록</Button>}<span className="count">{filtered.length}명</span></div></div><div className="filters coreFilters"><Input value={query} onChange={e=>setQuery(e.target.value)} placeholder="이름 / 영문명 / 사번 검색"/><NativeSelect aria-label="검색 분류" value={category} onChange={e=>setCategory(e.target.value as typeof category)}>{Object.entries(labels).map(([k,v])=><option key={k} value={k}>{v}</option>)}</NativeSelect><SearchSelect key={category} label={labels[category]} value={filters[category]} options={options} onChange={v=>setFilters({...filters,[category]:v})}/><Button onClick={()=>{setFilters({status:'ALL',organizationName:'ALL',job:'ALL',grade:'ALL'});setQuery('')}}>필터 초기화</Button></div><ScrollTable><table><thead><tr><th>사번</th><th>성명</th><th>구분</th><th>상태</th><th>조직</th><th>직급</th><th>직책</th><th>직무</th><th>입사일</th><th>퇴사일</th></tr></thead><tbody>{filtered.map(e=><tr key={e.employmentId} onClick={()=>onSelect(e.employmentId)}><td>{e.employeeNumber}</td><td><strong>{e.name}</strong><small className="cellSub">{e.englishName}</small></td><td>{e.domesticForeignType==='FOREIGN'?'외국인':'내국인'}</td><td><span className={`status ${e.status.toLowerCase()}`}>{statusLabel[e.status]}{e.status==='LEAVE'&&` · ${leaveLabels[leaveCases.find(r=>r.employmentId===e.employmentId&&r.startDate<=new Date().toISOString().slice(0,10)&&(!r.endDate||r.endDate>=new Date().toISOString().slice(0,10)))?.kind??'UNCLASSIFIED']}`}</span></td><td>{e.organizationName}</td><td>{e.grade}</td><td>{e.title}</td><td>{e.job}</td><td>{e.hireDate}</td><td>{e.terminationDate??'—'}</td></tr>)}</tbody></table></ScrollTable></section>
 }
-function AuditList({rows}:{rows:AuditLog[]}) { return <section><div className="pageTitle"><div><h2>감사로그</h2><p>누가 · 언제 · 어디서 · 무엇을 · 어떻게 · 왜 변경했는지 확인합니다.</p></div><span className="count">{rows.length}건</span></div><div className="auditCards">{rows.map(r=>{const a=describeAudit(r);return <article className="auditCard" key={r.id}><dl>{([['언제',a.when],['누가',a.who],['어디서',a.where],['무엇을',a.what],['어떻게',a.how],['왜',a.why]] as const).map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}{label==='무엇을'&&<small className="cellSub">대상: {a.target}</small>}</dd></div>)}</dl></article>})}{!rows.length&&<p>아직 기록된 변경 내역이 없습니다.</p>}</div></section> }
+function AuditList({rows}:{rows:AuditLog[]}) {return <section><div className="pageTitle"><h2>로그</h2><span>{rows.length}건</span></div><ScrollTable><table className="compactLog"><thead><tr>{['언제','누가','어디서','무엇을','대상','어떻게','왜'].map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>{rows.map(r=>{const a=describeAudit(r);return <tr key={r.id}>{[a.when,a.who,a.where,a.what,a.target,a.how,a.why].map((v,i)=><td key={i} title={v}>{v}</td>)}</tr>})}</tbody></table></ScrollTable></section>}

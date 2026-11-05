@@ -199,9 +199,18 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     await this.persistSelectionUpgrade()
     await this.initializeOperations()
     await upgradeLemonOperations(this.requireDb(),await this.listEmployees());await repairLemonOccupationMapping(this.requireDb(),await this.listEmployees());await seedWorkRules(this.requireDb());await seedStaffNotices(this.requireDb());await seedIssueProgressDemo(this.requireDb())
+    await this.initializeRequestedV078()
     await this.applyDueEvents()
   }
 
+  private async initializeRequestedV078(){
+    if(await this.getOne(STORES.meta,'requestedV078'))return;
+    const company=await this.getCompany(),info=await this.companyInfo(),persons=await this.getAll<Person>(STORES.persons),tx=this.requireDb().transaction([STORES.company,STORES.persons,STORES.calendarEvents,STORES.meta],'readwrite'),done=txDone(tx);
+    tx.objectStore(STORES.company).put({...company,reportingInfo:{...info,email:'lemonpai314@lemonpai314.com',industrialAccidentEmployerRate:info.industrialAccidentEmployerRate??0.66,employmentInsuranceEmployerAdditionalRate:info.employmentInsuranceEmployerAdditionalRate??0.65}});
+    for(const person of persons)if(person.email)tx.objectStore(STORES.persons).put({...person,email:person.email.split('@')[0]+'@lemonpai314.com'});
+    for(const event of calendarSeed().filter(e=>e.id.startsWith('CAL-FOUNDING-')))tx.objectStore(STORES.calendarEvents).put(event);
+    tx.objectStore(STORES.meta).put({id:'requestedV078',value:'1'});await done;
+  }
   async saveResume(employmentId:string,file:import('../../domain/attachments').StoredFile):Promise<void>{if(!await this.getEmployee(employmentId))throw new Error('직원을 찾을 수 없습니다.');if(file.size>10*1024*1024||!file.dataUrl.startsWith('data:'))throw new Error('첨부파일을 확인하세요.');const resumes=(await this.getAll<ResumeDocument>(STORES.resumes)).filter(r=>r.employmentId===employmentId),row:ResumeDocument={id:crypto.randomUUID(),employmentId,fileName:file.name,version:Math.max(0,...resumes.map(r=>r.version))+1,uploadedAt:new Date().toISOString(),uploadedBy:'HR_ADMIN',status:'CURRENT',storedFile:file};const tx=this.requireDb().transaction([STORES.resumes,STORES.auditLogs],'readwrite'),done=txDone(tx);resumes.filter(r=>r.status==='CURRENT').forEach(r=>tx.objectStore(STORES.resumes).put({...r,status:'ARCHIVED'}));tx.objectStore(STORES.resumes).put(row);tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:row.uploadedAt,actor:'HR_ADMIN',action:'UPLOAD_RESUME',entityType:'RESUME',entityId:row.id,detail:JSON.stringify({employmentId,fileName:file.name,size:file.size,version:row.version})});await done}
   async editMaster(input:import('../../domain/masterEdit').MasterEdit):Promise<void>{
     if(!input.reason.trim())throw new Error('수정 사유가 필요합니다.');const detail=await this.getEmployeeMaster(input.employmentId);if(!detail)throw new Error('직원을 찾을 수 없습니다.');const {masterFields}=await import('../../domain/masterEdit');const fields:readonly string[]=masterFields[input.section];if(!fields||Object.keys(input.values).some(k=>!fields.includes(k)))throw new Error('수정할 수 없는 필드입니다.');const old=input.section==='occupation'?detail.assignmentHistory.find(a=>!a.effectiveTo):input.section==='person'?detail.person:input.section==='employment'?await this.getOne<Employment>(STORES.employments,input.employmentId):input.section==='address'?detail.address:input.section==='bank'?detail.bankAccounts.find(r=>!r.effectiveEndDate&&r.isPayrollAccount):input.section==='tax'?detail.taxProfile:detail.socialInsuranceProfile;if(!old)throw new Error('현재 원천정보가 없습니다. 해당 등록 기능을 먼저 사용하세요.');const next={...old,...input.values} as Record<string,unknown>;for(const [key,value]of Object.entries(input.values)){if(typeof (old as unknown as Record<string,unknown>)[key]==='boolean'&&typeof value!=='boolean')throw new Error('참/거짓 값을 확인하세요.')}if(input.section==='person'&&(!String(next.fullName).trim()||!['M','F'].includes(String(next.gender))))throw new Error('이름·성별 값을 확인하세요.');if(input.section==='employment'&&(!/^\d{4}-\d{2}-\d{2}$/.test(String(next.hireDate))||next.terminationDate&&String(next.terminationDate)<String(next.hireDate)))throw new Error('입사·퇴사일을 확인하세요.');if(input.section==='occupation'&&next.occupationCodeManual&&!/^\d{3}$/.test(String(next.occupationCode)))throw new Error('수동 신고 직종코드는 3자리입니다.');const store=input.section==='occupation'?STORES.assignments:input.section==='person'?STORES.persons:input.section==='employment'?STORES.employments:input.section==='address'?STORES.addresses:input.section==='bank'?STORES.bankAccounts:input.section==='tax'?STORES.taxProfiles:STORES.socialInsuranceProfiles;const tx=this.requireDb().transaction([store,STORES.auditLogs],'readwrite'),done=txDone(tx);tx.objectStore(store).put(next);tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'EDIT_EMPLOYEE_MASTER',entityType:input.section,entityId:old.id,detail:JSON.stringify({reason:input.reason,before:old,after:next})});await done
@@ -331,6 +340,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       this.getAll<Employment>(STORES.employments), this.getAll<Assignment>(STORES.assignments),
       this.getAll<CompensationSnapshot>(STORES.compensations), this.getAll<Organization>(STORES.organizations),
     ])
+    const insuranceProfiles=await this.getAll<SocialInsuranceProfile>(STORES.socialInsuranceProfiles);const reporting=await this.companyInfo(),mappings=await this.getAll<OccupationMapping>(STORES.occupationCodeMappings);
     const pMap = new Map(persons.map((p) => [p.id, p]))
     const oMap = new Map(orgs.map((o) => [o.id, o]))
     const currentAddress = new Map<string, Address>()
@@ -355,25 +365,28 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
         domesticForeignType:person.domesticForeignType, nationality:person.nationality, mobile:person.mobile, email:person.email,
         address:address ? `${address.addressLine1} ${address.addressLine2}` : '-', syntheticIdentifier:person.syntheticIdentifier,
         bankName:bank?.bankName ?? '-', bankAccount:bank?.accountNumberMasked ?? '-', hireDate:employment.hireDate,
-        terminationDate:employment.terminationDate, employmentType:employment.employmentType, status:employment.status,
+        departureReasonCode:insuranceProfiles.find(p=>p.employmentId===employment.id&&!p.effectiveEndDate)?.departureReasonCode,departureReason:insuranceProfiles.find(p=>p.employmentId===employment.id&&!p.effectiveEndDate)?.departureReason,terminationDate:employment.terminationDate, employmentType:employment.employmentType, status:employment.status,
         organizationId:assignment.organizationId, organizationName:oMap.get(assignment.organizationId)?.name ?? '미지정',
-        occupationCode:assignment.occupationCode,occupationCodeManual:assignment.occupationCodeManual,grade:assignment.grade, title:assignment.title, job:assignment.job, workLocation:assignment.workLocation,
+        occupationCode:occupationCode(mappings,seoulDate(),assignment.organizationId,assignment.job,reporting.occupationCode,assignment.occupationCodeManual?assignment.occupationCode:undefined),occupationCodeManual:assignment.occupationCodeManual,grade:assignment.grade, title:assignment.title, job:assignment.job, workLocation:assignment.workLocation,
         annualSalary:comp.annualSalary,
       }]
     })
   }
 
   async listEmployees(): Promise<EmployeeView[]> {
+    await this.initializeRequestedV078()
     await this.applyDueEvents()
     return (await this.employeeViews()).sort((a,b) => a.employeeNumber.localeCompare(b.employeeNumber))
   }
 
   async getEmployee(employmentId: string): Promise<EmployeeView | null> {
+    await this.initializeRequestedV078()
     await this.applyDueEvents()
     return (await this.employeeViews()).find((row) => row.employmentId === employmentId) ?? null
   }
 
   async getEmployeeMaster(employmentId: string): Promise<EmployeeMasterDetail | null> {
+    await this.initializeRequestedV078()
     await this.applyDueEvents()
     const employee = await this.getEmployee(employmentId)
     if (!employee) return null
@@ -857,6 +870,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   async companyInfo():Promise<CompanyInfo>{const c=await this.getCompany();return {...defaultCompanyInfo,name:c.name,...c.reportingInfo}}
   async saveCompanyInfo(info:CompanyInfo){
     if(!info.name.trim()||!info.address.trim()||!info.representative.trim()||!/^\d{3}-?\d{2}-?\d{5}$/.test(info.businessNumber)||!/^\d{11}$/.test(info.managementNumber)||!/^\d{2,3}-\d{3,4}-\d{4}$/.test(info.telephone)||!/^\d{3}$/.test(info.occupationCode)||![1,3,5].includes(info.insuranceCode)||![1,2,3].includes(info.departureCode))throw new Error('회사정보의 필수값·번호 형식을 확인하세요. 회사 전화번호는 02-0000-0000 형태로 입력하세요.')
+    if(info.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email))throw new Error('회사 이메일 형식을 확인하세요.');for(const rate of [info.industrialAccidentEmployerRate,info.employmentInsuranceEmployerAdditionalRate])if(rate!=null&&(!Number.isFinite(rate)||rate<0||rate>100))throw new Error('보험요율 범위는 0~100%입니다.');
     const c=await this.getCompany();await this.put(STORES.company,{...c,name:info.name,reportingInfo:info})
   }
   async settlements():Promise<SettlementSetting[]>{return (await this.getCompany()).settlements??defaultSettlements}
