@@ -1,7 +1,7 @@
 {
   "name": "hr-training-simulator",
   "private": true,
-  "version": "0.7.8",
+  "version": "0.7.9",
   "type": "module",
   "scripts": {
     "dev": "node scripts/start-mac.mjs",
@@ -35,6 +35,7 @@
     "exceljs": "^4.4.0",
     "jszip": "^3.10.1",
     "lucide-react": "^1.54.0",
+    "pdfjs-dist": "^5.7.284",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "tailwind-merge": "^3.7.0",

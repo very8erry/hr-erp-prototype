@@ -1,5 +1,5 @@
 import type {PayrollEntry,PayrollEntryInput,PayrollResult,PayrollRun} from '../../domain/types'
-export const amountLabels:Record<string,string>={P104:'식대',P105:'자가운전보조비',P108:'직책수당',P109:'자격수당',P110:'직무수당',P111:'해외근무수당',P121:'야간수당',P122:'휴일수당',P131:'성과상여',P134:'연차수당',P135:'보육수당',P136:'출산지원금',P137:'실비정산'}
+export const amountLabels:Record<string,string>={P104:'식대',P105:'자가운전보조비',P108:'직책수당',P109:'자격수당',P110:'직무수당',P111:'해외근무수당',P121:'야간수당',P122:'휴일수당',P131:'성과상여',P134:'연차수당',P135:'보육수당',P136:'출산지원금',P137:'실비정산',P141:'연구개발비(연구활동비)'}
 export const inputLabels={monthlyBasePay:'월 기본급',prorationRate:'일할비율',taxableAllowance:'과세수당',nonTaxableAllowance:'비과세수당',overtimePay:'연장수당',bonus:'정기상여',retroPay:'소급지급',otherEarnings:'기타수당',unpaidDeduction:'무급차감',otherDeductions:'기타공제',pensionBaseMonthly:'연금기준소득',healthBaseMonthly:'건강보수월액',employmentInsuranceBaseMonthly:'고용보수월액',incomeTaxManual:'소득세 입력'} as const
 export const insuranceLabels={nationalPension:'국민연금 수기',healthInsurance:'건강보험 수기',longTermCareInsurance:'장기요양 수기',employmentInsurance:'고용보험 수기',localIncomeTax:'지방소득세 수기'} as const
 export type EditableKey=keyof typeof inputLabels

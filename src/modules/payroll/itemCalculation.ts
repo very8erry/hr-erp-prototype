@@ -21,7 +21,16 @@ export function evaluateFormula(formula:string,values:Record<string,number>):num
  const expression=():number=>{let n=product();while(tokens[index]==='+'||tokens[index]==='-'){const op=tokens[index++],rhs=product();n=op==='+'?n+rhs:n-rhs}return n}
  const result=expression();if(index!==tokens.length||!Number.isFinite(result)||result<0)throw new Error('산출 결과는 0 이상의 유한한 금액이어야 합니다.');return Math.round(result)
 }
+export const workMultiplierDefaults={P120:1.5,P121:0.5,P122:1.5} as const
+export const holidayExtraDefault=0.5
+export function workMultipliers(items:PayrollItemMaster[]){
+ const get=(code:keyof typeof workMultiplierDefaults)=>items.find(i=>i.code===code)?.workMultiplier??workMultiplierDefaults[code];
+ return {연장가산율:get('P120'),야간가산율:get('P121'),휴일가산율:get('P122'),휴일초과가산율:items.find(i=>i.code==='P122')?.holidayExtraMultiplier??holidayExtraDefault}
+}
 export function validateItemCalculation(item:PayrollItemMaster){
+ const min=workMultiplierDefaults[item.code as keyof typeof workMultiplierDefaults];
+ if(item.workMultiplier!==undefined&&(min===undefined||!Number.isFinite(item.workMultiplier)||item.workMultiplier<min))throw new Error('기본 배율 이상의 값을 입력하세요.');
+ if(item.holidayExtraMultiplier!==undefined&&(item.code!=='P122'||!Number.isFinite(item.holidayExtraMultiplier)||item.holidayExtraMultiplier<holidayExtraDefault))throw new Error('휴일 초과 추가배율은 0.5 이상입니다.');
  if(item.calculationMode&&!['DEFAULT','FORMULA','MANUAL'].includes(item.calculationMode))throw new Error(`${item.name}: 적용 방식을 확인하세요.`)
  if(item.calculationMode==='MANUAL'&&(!Number.isFinite(item.manualAmount)||item.manualAmount!<0))throw new Error(`${item.name}: 수기 금액은 0 이상이어야 합니다.`)
  if(item.ordinaryWage&&item.formula&&/통상시급|통상임금월액/.test(item.formula))throw new Error('통상임금 항목은 자신의 통상시급을 참조할 수 없습니다.');

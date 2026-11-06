@@ -31,7 +31,7 @@ import {InsuranceFilingPanel,WithholdingFilingPanel} from './InsuranceFilingPane
 import {AnnualLeavePanel} from '../attendance/AnnualLeavePanel'
 import { AttendancePage } from '../attendance/AttendancePage'
 import { readTable, exportTable, type FileFormat } from '../attendance/attendanceFiles'
-import { PayrollSettingsPanel, CalculationOptions, PersonalDetail } from './PayrollTools'
+import { AnnualPolicySettings, PayrollSettingsPanel, CalculationOptions, PersonalDetail } from './PayrollTools'
 
 import {DailyWorkerPage} from './DailyWorkerPage'
 import {RetirementPanel,YearEndPanel} from './SettlementPanels'
@@ -101,7 +101,7 @@ export function PayrollPage({service,onNotice,employees,organizations}:{service:
     {view==='filing'&&<WithholdingFilingPanel runs={runs} service={service}/>}
     {view==='insurance'&&<InsuranceFilingPanel runs={runs} service={service} employees={employees}/>}
     {view==='summary'&&<UnifiedPayroll service={service}/>}
-    {view==='settings'&&<><div className="moduleTabs">{['급여 산출기준','정산항목','회사 캘린더','직종코드','취업규칙'].map(t=><Button key={t} className={settingsView===t?'active':''} onClick={()=>setSettingsView(t)}>{t}</Button>)}</div>{settingsView==='취업규칙'&&<WorkRulesPanel service={service}/>} {settingsView==='정산항목'&&<SettlementSettings service={service}/>} {settingsView==='회사 캘린더'&&<CalendarPanel service={service} scope="COMPANY"/>} {settingsView==='직종코드'&&<OccupationPanel service={service} employees={employees}/>} {settingsView==='급여 산출기준'&&<PayrollSettingsPanel items={items} onSave={async(next)=>{await service.saveSettings(next);await refreshReference();await refreshRuns();if(selectedId)await refreshSelected(selectedId)}} onRestore={async()=>{await service.restoreSettings();await refreshReference();await refreshRuns();if(selectedId)await refreshSelected(selectedId)}}/>}</>}
+    {view==='settings'&&<><div className="moduleTabs">{['급여 산출기준','정산항목','연차','회사 캘린더','직종코드','취업규칙'].map(t=><Button key={t} className={settingsView===t?'active':''} onClick={()=>setSettingsView(t)}>{t}</Button>)}</div>{settingsView==='연차'&&<AnnualPolicySettings service={service}/>} {settingsView==='취업규칙'&&<WorkRulesPanel service={service}/>} {settingsView==='정산항목'&&<SettlementSettings service={service}/>} {settingsView==='회사 캘린더'&&<CalendarPanel service={service} scope="COMPANY"/>} {settingsView==='직종코드'&&<OccupationPanel service={service} employees={employees}/>} {settingsView==='급여 산출기준'&&<PayrollSettingsPanel items={items} onSave={async(next)=>{await service.saveSettings(next);await refreshReference();await refreshRuns();if(selectedId)await refreshSelected(selectedId)}} onRestore={async()=>{await service.restoreSettings();await refreshReference();await refreshRuns();if(selectedId)await refreshSelected(selectedId)}}/>}</>}
 
     {createOpen&&<CreateRunModal service={service} onClose={()=>setCreateOpen(false)} onCreated={async(run)=>{setCreateOpen(false);await refreshRuns();setSelectedId(run.id);onNotice(`${run.period} 급여 Run을 생성했습니다.`)}}/>}
     {addTargetOpen&&selected&&<AddTargetModal employees={employees.filter(e=>!entries.some(row=>row.employmentId===e.employmentId))} onClose={()=>setAddTargetOpen(false)} onAdd={async(employmentId)=>{await act(()=>service.addEntry(selected.id,employmentId),'급여 대상자를 추가했습니다.');setAddTargetOpen(false)}}/>}

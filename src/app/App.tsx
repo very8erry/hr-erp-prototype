@@ -85,12 +85,13 @@ export default function App() {
       <nav aria-label="주요 메뉴"><div className="navGroup">워크스페이스</div>
         <Nav active={view==='dashboard'} onClick={()=>setView('dashboard')}>대시보드</Nav>
         <Nav active={view==='workSchedule'} onClick={()=>setView('workSchedule')}>업무일정</Nav>
+        <Nav active={view==='issues'} onClick={()=>setView('issues')}>수시업무관리</Nav>
         <Nav active={view==='employees'} onClick={()=>{setView('employees');setSelectedId(null)}}>직원 관리</Nav>
         <Nav active={view==='attendance'} onClick={()=>setView('attendance')}>근태</Nav>
         <Nav active={view==='payroll'} onClick={()=>setView('payroll')}>급여</Nav>
         <Nav active={view==='daily'} onClick={()=>setView('daily')}>일용직</Nav>
         <Nav active={view==='company'} onClick={()=>setView('company')}>회사정보</Nav>
-        <Nav active={view==='issues'} onClick={()=>setView('issues')}>이슈업무 진행상황</Nav><Nav active={view==='audit'} onClick={()=>{setView('audit');void refresh()}}>로그</Nav>
+        <Nav active={view==='audit'} onClick={()=>{setView('audit');void refresh()}}>로그</Nav>
         <Nav active={view==='recruiting'} onClick={()=>setView('recruiting')}>채용 <span className="badge muted">구조화중</span></Nav><Nav active={view==='welfare'} onClick={()=>setView('welfare')}>복지</Nav><div className="navGroup">확장 모듈</div>
         {['인사평가','인공지능 실습','인재개발','시뮬레이션'].map(label=><Button key={label} className="nav disabled" disabled title="다음 개발 단계에서 연결됩니다."><FlaskConical aria-hidden="true"/><span className="navLabel">{label}<span>추후</span></span></Button>)}
       </nav><div className="sidebarFooter"><div><span className="adminAvatar"><CircleUserRound size={18} aria-hidden="true"/></span><div><strong>인사 관리자 모드</strong><small>가상 워크스페이스</small></div><ChevronRight size={14} aria-hidden="true"/></div></div>

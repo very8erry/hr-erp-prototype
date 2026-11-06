@@ -164,6 +164,10 @@ export interface TaxProfile {
 }
 
 export interface SocialInsuranceProfile {
+  longTermCareReduction?:boolean
+  healthDependentRegistered?:boolean
+  basicLivelihoodReduction?:boolean
+
   departureReasonCode?:string
   departureReason?:string
   id: string
@@ -486,6 +490,8 @@ export interface PayrollItemMaster {
   calculationMode?: 'DEFAULT' | 'FORMULA' | 'MANUAL'
   formula?: string
   manualAmount?: number
+  workMultiplier?:number
+  holidayExtraMultiplier?:number
   calculationMethod: PayrollCalculationMethod
   taxable: boolean
   active: boolean
@@ -668,6 +674,7 @@ export interface PayrollRun {
 /** Payroll Run 시점의 입력 Snapshot. 마감 후 원본 HR Master 변경에 영향을 받지 않는다. */
 export interface PayrollEntry {
   calculationInputs?: {ordinaryMonthlyHours:number;overtimeHours:number;nightHours:number;holidayHours:number;holidayOvertimeHours:number}|null
+  deriveEmploymentBase?:boolean
   nonTaxEligibility?: import('../modules/payroll/nonTaxRules').NonTaxEligibility
 
   insuranceOverrides?: InsuranceOverrides
@@ -711,6 +718,7 @@ export interface PayrollEntry {
 }
 
 export interface PayrollResult {
+  insuranceBaseCheck?:{pension:number;health:number;employment:number;employmentApplied:number}
   appliedItemAmounts?:Record<string,number>
   payrollRuleVersion?:string
   insuranceRuleVersion?:string
@@ -741,6 +749,7 @@ export interface PayrollResult {
 export type InsuranceOverrides=Partial<Pick<PayrollResult,'nationalPension'|'healthInsurance'|'longTermCareInsurance'|'employmentInsurance'|'localIncomeTax'>>
 export interface PayrollEntryInput {
   calculationInputs?: {ordinaryMonthlyHours:number;overtimeHours:number;nightHours:number;holidayHours:number;holidayOvertimeHours:number}|null
+  deriveEmploymentBase?:boolean
   nonTaxEligibility?: import('../modules/payroll/nonTaxRules').NonTaxEligibility
 
   monthlyBasePay?: number
