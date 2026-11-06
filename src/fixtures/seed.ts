@@ -255,7 +255,7 @@ export function createSeedBundle(): SeedBundle {
     })
 
     const currentTitle=pick(titles)
-    const currentJob=pick(jobs)
+    const drawnJob=pick(jobs),currentJob=i===1?'소프트웨어 연구개발':drawnJob
     assignments.push({
       id:`ASN-${pad(i,5)}-001`, employmentId, organizationId:org.id, grade, title:currentTitle, job:currentJob,
       workLocation:pick(locations), effectiveFrom:hireDate, effectiveTo:null,

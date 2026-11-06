@@ -24,6 +24,7 @@ export interface PayrollRepository {
   convertCandidate(input:import("../recruiting/evaluations").OnboardingInput):Promise<{personId:string;employmentId:string}>
   planningReview():Promise<import('../operations/planningReview').PlanningReview>
   populateWorkYear(year:number):Promise<void>
+  setScheduleImportance(id:string,important:boolean):Promise<void>
   saveWorkEvents(events:import('../operations/operations').CalendarEvent[]):Promise<void>
   proposeWorkEvent(row:import('../operations/operations').CalendarEvent):Promise<string>
   proposeWorkSettings(settings:import('../operations/workSchedule').WorkSettings):Promise<void>

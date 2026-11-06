@@ -5,6 +5,7 @@ import type { PayrollRepository,ConfirmSection } from './payrollRepository'
 
 export class PayrollService {
   populateWorkYear(year:number){return this.repository.populateWorkYear(year)}
+  async setScheduleImportance(id:string,important:boolean){await this.repository.setScheduleImportance(id,important);this.workChanged()}
   async saveWorkEvents(events:import('../operations/operations').CalendarEvent[]){await this.repository.saveWorkEvents(events);this.workChanged()}
   async applyWorkSettings(s:import('../operations/workSchedule').WorkSettings){validateWorkSettings(s);const c=await this.companyInfo();await this.saveCompanyInfo({...c,workPlanning:s})}
   planningReview(){return this.repository.planningReview()}

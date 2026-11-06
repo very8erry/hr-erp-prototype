@@ -1,4 +1,5 @@
 export interface CompanyInfo {
+  foundedOn?:string
   yearEndRequirements?:import('./yearEndDocuments').YearEndRequirement[]
   withholdingChecklists?:Record<string,import('./WithholdingChecklist').WithholdingCheck[]>
 
