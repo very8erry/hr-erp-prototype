@@ -1,3 +1,4 @@
+import {companyRepairs,inspectIntegrity} from '../../domain/dataIntegrity'
 import {issueSteps,validateIssueProgress} from '../../app/issueProgress'
 import {seedIssueProgressDemo} from './issueProgressSeed'
 import {validateDocumentReview} from '../../modules/payroll/yearEndDocuments'
@@ -196,6 +197,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     }
 
 
+    await this.repairEmploymentCompanies()
     await this.persistSelectionUpgrade()
     await this.initializeOperations()
     await upgradeLemonOperations(this.requireDb(),await this.listEmployees());await repairLemonOccupationMapping(this.requireDb(),await this.listEmployees());await seedWorkRules(this.requireDb());await seedStaffNotices(this.requireDb());await seedIssueProgressDemo(this.requireDb())
@@ -203,6 +205,23 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     await this.applyDueEvents()
   }
 
+  async integrityFindings(){return inspectIntegrity((await this.exportDatabase()).data)}
+  private async repairEmploymentCompanies(){
+    const names=[STORES.company,STORES.persons,STORES.employments,STORES.organizations,STORES.assignments,STORES.auditLogs];
+    const tx=this.requireDb().transaction(names,'readwrite'),done=txDone(tx);
+    try{
+      const [companies,persons,employments,organizations,assignments]=await Promise.all(names.slice(0,5).map(n=>requestToPromise(tx.objectStore(n).getAll())));
+      if(companies.length!==1){await done;return}
+      const data={company:companies[0],persons,employments,organizations,assignments};
+      const repairs=companyRepairs(data);
+      for(const row of repairs){tx.objectStore(STORES.employments).put(row);tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'REPAIR_EMPLOYMENT_COMPANY',entityType:'EMPLOYMENT',entityId:row.id,detail:'전체 조직 이력의 회사 소속 일치 확인 후 누락 회사 ID 보완'})}
+      for(const row of employments.filter(e=>!e.companyId&&!repairs.some(r=>r.id===e.id))){
+        const id='COMPANY-REVIEW-'+row.id;
+        if(!await requestToPromise(tx.objectStore(STORES.auditLogs).get(id)))tx.objectStore(STORES.auditLogs).add({id,occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'REVIEW_EMPLOYMENT_COMPANY',entityType:'EMPLOYMENT',entityId:row.id,detail:'회사 소속 근거 부족 또는 충돌: 원본 보존, 수동 검토 필요'});
+      }
+      await done
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
+  }
   private async initializeRequestedV078(){
     if(await this.getOne(STORES.meta,'requestedV078'))return;
     const company=await this.getCompany(),info=await this.companyInfo(),persons=await this.getAll<Person>(STORES.persons),tx=this.requireDb().transaction([STORES.company,STORES.persons,STORES.calendarEvents,STORES.meta],'readwrite'),done=txDone(tx);
@@ -223,16 +242,22 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   async registerEmployee(input:EmployeeRegistration){
     const check=reviewNames(input.fullName,input.englishName,input.hanjaName);if(check.errors.length||check.warnings.length&&!input.nameReviewed)throw new Error([...check.errors,...check.warnings].join(' '));
     if(!input.employeeNumber.trim()||!input.birthDate||!input.hireDate||input.birthDate>=input.hireDate||!Number.isFinite(input.annualSalary)||input.annualSalary<=0)throw new Error('사번·생년월일·입사일·연봉을 확인하세요.');
-    if((await this.listEmployees()).some(e=>e.employeeNumber===input.employeeNumber.trim()))throw new Error('이미 등록된 사번입니다.');
-    if(!(await this.listOrganizations()).some(o=>o.id===input.organizationId))throw new Error('조직을 선택하세요.');
     if(!!input.bankName!==!!input.accountNumberMasked)throw new Error('은행과 실습용 계좌를 함께 입력하세요.');
     const id='EMPLOY-'+crypto.randomUUID(),personId='PER-'+crypto.randomUUID(),stamp=new Date().toISOString();
     const person:Person={id:personId,fullName:input.fullName.trim(),englishName:input.englishName.trim(),hanjaName:input.hanjaName.trim(),birthDate:input.birthDate,gender:input.gender,domesticForeignType:'DOMESTIC',nationality:'대한민국',reportingNationality:'대한민국',syntheticIdentifier:'SYN-'+crypto.randomUUID(),profileImageUrl:null,mobile:input.mobile,phone:'',email:'',emergencyContactName:'',emergencyContactPhone:'',emergencyContactRelation:''};
-    const tx=this.requireDb().transaction([STORES.persons,STORES.employments,STORES.assignments,STORES.compensations,STORES.bankAccounts,STORES.auditLogs],'readwrite'),done=txDone(tx);
-    tx.objectStore(STORES.persons).put(person);tx.objectStore(STORES.employments).put({id,personId,employeeNumber:input.employeeNumber.trim(),hireDate:input.hireDate,terminationDate:null,employmentType:'REGULAR',status:input.hireDate>stamp.slice(0,10)?'PRE_HIRE':'ACTIVE'});
-    tx.objectStore(STORES.assignments).put({id:crypto.randomUUID(),employmentId:id,organizationId:input.organizationId,grade:input.grade,title:'팀원',job:input.job,workLocation:'본사',effectiveFrom:input.hireDate,effectiveTo:null});tx.objectStore(STORES.compensations).put({id:crypto.randomUUID(),employmentId:id,annualSalary:input.annualSalary,effectiveFrom:input.hireDate,effectiveTo:null});
+    const tx=this.requireDb().transaction([STORES.company,STORES.organizations,STORES.persons,STORES.employments,STORES.assignments,STORES.compensations,STORES.bankAccounts,STORES.auditLogs],'readwrite'),done=txDone(tx);
+    try {
+    const companies=await requestToPromise(tx.objectStore(STORES.company).getAll()) as Company[];
+    const organization=await requestToPromise(tx.objectStore(STORES.organizations).get(input.organizationId)) as Organization|undefined;
+    const company=companies.find(c=>c.id===organization?.companyId);
+    if(!organization||!company)throw new Error('조직의 회사 소속을 확인하세요.');
+    const employments=await requestToPromise(tx.objectStore(STORES.employments).getAll()) as Employment[];
+    if(employments.some(e=>e.employeeNumber.trim()===input.employeeNumber.trim()))throw new Error('이미 등록된 사번입니다.');
+    tx.objectStore(STORES.persons).add(person);tx.objectStore(STORES.employments).add({id,personId,companyId:company.id,employeeNumber:input.employeeNumber.trim(),hireDate:input.hireDate,terminationDate:null,employmentType:'REGULAR',status:input.hireDate>stamp.slice(0,10)?'PRE_HIRE':'ACTIVE'} satisfies Employment);
+    tx.objectStore(STORES.assignments).add({id:crypto.randomUUID(),employmentId:id,organizationId:input.organizationId,grade:input.grade,title:'팀원',job:input.job,workLocation:'본사',effectiveFrom:input.hireDate,effectiveTo:null} satisfies Assignment);tx.objectStore(STORES.compensations).add({id:crypto.randomUUID(),employmentId:id,annualSalary:input.annualSalary,effectiveFrom:input.hireDate,effectiveTo:null} satisfies CompensationSnapshot);
     if(input.bankName)tx.objectStore(STORES.bankAccounts).put({id:crypto.randomUUID(),employmentId:id,bankName:input.bankName,accountNumberMasked:input.accountNumberMasked,accountHolder:input.fullName.trim(),isPayrollAccount:true,effectiveStartDate:input.hireDate,effectiveEndDate:null});
     tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:stamp,actor:'HR_ADMIN',action:'REGISTER_EMPLOYEE',entityType:'EMPLOYMENT',entityId:id,detail:'직원 기본정보·조직·연봉 등록'});await done;return id;
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
 
   private requireDb(): IDBDatabase {
@@ -283,6 +308,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const names = Object.values(STORES)
     const tx = db.transaction(names, 'readwrite')
     const done = txDone(tx)
+    try {
     names.forEach((name) => tx.objectStore(name).clear())
 
     tx.objectStore(STORES.company).put(bundle.company)
@@ -326,6 +352,11 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     tx.objectStore(STORES.meta).put({ id: 'seedVersion', value: String(SEED_VERSION) })
     tx.objectStore(STORES.meta).put({ id: 'schemaVersion', value: String(SCHEMA_VERSION) })
     await done
+    } catch (error) {
+      try { tx.abort() } catch {}
+      await done.catch(() => {})
+      throw error
+    }
   }
 
   async getCompany(): Promise<Company> {
@@ -1221,7 +1252,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       const upgradedPersons=legacy.persons.map((old)=>{
         const id=String(old.id)
         const base=freshPersonMap.get(id)
-        if (!base) return null
+        if (!base) throw new Error('v1 백업의 사용자 등록 Person은 수동 검토 후 변환해야 합니다. 기존 데이터는 변경하지 않았습니다.')
         return {...base,fullName:String(old.fullName??base.fullName),birthDate:String(old.birthDate??base.birthDate),nationality:String(old.nationality??base.nationality),mobile:String(old.mobile??base.mobile),email:String(old.email??base.email),syntheticIdentifier:String(old.syntheticIdentifier??base.syntheticIdentifier)}
       }).filter((v):v is Person=>v!==null)
       const employmentIds=new Set(legacy.employments.map((v)=>v.id)); const personIds=new Set(legacy.employments.map((v)=>v.personId))
@@ -1258,6 +1289,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
         await this.seed(payload.data)
       }
     }
+    await this.repairEmploymentCompanies()
     await this.put(STORES.meta,{id:'importedData',value:'1'})
     await this.persistSelectionUpgrade();await this.initializeOperations()
     await this.put(STORES.auditLogs,{
