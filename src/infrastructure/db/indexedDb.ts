@@ -211,9 +211,8 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const tx=this.requireDb().transaction(names,'readwrite'),done=txDone(tx);
     try{
       const [companies,persons,employments,organizations,assignments]=await Promise.all(names.slice(0,5).map(n=>requestToPromise(tx.objectStore(n).getAll())));
-      if(companies.length!==1){await done;return}
       const data={company:companies[0],persons,employments,organizations,assignments};
-      const repairs=companyRepairs(data);
+      const repairs=companies.length===1?companyRepairs(data):[];
       for(const row of repairs){tx.objectStore(STORES.employments).put(row);tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'REPAIR_EMPLOYMENT_COMPANY',entityType:'EMPLOYMENT',entityId:row.id,detail:'전체 조직 이력의 회사 소속 일치 확인 후 누락 회사 ID 보완'})}
       for(const row of employments.filter(e=>!e.companyId&&!repairs.some(r=>r.id===e.id))){
         const id='COMPANY-REVIEW-'+row.id;
@@ -569,9 +568,14 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const employee=await this.getEmployee(input.employmentId)
     if (!employee) throw new Error('Employee not found')
     if (input.effectiveDate<employee.hireDate) throw new Error('효력일은 입사일보다 빠를 수 없습니다.')
+    if(input.eventType==='ORG_TRANSFER'){
+      const organization=await this.getOne<Organization>(STORES.organizations,input.value);
+      const employment=await this.getOne<Employment>(STORES.employments,input.employmentId);
+      if(!organization||!employment?.companyId||organization.companyId!==employment.companyId)throw new Error('발령 조직의 회사 소속을 확인하세요.');
+    }
     if (input.eventType!=='STATUS_CHANGE') {
       const assignment=await this.currentAssignment(input.employmentId)
-      if (input.effectiveDate<assignment.effectiveFrom) throw new Error('현재 Assignment 시작일보다 이전 날짜로 발령할 수 없습니다.')
+      if (input.effectiveDate<=assignment.effectiveFrom) throw new Error('현재 조직 이력의 시작일과 같거나 이전인 발령은 이력 검토가 필요합니다.')
     }
     let before: Record<string,string|number|null>={}
     let after: Record<string,string|number|null>={}
@@ -884,7 +888,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       if(!state.decisions?.some(d=>d.candidateId===candidate.id&&d.decision==='PASS'))throw new Error('최종 합격을 확인하세요.')
       if(!/^\d{4}-\d{2}-\d{2}$/.test(input.birthDate)||Number.isNaN(Date.parse(input.birthDate))||new Date(input.birthDate).toISOString().slice(0,10)!==input.birthDate||input.birthDate>=offer.startDate)throw new Error('생년월일을 확인하세요.')
       if(!input.employeeNumber.trim()||!input.birthDate||!input.nationality.trim()||!input.workLocation.trim())throw new Error('사번·생년월일·국적·근무지를 입력하세요.')
-      const org=await requestToPromise(tx.objectStore(STORES.organizations).get(offer.organizationId));if(!org)throw new Error('오퍼 조직을 확인하세요.')
+      const org=await requestToPromise(tx.objectStore(STORES.organizations).get(offer.organizationId));if(!org||org.companyId!==company.id)throw new Error('오퍼 조직의 회사 소속을 확인하세요.')
       const existing=await requestToPromise(tx.objectStore(STORES.employments).getAll()) as Employment[];if(existing.some(e=>e.employeeNumber===input.employeeNumber.trim()))throw new Error('이미 사용 중인 사번입니다.')
       const personId=`PERSON-${crypto.randomUUID()}`,employmentId=`EMPLOY-${crypto.randomUUID()}`,now=new Date().toISOString()
       const person:Person={id:personId,fullName:candidate.name,englishName:'',hanjaName:'',birthDate:input.birthDate,gender:input.gender,domesticForeignType:input.nationality==='대한민국'?'DOMESTIC':'FOREIGN',nationality:input.nationality,reportingNationality:input.nationality,syntheticIdentifier:'',profileImageUrl:null,mobile:candidate.phone,phone:'',email:candidate.email,emergencyContactName:'',emergencyContactPhone:'',emergencyContactRelation:''}
@@ -1144,9 +1148,11 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const company=await this.getCompany(),mappings=(await this.operations()).occupationCodeMappings
     const worker:DailyWorker={occupationCode:occupationCode(mappings,input.startDate,input.organizationId,input.job,company.reportingInfo?.occupationCode??defaultCompanyInfo.occupationCode),occupationCodeManual:false,id,personId,workerNumber,workerNameSnapshot:person.fullName,organizationId:input.organizationId,job:input.job,status:input.status,startDate:input.startDate,endDate:input.endDate,dailyRate:input.dailyRate,bankName:input.bankName,accountNumberMasked:input.accountNumberMasked}
     const db=this.requireDb(); const tx=db.transaction([STORES.persons,STORES.dailyWorkers,STORES.auditLogs],'readwrite'); const done=txDone(tx)
-    tx.objectStore(STORES.persons).put(person); tx.objectStore(STORES.dailyWorkers).put(worker)
+    try {
+    tx.objectStore(STORES.persons).add(person); tx.objectStore(STORES.dailyWorkers).add(worker)
     tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'CREATE_DAILY_WORKER',entityType:'DAILY_WORKER',entityId:id,detail:`일용직 ${workerNumber} ${person.fullName}을 등록했습니다.`} satisfies AuditLog)
     await done; return worker
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
 
   async deleteDailyWorker(workerId:string): Promise<void> {
