@@ -1,0 +1,20 @@
+@startuml
+' v1.0 b4aeb300270a62273d3d5f0c2fea87f2a09ba800 R-01~17
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam monochrome true
+start
+repeat
+:급여 입력 검토;
+:전체 대상 재계산;
+:오류와 경고 합산;
+repeat while (오류가 남았는가?) is (예) not (아니요)
+:검증 완료;
+if (근태가 변경됐는가?) then (예)
+:확정 거부 및 재검증 안내;
+else (아니요)
+:급여 확정;
+endif
+stop
+@enduml

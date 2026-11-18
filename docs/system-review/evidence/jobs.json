@@ -1,0 +1,14 @@
+[
+  {
+    "name": "build",
+    "conclusion": "success",
+    "html_url": "https://github.com/very8erry/hr-erp-prototype/actions/runs/44210067857/job/134485857837",
+    "head_sha": "b4aeb300270a62273d3d5f0c2fea87f2a09ba800"
+  },
+  {
+    "name": "deploy",
+    "conclusion": "success",
+    "html_url": "https://github.com/very8erry/hr-erp-prototype/actions/runs/44210067857/job/134486527576",
+    "head_sha": "b4aeb300270a62273d3d5f0c2fea87f2a09ba800"
+  }
+]
