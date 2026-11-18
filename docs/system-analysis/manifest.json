@@ -16,6 +16,11 @@
   "coreFieldDefinitions": 30,
   "files": [
     {
+      "path": ".gitattributes",
+      "bytes": 37,
+      "sha256": "d98b52789c3eab45ea24f284d06d6ba23461fb6df4ee21c9fe492adc2df2930c"
+    },
+    {
       "path": "README.md",
       "bytes": 5772,
       "sha256": "05d439b4014af5a73645edf5d39b3aaba3926623c23516ecc488310aefc7ae4a"
