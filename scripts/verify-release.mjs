@@ -84,4 +84,5 @@ const v079Test=spawnSync(process.execPath,['--import','tsx',path.join(root,'scri
 const integrityTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-registration-integrity.ts')],{cwd:root,stdio:'inherit'});if(integrityTest.status!==0)process.exit(1)
 
 const pr7Test=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-pr7-integration.ts')],{cwd:root,stdio:'inherit'});if(pr7Test.status!==0)process.exit(1)
+const scheduleIntegrity=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-pr7-scheduled.ts')],{cwd:root,stdio:'inherit'});if(scheduleIntegrity.status!==0)process.exit(1)
 console.log(`\nRelease verification passed: v${version}`)

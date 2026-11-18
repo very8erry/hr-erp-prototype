@@ -177,7 +177,7 @@ function AttendanceTab({detail}:{detail:EmployeeMasterDetail;managerName:(id:str
 function HistoryTab({detail,organizations}:{detail:EmployeeMasterDetail;organizations:Organization[]}) {
   const orgName=(id:string)=>organizations.find(o=>o.id===id)?.name??id
   return <div className="stack">
-    <Section title="Personnel Action Timeline">{detail.personnelEvents.length===0?<p className="empty">등록된 인사발령이 없습니다.</p>:<div className="timeline">{detail.personnelEvents.map(e=><div key={e.id}><span>{e.effectiveDate}</span><i/><div><strong>{eventLabel[e.eventType]}</strong><p>{e.reason}</p><small>{e.status==='APPLIED'?'적용 완료':'효력일 대기'}</small></div></div>)}</div>}</Section>
+    <Section title="Personnel Action Timeline">{detail.personnelEvents.length===0?<p className="empty">등록된 인사발령이 없습니다.</p>:<div className="timeline">{detail.personnelEvents.map(e=><div key={e.id}><span>{e.effectiveDate}</span><i/><div><strong>{eventLabel[e.eventType]}</strong><p>{e.reason}</p><small>{e.reviewReason?`검토 필요 · ${e.reviewReason}`:e.status==='APPLIED'?'적용 완료':'효력일 대기'}</small></div></div>)}</div>}</Section>
     <div className="grid2">
       <Section title="Assignment History"><HistoryRows rows={detail.assignmentHistory.map(a=>[a.effectiveFrom,a.effectiveTo??'현재',`${orgName(a.organizationId)} / ${a.grade} / ${a.title} / ${a.job}`])}/></Section>
       <Section title="Compensation History"><HistoryRows rows={detail.compensationHistory.map(c=>[c.effectiveFrom,c.effectiveTo??'현재',`${money(c.annualSalary)}원`])}/></Section>
