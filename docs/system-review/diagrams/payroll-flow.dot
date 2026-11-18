@@ -1,0 +1,6 @@
+// v1.0 b4aeb300270a62273d3d5f0c2fea87f2a09ba800 R-04,R-06,R-07,R-08
+digraph Payroll {
+ graph [rankdir=TB,bgcolor="white"];node [fontname="Noto Sans CJK KR"];edge [fontname="Noto Sans CJK KR"];
+ master [shape=box,label="고용·배치·보상 원천"]; att [shape=box,label="월 집계·일별 근태"]; create [shape=ellipse,label="createPayrollRun"];sync [shape=ellipse,label="syncAttendance"];entry [shape=box,label="payrollEntries"];calc [shape=ellipse,label="calculatePayrollRun"];result [shape=box,label="payrollResults"];run [shape=box,label="payrollRuns"];
+ master -> create [label="기간 이력"];create -> entry [label="대상별 기초 입력"];att -> sync [label="연장·야간·휴일 시간"];sync -> entry [label="수당과 산출 입력"];entry -> calc [label="고용·Run별 입력"];att -> calc [label="월 revision"];calc -> result [label="항목별 산출·경고"];calc -> run [label="상태·항목 스냅샷"];
+}

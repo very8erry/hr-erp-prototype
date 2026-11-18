@@ -1,0 +1,16 @@
+@startuml
+' v1.0 b4aeb300270a62273d3d5f0c2fea87f2a09ba800 R-01~17
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam monochrome true
+[*] --> DRAFT
+DRAFT --> CALCULATED : 계산
+CALCULATED --> VALIDATED : 검증 오류 0
+VALIDATED --> CALCULATED : 재계산
+VALIDATED --> DRAFT : 입력 수정
+CALCULATED --> DRAFT : 입력 수정
+VALIDATED --> CONFIRMED : 확정 / 근태 유효
+CONFIRMED --> CLOSED : 근태 마감 완료
+CLOSED --> PAID : 지급 완료 기록
+@enduml

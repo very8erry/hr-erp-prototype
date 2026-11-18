@@ -1,0 +1,29 @@
+@startuml
+' v1.0 b4aeb300270a62273d3d5f0c2fea87f2a09ba800 R-01~17
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam monochrome true
+interface HrRepository {
+ +registerEmployee(input)
+}
+interface PayrollRepository {
+ +validatePayrollRun(runId)
+}
+class HrService {
+ -repository: HrRepository
+ +registerEmployee(input)
+}
+class PayrollService {
+ -repository: PayrollRepository
+ +validate(runId)
+}
+class IndexedDbHrRepository {
+ +registerEmployee(input)
+ +validatePayrollRun(runId)
+}
+HrService --> HrRepository
+PayrollService --> PayrollRepository
+IndexedDbHrRepository ..|> HrRepository
+IndexedDbHrRepository ..|> PayrollRepository
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+' v1.0 b4aeb300270a62273d3d5f0c2fea87f2a09ba800 R-01~17
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam monochrome true
+entity Person {
+ * id : PK
+}
+entity Employment {
+ * id : PK
+ * personId : FK
+}
+entity Assignment {
+ * id : PK
+ * employmentId : FK
+}
+entity CompensationSnapshot {
+ * id : PK
+ * employmentId : FK
+}
+entity AttendanceMonthlySummary {
+ * employmentId
+ * period
+}
+entity PayrollRun {
+ * id : PK
+ * period : unique
+}
+entity PayrollEntry {
+ * runId
+ * employmentId
+}
+entity PayrollResult {
+ * runId
+ * employmentId
+}
+Person ||--o{ Employment
+Employment ||--o{ Assignment
+Employment ||--o{ CompensationSnapshot
+Employment ||--o{ AttendanceMonthlySummary
+Employment ||--o{ PayrollEntry
+Employment ||--o{ PayrollResult
+PayrollRun ||--o{ PayrollEntry
+PayrollRun ||--o{ PayrollResult
+@enduml
