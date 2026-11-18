@@ -1,3 +1,4 @@
+import {companyRepairs,inspectIntegrity} from '../../domain/dataIntegrity'
 import {issueSteps,validateIssueProgress} from '../../app/issueProgress'
 import {seedIssueProgressDemo} from './issueProgressSeed'
 import {validateDocumentReview} from '../../modules/payroll/yearEndDocuments'
@@ -196,6 +197,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     }
 
 
+    await this.repairEmploymentCompanies()
     await this.persistSelectionUpgrade()
     await this.initializeOperations()
     await upgradeLemonOperations(this.requireDb(),await this.listEmployees());await repairLemonOccupationMapping(this.requireDb(),await this.listEmployees());await seedWorkRules(this.requireDb());await seedStaffNotices(this.requireDb());await seedIssueProgressDemo(this.requireDb())
@@ -203,6 +205,22 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     await this.applyDueEvents()
   }
 
+  async integrityFindings(){return inspectIntegrity((await this.exportDatabase()).data)}
+  private async repairEmploymentCompanies(){
+    const names=[STORES.company,STORES.persons,STORES.employments,STORES.organizations,STORES.assignments,STORES.auditLogs];
+    const tx=this.requireDb().transaction(names,'readwrite'),done=txDone(tx);
+    try{
+      const [companies,persons,employments,organizations,assignments]=await Promise.all(names.slice(0,5).map(n=>requestToPromise(tx.objectStore(n).getAll())));
+      const data={company:companies[0],persons,employments,organizations,assignments};
+      const repairs=companies.length===1?companyRepairs(data):[];
+      for(const row of repairs){tx.objectStore(STORES.employments).put(row);tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'REPAIR_EMPLOYMENT_COMPANY',entityType:'EMPLOYMENT',entityId:row.id,detail:'전체 조직 이력의 회사 소속 일치 확인 후 누락 회사 ID 보완'})}
+      for(const row of employments.filter(e=>!e.companyId&&!repairs.some(r=>r.id===e.id))){
+        const id='COMPANY-REVIEW-'+row.id;
+        if(!await requestToPromise(tx.objectStore(STORES.auditLogs).get(id)))tx.objectStore(STORES.auditLogs).add({id,occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'REVIEW_EMPLOYMENT_COMPANY',entityType:'EMPLOYMENT',entityId:row.id,detail:'회사 소속 근거 부족 또는 충돌: 원본 보존, 수동 검토 필요'});
+      }
+      await done
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
+  }
   private async initializeRequestedV078(){
     if(await this.getOne(STORES.meta,'requestedV078'))return;
     const company=await this.getCompany(),info=await this.companyInfo(),persons=await this.getAll<Person>(STORES.persons),tx=this.requireDb().transaction([STORES.company,STORES.persons,STORES.calendarEvents,STORES.meta],'readwrite'),done=txDone(tx);
@@ -223,16 +241,22 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   async registerEmployee(input:EmployeeRegistration){
     const check=reviewNames(input.fullName,input.englishName,input.hanjaName);if(check.errors.length||check.warnings.length&&!input.nameReviewed)throw new Error([...check.errors,...check.warnings].join(' '));
     if(!input.employeeNumber.trim()||!input.birthDate||!input.hireDate||input.birthDate>=input.hireDate||!Number.isFinite(input.annualSalary)||input.annualSalary<=0)throw new Error('사번·생년월일·입사일·연봉을 확인하세요.');
-    if((await this.listEmployees()).some(e=>e.employeeNumber===input.employeeNumber.trim()))throw new Error('이미 등록된 사번입니다.');
-    if(!(await this.listOrganizations()).some(o=>o.id===input.organizationId))throw new Error('조직을 선택하세요.');
     if(!!input.bankName!==!!input.accountNumberMasked)throw new Error('은행과 실습용 계좌를 함께 입력하세요.');
     const id='EMPLOY-'+crypto.randomUUID(),personId='PER-'+crypto.randomUUID(),stamp=new Date().toISOString();
     const person:Person={id:personId,fullName:input.fullName.trim(),englishName:input.englishName.trim(),hanjaName:input.hanjaName.trim(),birthDate:input.birthDate,gender:input.gender,domesticForeignType:'DOMESTIC',nationality:'대한민국',reportingNationality:'대한민국',syntheticIdentifier:'SYN-'+crypto.randomUUID(),profileImageUrl:null,mobile:input.mobile,phone:'',email:'',emergencyContactName:'',emergencyContactPhone:'',emergencyContactRelation:''};
-    const tx=this.requireDb().transaction([STORES.persons,STORES.employments,STORES.assignments,STORES.compensations,STORES.bankAccounts,STORES.auditLogs],'readwrite'),done=txDone(tx);
-    tx.objectStore(STORES.persons).put(person);tx.objectStore(STORES.employments).put({id,personId,employeeNumber:input.employeeNumber.trim(),hireDate:input.hireDate,terminationDate:null,employmentType:'REGULAR',status:input.hireDate>stamp.slice(0,10)?'PRE_HIRE':'ACTIVE'});
-    tx.objectStore(STORES.assignments).put({id:crypto.randomUUID(),employmentId:id,organizationId:input.organizationId,grade:input.grade,title:'팀원',job:input.job,workLocation:'본사',effectiveFrom:input.hireDate,effectiveTo:null});tx.objectStore(STORES.compensations).put({id:crypto.randomUUID(),employmentId:id,annualSalary:input.annualSalary,effectiveFrom:input.hireDate,effectiveTo:null});
+    const tx=this.requireDb().transaction([STORES.company,STORES.organizations,STORES.persons,STORES.employments,STORES.assignments,STORES.compensations,STORES.bankAccounts,STORES.auditLogs],'readwrite'),done=txDone(tx);
+    try {
+    const companies=await requestToPromise(tx.objectStore(STORES.company).getAll()) as Company[];
+    const organization=await requestToPromise(tx.objectStore(STORES.organizations).get(input.organizationId)) as Organization|undefined;
+    const company=companies.find(c=>c.id===organization?.companyId);
+    if(!organization||!company)throw new Error('조직의 회사 소속을 확인하세요.');
+    const employments=await requestToPromise(tx.objectStore(STORES.employments).getAll()) as Employment[];
+    if(employments.some(e=>e.employeeNumber.trim()===input.employeeNumber.trim()))throw new Error('이미 등록된 사번입니다.');
+    tx.objectStore(STORES.persons).add(person);tx.objectStore(STORES.employments).add({id,personId,companyId:company.id,employeeNumber:input.employeeNumber.trim(),hireDate:input.hireDate,terminationDate:null,employmentType:'REGULAR',status:input.hireDate>stamp.slice(0,10)?'PRE_HIRE':'ACTIVE'} satisfies Employment);
+    tx.objectStore(STORES.assignments).add({id:crypto.randomUUID(),employmentId:id,organizationId:input.organizationId,grade:input.grade,title:'팀원',job:input.job,workLocation:'본사',effectiveFrom:input.hireDate,effectiveTo:null} satisfies Assignment);tx.objectStore(STORES.compensations).add({id:crypto.randomUUID(),employmentId:id,annualSalary:input.annualSalary,effectiveFrom:input.hireDate,effectiveTo:null} satisfies CompensationSnapshot);
     if(input.bankName)tx.objectStore(STORES.bankAccounts).put({id:crypto.randomUUID(),employmentId:id,bankName:input.bankName,accountNumberMasked:input.accountNumberMasked,accountHolder:input.fullName.trim(),isPayrollAccount:true,effectiveStartDate:input.hireDate,effectiveEndDate:null});
     tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:stamp,actor:'HR_ADMIN',action:'REGISTER_EMPLOYEE',entityType:'EMPLOYMENT',entityId:id,detail:'직원 기본정보·조직·연봉 등록'});await done;return id;
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
 
   private requireDb(): IDBDatabase {
@@ -283,6 +307,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const names = Object.values(STORES)
     const tx = db.transaction(names, 'readwrite')
     const done = txDone(tx)
+    try {
     names.forEach((name) => tx.objectStore(name).clear())
 
     tx.objectStore(STORES.company).put(bundle.company)
@@ -326,6 +351,11 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     tx.objectStore(STORES.meta).put({ id: 'seedVersion', value: String(SEED_VERSION) })
     tx.objectStore(STORES.meta).put({ id: 'schemaVersion', value: String(SCHEMA_VERSION) })
     await done
+    } catch (error) {
+      try { tx.abort() } catch {}
+      await done.catch(() => {})
+      throw error
+    }
   }
 
   async getCompany(): Promise<Company> {
@@ -498,49 +528,70 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   }
 
   private async applyEvent(event: PersonnelEvent): Promise<void> {
-    const db = this.requireDb()
-    const current = await this.currentAssignment(event.employmentId)
-    const employment = await this.getOne<Employment>(STORES.employments,event.employmentId)
-    if (!employment) throw new Error('Employment not found')
     const mappings=(await this.operations()).occupationCodeMappings
-    const tx = db.transaction([STORES.assignments,STORES.employments,STORES.personnelEvents,STORES.auditLogs],'readwrite')
-    const done = txDone(tx)
-
-    if (event.eventType==='STATUS_CHANGE') {
-      const nextStatus=String(event.after.status) as Employment['status']
-      tx.objectStore(STORES.employments).put({...employment,status:nextStatus,terminationDate:nextStatus==='TERMINATED'?event.effectiveDate:null})
-    } else {
-      tx.objectStore(STORES.assignments).put({...current,effectiveTo:dayBefore(event.effectiveDate)})
-      const next: Assignment={...current,id:`ASN-${crypto.randomUUID()}`,effectiveFrom:event.effectiveDate,effectiveTo:null}
-      if (event.eventType==='ORG_TRANSFER') next.organizationId=String(event.after.organizationId)
-      if (event.eventType==='PROMOTION') next.grade=String(event.after.grade)
-      if (event.eventType==='TITLE_CHANGE') next.title=String(event.after.title)
-      if(event.eventType==='JOB_CHANGE')next.job=String(event.after.job)
-      if(event.eventType==='LOCATION_CHANGE')next.workLocation=String(event.after.workLocation)
-      if(!next.occupationCodeManual){next.occupationCode=occupationCode(mappings,event.effectiveDate,next.organizationId,next.job,'');next.occupationCodeSource='직종 매핑 · '+event.effectiveDate}
-      tx.objectStore(STORES.assignments).put(next)
-    }
-    tx.objectStore(STORES.personnelEvents).put({...event,status:'APPLIED'})
-    tx.objectStore(STORES.auditLogs).put({
-      id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'APPLY_PERSONNEL_EVENT',
-      entityType:'EMPLOYMENT',entityId:event.employmentId,detail:`${event.eventType} 발령을 ${event.effectiveDate} 기준으로 적용`,
-    } satisfies AuditLog)
-    await done
+    const tx=this.requireDb().transaction([STORES.assignments,STORES.employments,STORES.organizations,STORES.personnelEvents,STORES.auditLogs],'readwrite'),done=txDone(tx)
+    try {
+      const stored=await requestToPromise(tx.objectStore(STORES.personnelEvents).get(event.id)) as PersonnelEvent|undefined
+      if(!stored||stored.status!=='SCHEDULED'||stored.reviewReason){await done;return}
+      event=stored
+      const employment=await requestToPromise(tx.objectStore(STORES.employments).get(event.employmentId)) as Employment|undefined
+      const history=(await requestToPromise(tx.objectStore(STORES.assignments).getAll()) as Assignment[]).filter(a=>a.employmentId===event.employmentId)
+      const current=history.filter(a=>a.effectiveTo===null)
+      const events=await requestToPromise(tx.objectStore(STORES.personnelEvents).getAll()) as PersonnelEvent[]
+      const assignment=current[0]
+      const targetId=event.eventType==='ORG_TRANSFER'?String(event.after.organizationId):assignment?.organizationId
+      const org=targetId?await requestToPromise(tx.objectStore(STORES.organizations).get(targetId)) as Organization|undefined:undefined
+      const fields:Record<string,string>={ORG_TRANSFER:'organizationId',PROMOTION:'grade',TITLE_CHANGE:'title',JOB_CHANGE:'job',LOCATION_CHANGE:'workLocation',STATUS_CHANGE:'status'}
+      const key=fields[event.eventType]
+      const actual=event.eventType==='STATUS_CHANGE'?employment?.status:assignment?.[key as keyof Assignment]
+      let reason=''
+      if(events.some(e=>e.id!==event.id&&e.employmentId===event.employmentId&&e.effectiveDate===event.effectiveDate&&['SCHEDULED','APPLIED'].includes(e.status)))reason='같은 날 여러 발령 충돌'
+      else if(!employment||!['ACTIVE','PRE_HIRE','LEAVE'].includes(employment.status)||event.sourceEmploymentStatus&&employment.status!==event.sourceEmploymentStatus)reason='고용상태 변경 또는 고용관계 누락'
+      else if(current.length!==1||!assignment||event.sourceAssignmentId&&assignment.id!==event.sourceAssignmentId)reason='현재 조직 이력 변경 또는 중복'
+      else if(event.sourceAssignmentSnapshot&&(['organizationId','grade','title','job','workLocation','effectiveFrom','effectiveTo'] as const).some(k=>event.sourceAssignmentSnapshot![k]!==assignment[k]))reason='예약 당시 조직 이력의 내용 변경'
+      else if(!org||!employment.companyId||org.companyId!==employment.companyId)reason='조직 누락 또는 회사 소속 변경'
+      else if(!key||event.before[key]!==actual)reason='예약 당시 원천정보와 현재 값 불일치'
+      else if(event.effectiveDate<employment.hireDate||event.eventType!=='STATUS_CHANGE'&&(event.effectiveDate<=assignment.effectiveFrom||history.some(a=>a.id!==assignment.id&&(!a.effectiveTo||a.effectiveTo>=event.effectiveDate))))reason='발령일과 이력 유효기간 충돌'
+      else if(event.eventType==='STATUS_CHANGE'&&!['ACTIVE','LEAVE','TERMINATED'].includes(String(event.after.status)))reason='허용되지 않은 고용상태'
+      if(reason){
+        tx.objectStore(STORES.personnelEvents).put({...event,reviewReason:reason})
+        tx.objectStore(STORES.auditLogs).add({id:'REVIEW-'+event.id,occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'REVIEW_PERSONNEL_EVENT',entityType:'PERSONNEL_EVENT',entityId:event.id,detail:reason} satisfies AuditLog)
+        await done;return
+      }
+      if(event.eventType==='STATUS_CHANGE'){
+        const status=String(event.after.status) as Employment['status']
+        tx.objectStore(STORES.employments).put({...employment!,status,terminationDate:status==='TERMINATED'?event.effectiveDate:null})
+      }else{
+        tx.objectStore(STORES.assignments).put({...assignment,effectiveTo:dayBefore(event.effectiveDate)})
+        const next:Assignment={...assignment,id:'ASN-'+crypto.randomUUID(),effectiveFrom:event.effectiveDate,effectiveTo:null,[key]:String(event.after[key])}
+        if(!next.occupationCodeManual){next.occupationCode=occupationCode(mappings,event.effectiveDate,next.organizationId,next.job,'');next.occupationCodeSource='직종 매핑 · '+event.effectiveDate}
+        tx.objectStore(STORES.assignments).add(next)
+      }
+      tx.objectStore(STORES.personnelEvents).put({...event,status:'APPLIED'})
+      tx.objectStore(STORES.auditLogs).add({id:'AUD-'+crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'APPLY_PERSONNEL_EVENT',entityType:'EMPLOYMENT',entityId:event.employmentId,detail:`${event.eventType} 발령을 ${event.effectiveDate} 기준으로 적용`} satisfies AuditLog)
+      await done
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
 
   private async applyDueEvents(): Promise<void> {
     const due=(await this.getAll<PersonnelEvent>(STORES.personnelEvents))
-      .filter((e)=>e.status==='SCHEDULED' && e.effectiveDate<=today()).sort((a,b)=>a.effectiveDate.localeCompare(b.effectiveDate))
+      .filter((e)=>e.status==='SCHEDULED' && !e.reviewReason && e.effectiveDate<=today()).sort((a,b)=>a.effectiveDate.localeCompare(b.effectiveDate))
     for (const event of due) await this.applyEvent(event)
   }
 
   async createPersonnelAction(input: PersonnelActionInput): Promise<PersonnelEvent> {
+    if((await this.getAll<PersonnelEvent>(STORES.personnelEvents)).some(e=>e.employmentId===input.employmentId&&e.effectiveDate===input.effectiveDate&&['SCHEDULED','APPLIED'].includes(e.status)))throw new Error('같은 날의 기존 발령을 먼저 검토하세요.')
     const employee=await this.getEmployee(input.employmentId)
     if (!employee) throw new Error('Employee not found')
     if (input.effectiveDate<employee.hireDate) throw new Error('효력일은 입사일보다 빠를 수 없습니다.')
+    if(input.eventType==='ORG_TRANSFER'){
+      const organization=await this.getOne<Organization>(STORES.organizations,input.value);
+      const employment=await this.getOne<Employment>(STORES.employments,input.employmentId);
+      if(!organization||!employment?.companyId||organization.companyId!==employment.companyId)throw new Error('발령 조직의 회사 소속을 확인하세요.');
+    }
     if (input.eventType!=='STATUS_CHANGE') {
       const assignment=await this.currentAssignment(input.employmentId)
-      if (input.effectiveDate<assignment.effectiveFrom) throw new Error('현재 Assignment 시작일보다 이전 날짜로 발령할 수 없습니다.')
+      if (input.effectiveDate<=assignment.effectiveFrom) throw new Error('현재 조직 이력의 시작일과 같거나 이전인 발령은 이력 검토가 필요합니다.')
     }
     let before: Record<string,string|number|null>={}
     let after: Record<string,string|number|null>={}
@@ -552,18 +603,20 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     else { before={status:employee.status}; after={status:input.value} }
     const event: PersonnelEvent={
       id:`PE-${crypto.randomUUID()}`,employmentId:input.employmentId,eventType:input.eventType,effectiveDate:input.effectiveDate,
-      before,after,reason:input.reason,createdAt:new Date().toISOString(),status:input.effectiveDate<=today()?'APPLIED':'SCHEDULED',
+      sourceAssignmentSnapshot:await this.currentAssignment(input.employmentId),sourceAssignmentId:(await this.currentAssignment(input.employmentId)).id,sourceEmploymentStatus:employee.status,before,after,reason:input.reason,createdAt:new Date().toISOString(),status:input.effectiveDate<=today()?'APPLIED':'SCHEDULED',
     }
-    if (event.status==='APPLIED') {
-      await this.put(STORES.personnelEvents,{...event,status:'SCHEDULED'})
+    const tx=this.requireDb().transaction([STORES.personnelEvents,STORES.auditLogs],'readwrite'),done=txDone(tx)
+    try{
+      const existing=await requestToPromise(tx.objectStore(STORES.personnelEvents).getAll()) as PersonnelEvent[]
+      if(existing.some(e=>e.employmentId===event.employmentId&&e.effectiveDate===event.effectiveDate&&['SCHEDULED','APPLIED'].includes(e.status)))throw new Error('같은 날의 기존 발령을 먼저 검토하세요.')
+      tx.objectStore(STORES.personnelEvents).add({...event,status:'SCHEDULED'})
+      tx.objectStore(STORES.auditLogs).add({id:'AUD-'+crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'SCHEDULE_PERSONNEL_EVENT',entityType:'EMPLOYMENT',entityId:event.employmentId,detail:`${event.eventType} 발령을 ${event.effectiveDate}로 예약`} satisfies AuditLog)
+      await done
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
+    if(event.status==='APPLIED'){
       await this.applyEvent({...event,status:'SCHEDULED'})
-      return {...event,status:'APPLIED'}
+      return (await this.getOne<PersonnelEvent>(STORES.personnelEvents,event.id))!
     }
-    await this.put(STORES.personnelEvents,event)
-    await this.put(STORES.auditLogs,{
-      id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'SCHEDULE_PERSONNEL_EVENT',
-      entityType:'EMPLOYMENT',entityId:event.employmentId,detail:`${event.eventType} 발령을 ${event.effectiveDate}로 예약`,
-    } satisfies AuditLog)
     return event
   }
 
@@ -853,7 +906,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       if(!state.decisions?.some(d=>d.candidateId===candidate.id&&d.decision==='PASS'))throw new Error('최종 합격을 확인하세요.')
       if(!/^\d{4}-\d{2}-\d{2}$/.test(input.birthDate)||Number.isNaN(Date.parse(input.birthDate))||new Date(input.birthDate).toISOString().slice(0,10)!==input.birthDate||input.birthDate>=offer.startDate)throw new Error('생년월일을 확인하세요.')
       if(!input.employeeNumber.trim()||!input.birthDate||!input.nationality.trim()||!input.workLocation.trim())throw new Error('사번·생년월일·국적·근무지를 입력하세요.')
-      const org=await requestToPromise(tx.objectStore(STORES.organizations).get(offer.organizationId));if(!org)throw new Error('오퍼 조직을 확인하세요.')
+      const org=await requestToPromise(tx.objectStore(STORES.organizations).get(offer.organizationId));if(!org||org.companyId!==company.id)throw new Error('오퍼 조직의 회사 소속을 확인하세요.')
       const existing=await requestToPromise(tx.objectStore(STORES.employments).getAll()) as Employment[];if(existing.some(e=>e.employeeNumber===input.employeeNumber.trim()))throw new Error('이미 사용 중인 사번입니다.')
       const personId=`PERSON-${crypto.randomUUID()}`,employmentId=`EMPLOY-${crypto.randomUUID()}`,now=new Date().toISOString()
       const person:Person={id:personId,fullName:candidate.name,englishName:'',hanjaName:'',birthDate:input.birthDate,gender:input.gender,domesticForeignType:input.nationality==='대한민국'?'DOMESTIC':'FOREIGN',nationality:input.nationality,reportingNationality:input.nationality,syntheticIdentifier:'',profileImageUrl:null,mobile:candidate.phone,phone:'',email:candidate.email,emergencyContactName:'',emergencyContactPhone:'',emergencyContactRelation:''}
@@ -1011,6 +1064,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       const key=`${r.employmentId}-${r.period}`;if(seen.has(key))throw new Error('직원·귀속월이 중복되었습니다.');seen.add(key)
       const old=existing.find(x=>x.employmentId===r.employmentId&&x.period===r.period)
       if(old?.confirmedAt)throw new Error('확정된 근태는 수정할 수 없습니다.')
+      if(old&&r.revision!==undefined&&r.revision!==(old.revision??0))throw new Error('다른 화면에서 근태가 변경되었습니다. 새로 조회한 뒤 수정하세요.')
       const values=[r.scheduledHours,r.workedHours,r.overtimeHours,r.nightHours,r.holidayHours,r.leaveDays,r.absenceHours,r.lateMinutes,r.earlyLeaveMinutes]
       if(values.some(v=>!Number.isFinite(v)||v<0)||r.workedHours>744||r.nightHours>r.workedHours||r.holidayHours>r.workedHours||r.overtimeHours>r.workedHours)throw new Error('근태 합계·수당시간 범위를 확인하세요.')
       return {...r,confirmedAt:old?.confirmedAt,confirmedBy:old?.confirmedBy,id:old?.id??`ATT-${key}`,organizationNameSnapshot:old?.organizationNameSnapshot??e.organizationName,gradeSnapshot:old?.gradeSnapshot??e.grade,jobSnapshot:old?.jobSnapshot??e.job,manualEdited:true,revision:(old?.revision??0)+1,updatedAt:now,updatedBy:'HR_ADMIN',editReason:reason}
@@ -1024,13 +1078,30 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       const policy=dayPolicy(r.workDate,calendar,e),effective={...r,holiday:r.holiday||policy.off};return {...effective,...calculateAttendanceDay(effective),manualEdited:true,source:'MANUAL',exceptionWork:policy.off&&r.workedHours>0,id:`ATTD-${key}`,updatedAt:now,updatedBy:'HR_ADMIN',editReason:reason}
     })
     const existingDaily=await this.listAttendanceDailyRecords();const mergedDaily=new Map(existingDaily.map(r=>[r.employmentId+'|'+r.workDate,r]));nextDaily.forEach(r=>mergedDaily.set(r.employmentId+'|'+r.workDate,r));for(const r of nextDaily){const period=r.workDate.slice(0,7);if(next.some(n=>n.employmentId===r.employmentId&&n.period===period))continue;const e=employeeMap.get(r.employmentId)!;const old=existing.find(n=>n.employmentId===r.employmentId&&n.period===period)??{id:`ATT-${r.employmentId}-${period}`,employmentId:r.employmentId,period,organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,jobSnapshot:e.job,scheduledHours:0,workedHours:0,overtimeHours:0,nightHours:0,holidayHours:0,leaveDays:0,absenceHours:0,lateMinutes:0,earlyLeaveMinutes:0};next.push({...summaryFromDaily(old,[...mergedDaily.values()].filter(d=>d.employmentId===r.employmentId&&d.workDate.startsWith(period))),manualEdited:true,updatedBy:'HR_ADMIN',updatedAt:now,editReason:reason})}
-    const tx=this.requireDb().transaction([STORES.attendanceMonthlySummaries,STORES.attendanceDailyRecords,STORES.payrollRuns,STORES.payrollResults,STORES.auditLogs],'readwrite');const done=txDone(tx)
+    const tx=this.requireDb().transaction([STORES.company,STORES.attendanceMonthlySummaries,STORES.attendanceDailyRecords,STORES.payrollRuns,STORES.payrollResults,STORES.auditLogs],'readwrite');const done=txDone(tx)
+    try{
+    const latestCompany=await requestToPromise(tx.objectStore(STORES.company).get(company.id)) as Company
+    if([...periods].some(p=>latestCompany.attendanceClosed?.[p]))throw new Error('근태 마감월은 수정할 수 없습니다.')
+    const latestRuns=await requestToPromise(tx.objectStore(STORES.payrollRuns).getAll()) as PayrollRun[]
+    if(JSON.stringify(latestRuns.filter(r=>periods.has(r.period)).sort((a,b)=>a.id.localeCompare(b.id)))!==JSON.stringify(runs.filter(r=>periods.has(r.period)).sort((a,b)=>a.id.localeCompare(b.id))))throw new Error('급여 상태가 변경되었습니다. 새로 조회하세요.')
+    for(const row of next){
+      const current=await requestToPromise(tx.objectStore(STORES.attendanceMonthlySummaries).get(row.id))
+      const original=existing.find(r=>r.id===row.id)
+      if(JSON.stringify(current)!==JSON.stringify(original))throw new Error('다른 화면에서 근태가 변경되었습니다. 새로 조회한 뒤 수정하세요.')
+    }
+    for(const row of nextDaily){
+      const current=await requestToPromise(tx.objectStore(STORES.attendanceDailyRecords).get(row.id))
+      const original=existingDaily.find(r=>r.id===row.id)
+      const input=daily.find(r=>r.employmentId===row.employmentId&&r.workDate===row.workDate)
+      if(JSON.stringify(current)!==JSON.stringify(original)||original&&input?.updatedAt&&input.updatedAt!==original.updatedAt)throw new Error('일별 근태가 변경되었습니다. 새로 조회하세요.')
+    }
     next.forEach(r=>tx.objectStore(STORES.attendanceMonthlySummaries).put(r));nextDaily.forEach(r=>tx.objectStore(STORES.attendanceDailyRecords).put(r))
     runs.filter(r=>periods.has(r.period)).forEach(r=>{tx.objectStore(STORES.payrollRuns).put({...r,status:'DRAFT',attendanceStale:true,validatedAt:null,calculatedAt:null});})
     const affected=new Set(runs.filter(r=>periods.has(r.period)).map(r=>r.id))
     const resultReq=tx.objectStore(STORES.payrollResults).openCursor();resultReq.onsuccess=()=>{const c=resultReq.result;if(c){if(affected.has(c.value.runId))c.delete();c.continue()}}
     tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'EDIT_ATTENDANCE',entityType:'ATTENDANCE',entityId:[...periods].join(','),detail:JSON.stringify({reason,before:existing.filter(r=>next.some(n=>n.id===r.id)),after:next,daily:nextDaily})})
     await done
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
 
   async saveLeaveCase(row:LeaveCase):Promise<void> {
@@ -1113,9 +1184,11 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const company=await this.getCompany(),mappings=(await this.operations()).occupationCodeMappings
     const worker:DailyWorker={occupationCode:occupationCode(mappings,input.startDate,input.organizationId,input.job,company.reportingInfo?.occupationCode??defaultCompanyInfo.occupationCode),occupationCodeManual:false,id,personId,workerNumber,workerNameSnapshot:person.fullName,organizationId:input.organizationId,job:input.job,status:input.status,startDate:input.startDate,endDate:input.endDate,dailyRate:input.dailyRate,bankName:input.bankName,accountNumberMasked:input.accountNumberMasked}
     const db=this.requireDb(); const tx=db.transaction([STORES.persons,STORES.dailyWorkers,STORES.auditLogs],'readwrite'); const done=txDone(tx)
-    tx.objectStore(STORES.persons).put(person); tx.objectStore(STORES.dailyWorkers).put(worker)
+    try {
+    tx.objectStore(STORES.persons).add(person); tx.objectStore(STORES.dailyWorkers).add(worker)
     tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'CREATE_DAILY_WORKER',entityType:'DAILY_WORKER',entityId:id,detail:`일용직 ${workerNumber} ${person.fullName}을 등록했습니다.`} satisfies AuditLog)
     await done; return worker
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
 
   async deleteDailyWorker(workerId:string): Promise<void> {
@@ -1221,7 +1294,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       const upgradedPersons=legacy.persons.map((old)=>{
         const id=String(old.id)
         const base=freshPersonMap.get(id)
-        if (!base) return null
+        if (!base) throw new Error('v1 백업의 사용자 등록 Person은 수동 검토 후 변환해야 합니다. 기존 데이터는 변경하지 않았습니다.')
         return {...base,fullName:String(old.fullName??base.fullName),birthDate:String(old.birthDate??base.birthDate),nationality:String(old.nationality??base.nationality),mobile:String(old.mobile??base.mobile),email:String(old.email??base.email),syntheticIdentifier:String(old.syntheticIdentifier??base.syntheticIdentifier)}
       }).filter((v):v is Person=>v!==null)
       const employmentIds=new Set(legacy.employments.map((v)=>v.id)); const personIds=new Set(legacy.employments.map((v)=>v.personId))
@@ -1258,6 +1331,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
         await this.seed(payload.data)
       }
     }
+    await this.repairEmploymentCompanies()
     await this.put(STORES.meta,{id:'importedData',value:'1'})
     await this.persistSelectionUpgrade();await this.initializeOperations()
     await this.put(STORES.auditLogs,{

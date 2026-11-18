@@ -289,6 +289,11 @@ export interface ManagerRelationship {
 }
 
 export interface PersonnelEvent {
+  reviewReason?: string
+  sourceAssignmentId?: string
+  sourceAssignmentSnapshot?: Assignment
+  sourceEmploymentStatus?: Employment['status']
+
   id: string
   employmentId: string
   eventType: PersonnelEventType
