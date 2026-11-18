@@ -1,0 +1,686 @@
+[
+  {
+    "store": "attendanceDailyRecords",
+    "type": "AttendanceDailyRecord",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmployeeDate",
+        "keyPath": [
+          "employmentId",
+          "workDate"
+        ],
+        "unique": true
+      }
+    ],
+    "requirements": [
+      "WFM-01"
+    ]
+  },
+  {
+    "store": "leaveCases",
+    "type": "LeaveCase",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "payrollSettingsHistory",
+    "type": "{id:string; items:PayrollItemMaster[]}",
+    "pk": "id",
+    "indexes": [],
+    "requirements": []
+  },
+  {
+    "store": "company",
+    "type": "Company",
+    "pk": "id",
+    "indexes": [],
+    "requirements": [
+      "ATS-01",
+      "ATS-02",
+      "WFM-02",
+      "WFM-03",
+      "FILE-01",
+      "DAILY-01",
+      "OPS-01",
+      "SYS-01"
+    ]
+  },
+  {
+    "store": "organizations",
+    "type": "Organization",
+    "pk": "id",
+    "indexes": [],
+    "requirements": []
+  },
+  {
+    "store": "persons",
+    "type": "Person",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byDomesticForeignType",
+        "keyPath": "domesticForeignType"
+      }
+    ],
+    "requirements": [
+      "HR-01",
+      "HR-02",
+      "ATS-02",
+      "DAILY-01",
+      "SYS-01"
+    ]
+  },
+  {
+    "store": "addresses",
+    "type": "Address",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byPersonId",
+        "keyPath": "personId"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "dependents",
+    "type": "Dependent",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "visas",
+    "type": "Visa",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byExpiryDate",
+        "keyPath": "expiryDate"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "bankAccounts",
+    "type": "BankAccount",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": [
+      "HR-01"
+    ]
+  },
+  {
+    "store": "employments",
+    "type": "Employment",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byPersonId",
+        "keyPath": "personId"
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      }
+    ],
+    "requirements": [
+      "HR-01",
+      "HR-02",
+      "HR-03",
+      "ATS-02",
+      "SYS-01"
+    ]
+  },
+  {
+    "store": "assignments",
+    "type": "Assignment",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byEffectiveTo",
+        "keyPath": "effectiveTo"
+      }
+    ],
+    "requirements": [
+      "HR-01",
+      "HR-03",
+      "ATS-02"
+    ]
+  },
+  {
+    "store": "compensations",
+    "type": "CompensationSnapshot",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byEffectiveTo",
+        "keyPath": "effectiveTo"
+      }
+    ],
+    "requirements": [
+      "HR-01",
+      "ATS-02"
+    ]
+  },
+  {
+    "store": "taxProfiles",
+    "type": "TaxProfile",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": [
+      "HR-02"
+    ]
+  },
+  {
+    "store": "socialInsuranceProfiles",
+    "type": "SocialInsuranceProfile",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": [
+      "HR-02"
+    ]
+  },
+  {
+    "store": "militaryServiceProfiles",
+    "type": "MilitaryServiceProfile",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId",
+        "unique": true
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "educations",
+    "type": "Education",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "careers",
+    "type": "CareerHistory",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "certifications",
+    "type": "Certification",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "skills",
+    "type": "EmployeeSkill",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byCategory",
+        "keyPath": "category"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "resumes",
+    "type": "ResumeDocument",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "workSchedules",
+    "type": "WorkSchedule",
+    "pk": "id",
+    "indexes": [],
+    "requirements": []
+  },
+  {
+    "store": "attendanceSettings",
+    "type": "AttendanceSetting",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "managerRelationships",
+    "type": "ManagerRelationship",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId",
+        "unique": true
+      }
+    ],
+    "requirements": []
+  },
+  {
+    "store": "personnelEvents",
+    "type": "PersonnelEvent",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      },
+      {
+        "name": "byEffectiveDate",
+        "keyPath": "effectiveDate"
+      }
+    ],
+    "requirements": [
+      "HR-03"
+    ]
+  },
+  {
+    "store": "auditLogs",
+    "type": "AuditLog",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byOccurredAt",
+        "keyPath": "occurredAt"
+      },
+      {
+        "name": "byEntityId",
+        "keyPath": "entityId"
+      }
+    ],
+    "requirements": [
+      "HR-01",
+      "HR-02",
+      "HR-03",
+      "ATS-02",
+      "WFM-01",
+      "PAY-04",
+      "PAY-05"
+    ]
+  },
+  {
+    "store": "payrollRuns",
+    "type": "PayrollRun",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byPeriod",
+        "keyPath": "period",
+        "unique": true
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      }
+    ],
+    "requirements": [
+      "WFM-01",
+      "PAY-01",
+      "PAY-03",
+      "PAY-04",
+      "PAY-05",
+      "PAY-06",
+      "SYS-01"
+    ]
+  },
+  {
+    "store": "payrollEntries",
+    "type": "PayrollEntry",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byRunId",
+        "keyPath": "runId"
+      },
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byRunEmployment",
+        "keyPath": [
+          "runId",
+          "employmentId"
+        ],
+        "unique": true
+      }
+    ],
+    "requirements": [
+      "PAY-01",
+      "PAY-02",
+      "PAY-03",
+      "PAY-04",
+      "PAY-06"
+    ]
+  },
+  {
+    "store": "payrollResults",
+    "type": "PayrollResult",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byRunId",
+        "keyPath": "runId"
+      },
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byRunEmployment",
+        "keyPath": [
+          "runId",
+          "employmentId"
+        ],
+        "unique": true
+      }
+    ],
+    "requirements": [
+      "WFM-01",
+      "PAY-03",
+      "PAY-04",
+      "PAY-06",
+      "SYS-01"
+    ]
+  },
+  {
+    "store": "attendanceMonthlySummaries",
+    "type": "AttendanceMonthlySummary",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byPeriod",
+        "keyPath": "period"
+      },
+      {
+        "name": "byEmploymentPeriod",
+        "keyPath": [
+          "employmentId",
+          "period"
+        ],
+        "unique": true
+      }
+    ],
+    "requirements": [
+      "WFM-01",
+      "WFM-02"
+    ]
+  },
+  {
+    "store": "annualLeaveLedgers",
+    "type": "AnnualLeaveLedger",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byYear",
+        "keyPath": "year"
+      },
+      {
+        "name": "byEmploymentYear",
+        "keyPath": [
+          "employmentId",
+          "year"
+        ],
+        "unique": true
+      }
+    ],
+    "requirements": [
+      "WFM-03"
+    ]
+  },
+  {
+    "store": "dailyWorkers",
+    "type": "DailyWorker",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byPersonId",
+        "keyPath": "personId"
+      },
+      {
+        "name": "byOrganizationId",
+        "keyPath": "organizationId"
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      }
+    ],
+    "requirements": [
+      "DAILY-01"
+    ]
+  },
+  {
+    "store": "dailyWorkRecords",
+    "type": "DailyWorkRecord",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byDailyWorkerId",
+        "keyPath": "dailyWorkerId"
+      },
+      {
+        "name": "byWorkDate",
+        "keyPath": "workDate"
+      }
+    ],
+    "requirements": [
+      "DAILY-01"
+    ]
+  },
+  {
+    "store": "retirementSettlements",
+    "type": "RetirementSettlement",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      }
+    ],
+    "requirements": [
+      "PAY-07"
+    ]
+  },
+  {
+    "store": "yearEndTaxCases",
+    "type": "YearEndTaxCase",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byTaxYear",
+        "keyPath": "taxYear"
+      },
+      {
+        "name": "byEmploymentYear",
+        "keyPath": [
+          "employmentId",
+          "taxYear"
+        ],
+        "unique": true
+      }
+    ],
+    "requirements": [
+      "PAY-08"
+    ]
+  },
+  {
+    "store": "payrollItemMasters",
+    "type": "PayrollItemMaster",
+    "pk": "id",
+    "indexes": [
+      {
+        "name": "byCode",
+        "keyPath": "code",
+        "unique": true
+      },
+      {
+        "name": "byCategory",
+        "keyPath": "category"
+      }
+    ],
+    "requirements": [
+      "PAY-03"
+    ]
+  },
+  {
+    "store": "calendarEvents",
+    "type": "CalendarEvent",
+    "pk": "id",
+    "indexes": [],
+    "requirements": [
+      "WFM-03",
+      "OPS-01"
+    ]
+  },
+  {
+    "store": "issues",
+    "type": "IssueCase",
+    "pk": "id",
+    "indexes": [],
+    "requirements": [
+      "OPS-01"
+    ]
+  },
+  {
+    "store": "complianceSettings",
+    "type": "config/meta 또는 operations 선언 참조",
+    "pk": "id",
+    "indexes": [],
+    "requirements": []
+  },
+  {
+    "store": "policyDocuments",
+    "type": "PolicyDocument",
+    "pk": "id",
+    "indexes": [],
+    "requirements": [
+      "OPS-01"
+    ]
+  },
+  {
+    "store": "welfareCases",
+    "type": "config/meta 또는 operations 선언 참조",
+    "pk": "id",
+    "indexes": [],
+    "requirements": []
+  },
+  {
+    "store": "occupationCodeMappings",
+    "type": "config/meta 또는 operations 선언 참조",
+    "pk": "id",
+    "indexes": [],
+    "requirements": []
+  },
+  {
+    "store": "filingDrafts",
+    "type": "FilingDraft",
+    "pk": "id",
+    "indexes": [],
+    "requirements": [
+      "FILE-02"
+    ]
+  },
+  {
+    "store": "meta",
+    "type": "config/meta 또는 operations 선언 참조",
+    "pk": "id",
+    "indexes": [],
+    "requirements": [
+      "SYS-01"
+    ]
+  }
+]

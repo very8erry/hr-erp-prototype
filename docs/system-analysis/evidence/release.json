@@ -1,0 +1,30 @@
+{
+  "documentVersion": "1.0",
+  "observedDate": "2026-11-18",
+  "pr": {
+    "url": "https://github.com/very8erry/hr-erp-prototype/pull/7",
+    "head": "ebe198d1a39c55573796fa4250856284ec68d5da",
+    "merged": true,
+    "mergedAt": "2026-11-18T00:42:51Z",
+    "mergeCommit": "b4aeb300270a62273d3d5f0c2fea87f2a09ba800",
+    "method": "squash"
+  },
+  "deployment": {
+    "url": "https://github.com/very8erry/hr-erp-prototype/actions/runs/44210067857",
+    "head": "b4aeb300270a62273d3d5f0c2fea87f2a09ba800",
+    "status": "completed",
+    "conclusion": "success",
+    "event": "push"
+  },
+  "preMergeObservation": {
+    "draft": true,
+    "mergeable": true,
+    "mainProtected": false,
+    "rulesets": [],
+    "checkRuns": 0,
+    "statuses": [],
+    "note": "Initial gate observation; no CI configured for PR. Prior local verification records reused."
+  },
+  "analysisBaseline": "b4aeb300270a62273d3d5f0c2fea87f2a09ba800",
+  "userDataTouched": false
+}

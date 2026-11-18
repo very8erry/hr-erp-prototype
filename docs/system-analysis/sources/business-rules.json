@@ -1,0 +1,194 @@
+[
+  {
+    "id": "BR-01",
+    "title": "사람과 고용의 분리",
+    "text": "Person.id는 사람 기본정보, Employment.id는 고용관계 식별자다. 이름은 결합 키가 아니다. 신규 일반등록과 ATS는 새 Person을 생성한다. 기존 인물 재사용은 미구현이다.",
+    "evidence": {
+      "name": "registerEmployee",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 241,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L241"
+    }
+  },
+  {
+    "id": "BR-02",
+    "title": "회사 소속 추론 제한",
+    "text": "회사 1개, 유효 Person, 모든 조직 이력의 회사 일치를 확인할 때만 누락 companyId를 보완한다. 모호한 데이터는 검토 로그와 함께 보존한다.",
+    "evidence": {
+      "name": "repairEmploymentCompanies",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 209,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L209"
+    }
+  },
+  {
+    "id": "BR-03",
+    "title": "등록의 원자성",
+    "text": "일반등록은 회사·조직·사번을 동일 쓰기 트랜잭션에서 검사하고 Person/Employment/Assignment/Compensation을 add한다. 사번 unique 인덱스는 없으며 애플리케이션 검사가 담당한다.",
+    "evidence": {
+      "name": "registerEmployee",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 241,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L241"
+    }
+  },
+  {
+    "id": "BR-04",
+    "title": "예약 발령 보류",
+    "text": "적용 시 최신 원천·회사·상태·기간·동일일 충돌을 검사한다. 충돌은 reviewReason과 감사로그를 남기며 재적용하지 않는다. SCHEDULED+reviewReason이므로 별도 REVIEW 상태값과 혼동하지 않는다.",
+    "evidence": {
+      "name": "applyEvent",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 530,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L530"
+    }
+  },
+  {
+    "id": "BR-05",
+    "title": "근태 정정의 파급",
+    "text": "근태 수정은 관련 미확정 Run을 DRAFT/attendanceStale로 바꾸고 계산 결과를 제거한다. 월별 revision과 저장 시점 값, 마감 상태를 재검증한다. 결과를 지우는 것은 미확정 재계산 준비다.",
+    "evidence": {
+      "name": "saveAttendanceBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1049,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1049"
+    }
+  },
+  {
+    "id": "BR-06",
+    "title": "계산 입력과 결과",
+    "text": "PayrollEntry는 급여월 생성 시 원천의 스냅샷과 수기 입력을 보유한다. PayrollResult는 calculatePayrollEntry의 결과다. 근태 변경만으로 결과가 즉시 확정되는 것이 아니며 syncAttendance/재계산을 거친다.",
+    "evidence": {
+      "name": "calculatePayrollRun",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 780,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L780"
+    }
+  },
+  {
+    "id": "BR-07",
+    "title": "급여 검증",
+    "text": "validatePayrollRun은 현재 입력을 다시 계산한다. 오류 0건일 때 VALIDATED, 오류가 있으면 CALCULATED에 남는다. 경고 건수와 오류 건수는 별개다.",
+    "evidence": {
+      "name": "validatePayrollRun",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 809,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L809"
+    }
+  },
+  {
+    "id": "BR-08",
+    "title": "확정·마감·지급",
+    "text": "VALIDATED→CONFIRMED→CLOSED→PAID. CLOSED에는 해당 월 근태 마감이 필요하며 attendanceStale가 있으면 전환하지 않는다. PAID는 은행 이체 수행이 아니라 로컬 상태 표시다.",
+    "evidence": {
+      "name": "setPayrollRunStatus",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 822,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L822"
+    }
+  },
+  {
+    "id": "BR-09",
+    "title": "확정 데이터 보호",
+    "text": "확정·마감·지급 Run의 재계산/수정은 차단한다. 마감 후 DRAFT 되돌리기나 취소 재지급 프로세스는 구현돼 있지 않다. 실수 정정은 별도 정책·기능이 필요하다.",
+    "evidence": {
+      "name": "calculatePayrollRun",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 780,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L780"
+    }
+  },
+  {
+    "id": "BR-10",
+    "title": "원장 확정",
+    "text": "근태/연차/일용직/퇴직/연말정산은 confirmRecords가 담당한다. 연말정산 확정은 최종 소득세가 null이면 거부한다. 급여 Run 상태와 원장 confirmedAt은 다른 통제다.",
+    "evidence": {
+      "name": "confirmRecords",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 836,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L836"
+    }
+  },
+  {
+    "id": "BR-11",
+    "title": "백업 복원",
+    "text": "schemaVersion에 따라 변환 후 seed가 모든 저장소를 단일 트랜잭션으로 대체한다. 동기 오류는 abort한다. v1의 미지 Person은 수동 검토 오류다. 중복 PK 사전검증은 아직 없으므로 ISS-A01 참조.",
+    "evidence": {
+      "name": "importDatabase",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1285,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1285"
+    }
+  },
+  {
+    "id": "BR-12",
+    "title": "정산 계산 범위",
+    "text": "퇴직정산은 등록된 퇴사일과 저장된 임금 자료를 사용한다. 연말정산의 estimatedFinalTax 수기 입력 후 settlementAmount=최종세액-기납부세액이다. 이 앱이 모든 공제 증빙을 자동 심사하지 않는다.",
+    "evidence": {
+      "name": "saveYearEndBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1227,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1227"
+    }
+  },
+  {
+    "id": "BR-13",
+    "title": "ATS 전환 선행조건",
+    "text": "최종 PASS 및 ACCEPTED 오퍼, 유효 생년월일·사번·조직 회사 일치를 확인한다. 후보자/Person/Employment 연결을 같은 트랜잭션으로 기록하며 중복 전환을 거부한다.",
+    "evidence": {
+      "name": "convertCandidate",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 899,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L899"
+    }
+  },
+  {
+    "id": "BR-14",
+    "title": "신고는 자료 생성",
+    "text": "원천세 초안과 4대보험 목록은 로컬 검토·파일 생성이다. 신고처 홈페이지 링크가 있어도 신고기관 접수·수리 API 연결을 뜻하지 않는다.",
+    "evidence": {
+      "name": "saveWithholdingDraft",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 923,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L923"
+    }
+  },
+  {
+    "id": "BR-15",
+    "title": "일용직 원천 보호",
+    "text": "일용직 등록의 기존 Person/worker PK 덮어쓰기는 add 및 rollback으로 차단한다. 근로자 번호 중복 검사와 Person 본인 확인은 별개이며 동일인 자동 재사용은 없다.",
+    "evidence": {
+      "name": "createDailyWorker",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1176,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1176"
+    }
+  },
+  {
+    "id": "BR-16",
+    "title": "사용자 권한의 경계",
+    "text": "브라우저 로컬 역할은 업무 시뮬레이션이다. 서버 인증·접근제어·서버 감사 저장소가 존재한다고 설명하지 않는다. IndexedDB/백업에 접근할 수 있는 사용자는 데이터를 읽고 변경할 수 있다.",
+    "evidence": {
+      "name": "exportDatabase",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1281,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1281"
+    }
+  }
+]
