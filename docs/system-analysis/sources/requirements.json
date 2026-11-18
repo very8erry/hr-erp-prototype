@@ -1,0 +1,729 @@
+[
+  {
+    "id": "HR-01",
+    "title": "일반 직원등록",
+    "kind": "업무",
+    "owner": "HR 운영자",
+    "purpose": "일반 직원등록의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "성명·사번·생년월일·입사일·연봉·조직",
+    "flow": "직원 관리 → 등록 폼 → 필수값/이름 검토 → 저장 → 연결 확인",
+    "output": "고용 ID 및 기본 인사·조직·보상 원장",
+    "stores": [
+      "persons",
+      "employments",
+      "assignments",
+      "compensations",
+      "bankAccounts",
+      "auditLogs"
+    ],
+    "rules": [
+      "BR-01",
+      "BR-02",
+      "BR-03"
+    ],
+    "evidence": {
+      "name": "registerEmployee",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 241,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L241"
+    },
+    "test": "scripts/test-registration-integrity.ts",
+    "status": "구현·회귀 통과",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-registration-integrity.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "HR-02",
+    "title": "직원 원천 수정",
+    "kind": "업무",
+    "owner": "HR 운영자",
+    "purpose": "직원 원천 수정의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "고용 ID, 허용 필드, 수정 사유",
+    "flow": "직원 상세 → 원천정보 수정 → 필드 검증 → before/after 로그 확인",
+    "output": "변경된 원천 레코드; 과거 급여 스냅샷은 별개",
+    "stores": [
+      "persons",
+      "employments",
+      "taxProfiles",
+      "socialInsuranceProfiles",
+      "auditLogs"
+    ],
+    "rules": [
+      "BR-01",
+      "BR-09"
+    ],
+    "evidence": {
+      "name": "editMaster",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 233,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L233"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "status": "구현·이름 변경 시 잠금 결과 보존 확인",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-integration.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "HR-03",
+    "title": "인사발령 등록·예약",
+    "kind": "업무",
+    "owner": "HR 운영자",
+    "purpose": "인사발령 등록·예약의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "고용 ID·종류·효력일·변경값·사유",
+    "flow": "발령 등록 → 동일일/기간 검사 → 즉시 적용 또는 예약 → 검토 필요 확인",
+    "output": "PersonnelEvent 및 적용 시 새 Assignment/종료일",
+    "stores": [
+      "personnelEvents",
+      "assignments",
+      "employments",
+      "auditLogs"
+    ],
+    "rules": [
+      "BR-04"
+    ],
+    "evidence": {
+      "name": "createPersonnelAction",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 582,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L582"
+    },
+    "test": "scripts/test-pr7-scheduled.ts",
+    "status": "구현·정상/충돌 회귀 통과",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-scheduled.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "ATS-01",
+    "title": "채용 평가와 오퍼",
+    "kind": "업무",
+    "owner": "로컬 평가자/HR 역할",
+    "purpose": "채용 평가와 오퍼의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "지원자·평가표·점수·최종 결정·오퍼",
+    "flow": "지원자 접수 → 서류/면접 평가 → 최종 판단 → 오퍼",
+    "output": "회사 레코드 내부 recruiting 상태",
+    "stores": [
+      "company"
+    ],
+    "rules": [
+      "BR-13",
+      "BR-16"
+    ],
+    "evidence": {
+      "name": "saveRecruiting",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 887,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L887"
+    },
+    "test": "scripts/test-selection.tsx",
+    "status": "구현·로컬 역할, 외부 ATS 동기화 미확정",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-selection.tsx와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "ATS-02",
+    "title": "ATS 입사전환",
+    "kind": "업무",
+    "owner": "HR 운영자",
+    "purpose": "ATS 입사전환의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "수락 오퍼 ID·후보자 ID·사번·생년월일",
+    "flow": "합격/수락 확인 → 입사전환 → 고용 연결 확인",
+    "output": "신규 Person/Employment, candidate 연결",
+    "stores": [
+      "company",
+      "persons",
+      "employments",
+      "assignments",
+      "compensations",
+      "auditLogs"
+    ],
+    "rules": [
+      "BR-01",
+      "BR-13"
+    ],
+    "evidence": {
+      "name": "convertCandidate",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 899,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L899"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "status": "구현·정상/중복/다른 회사 조직 검사 통과",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-integration.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "WFM-01",
+    "title": "월별·일별 근태 수정",
+    "kind": "업무",
+    "owner": "HR 운영자",
+    "purpose": "월별·일별 근태 수정의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "고용 ID·귀속월/일·시간·수정 사유·revision",
+    "flow": "근태 조회 → 원천 수정 → 잠금/충돌 검사 → 급여 재검토",
+    "output": "근태 저장, 미확정 급여 결과 무효화",
+    "stores": [
+      "attendanceMonthlySummaries",
+      "attendanceDailyRecords",
+      "payrollRuns",
+      "payrollResults",
+      "auditLogs"
+    ],
+    "rules": [
+      "BR-05"
+    ],
+    "evidence": {
+      "name": "saveAttendanceBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1049,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1049"
+    },
+    "test": "scripts/test-pr7-scheduled.ts",
+    "status": "구현·실제 Chrome stale/동시 저장 통과",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-scheduled.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "WFM-02",
+    "title": "근태 마감",
+    "kind": "업무",
+    "owner": "HR 운영자",
+    "purpose": "근태 마감의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "귀속월 및 저장된 근태",
+    "flow": "대상·누락 검토 → 원장 확정 → 월 마감 → 급여 마감 가능",
+    "output": "회사 attendanceClosed 및 confirmedAt",
+    "stores": [
+      "company",
+      "attendanceMonthlySummaries"
+    ],
+    "rules": [
+      "BR-08",
+      "BR-10"
+    ],
+    "evidence": {
+      "name": "closeAttendance",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 933,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L933"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "status": "구현·선행 마감 검사 통과",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-integration.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "WFM-03",
+    "title": "연차 원장·촉진",
+    "kind": "업무",
+    "owner": "HR 운영자",
+    "purpose": "연차 원장·촉진의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "입사일·연도·발생/사용·회사 운영기준",
+    "flow": "연차 조회 → 기준 비교/원장 검토 → 수기 저장·확정 → 촉진 자료 검토",
+    "output": "연차 원장과 업무일정/문서",
+    "stores": [
+      "annualLeaveLedgers",
+      "company",
+      "calendarEvents"
+    ],
+    "rules": [
+      "BR-10"
+    ],
+    "evidence": {
+      "name": "saveAnnualLeaveBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1149,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1149"
+    },
+    "test": "scripts/test-domain.ts",
+    "status": "원장 구현; 법정 개별 사례 전수검증 아님",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-domain.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "PAY-01",
+    "title": "급여월·대상 생성",
+    "kind": "업무",
+    "owner": "급여 담당",
+    "purpose": "급여월·대상 생성의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "귀속월·지급일·대상 고용관계",
+    "flow": "급여월 생성 → 재직기간 대상 추출 → 조직·보상·세금 기초 스냅샷",
+    "output": "PayrollRun 및 PayrollEntry",
+    "stores": [
+      "payrollRuns",
+      "payrollEntries"
+    ],
+    "rules": [
+      "BR-06"
+    ],
+    "evidence": {
+      "name": "createPayrollRun",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 631,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L631"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "status": "구현·employmentId 매칭 확인",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-integration.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "PAY-02",
+    "title": "근태 수당 연동",
+    "kind": "업무",
+    "owner": "급여 담당",
+    "purpose": "근태 수당 연동의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "Run ID, 월별 근태와 일별 휴일초과시간",
+    "flow": "근태 원천 검토 → 연동 호출 → 시간·수당을 급여 입력에 반영",
+    "output": "calculationInputs와 수당 입력",
+    "stores": [
+      "payrollEntries"
+    ],
+    "rules": [
+      "BR-05",
+      "BR-06"
+    ],
+    "evidence": {
+      "name": "syncAttendance",
+      "path": "src/modules/payroll/payrollService.ts",
+      "line": 88,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/modules/payroll/payrollService.ts#L88"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "status": "구현·서비스 계층에서 실행",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-integration.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "PAY-03",
+    "title": "급여 계산·설정",
+    "kind": "업무",
+    "owner": "급여 담당",
+    "purpose": "급여 계산·설정의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "수기 입력·항목 사용/산식·근태시간·보험기초",
+    "flow": "항목 설정 검토 → 입력 저장 → 계산 → 결과 대조",
+    "output": "PayrollResult 및 Run.itemSnapshot",
+    "stores": [
+      "payrollItemMasters",
+      "payrollEntries",
+      "payrollResults",
+      "payrollRuns"
+    ],
+    "rules": [
+      "BR-06"
+    ],
+    "evidence": {
+      "name": "calculatePayrollRun",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 780,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L780"
+    },
+    "test": "scripts/test-revision.tsx",
+    "status": "구현·저장 산식 적용/스냅샷 회귀",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-revision.tsx와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "PAY-04",
+    "title": "급여 검증·확정",
+    "kind": "업무",
+    "owner": "급여 담당/검토 역할",
+    "purpose": "급여 검증·확정의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "계산 가능한 Run ID",
+    "flow": "검증 → 오류 수정 → 재검증 → 확정",
+    "output": "VALIDATED/CONFIRMED 및 시각",
+    "stores": [
+      "payrollRuns",
+      "payrollEntries",
+      "payrollResults",
+      "auditLogs"
+    ],
+    "rules": [
+      "BR-07",
+      "BR-08"
+    ],
+    "evidence": {
+      "name": "validatePayrollRun",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 809,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L809"
+    },
+    "test": "scripts/test-domain.ts",
+    "status": "구현·별도 사용자 승인 서버는 없음",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-domain.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "PAY-05",
+    "title": "급여 마감·지급",
+    "kind": "업무",
+    "owner": "급여 담당",
+    "purpose": "급여 마감·지급의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "확정 Run, 근태 마감 여부",
+    "flow": "근태 마감 → 급여 마감 → 지급 완료 표시",
+    "output": "CLOSED/PAID 및 시각",
+    "stores": [
+      "payrollRuns",
+      "auditLogs"
+    ],
+    "rules": [
+      "BR-08",
+      "BR-09"
+    ],
+    "evidence": {
+      "name": "setPayrollRunStatus",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 822,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L822"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "status": "구현·실제 은행 이체 아님",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-integration.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "PAY-06",
+    "title": "원천 정정·재계산",
+    "kind": "업무",
+    "owner": "급여 담당",
+    "purpose": "원천 정정·재계산의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "미확정 Run/원천 및 사유",
+    "flow": "수정 → stale/결과 삭제 → 근태 연동/계산 → 검증",
+    "output": "새 미확정 결과; 잠금 상태는 거부",
+    "stores": [
+      "payrollRuns",
+      "payrollResults",
+      "payrollEntries"
+    ],
+    "rules": [
+      "BR-05",
+      "BR-09"
+    ],
+    "evidence": {
+      "name": "saveAttendanceBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1049,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1049"
+    },
+    "test": "scripts/test-domain.ts",
+    "status": "미확정 정정 구현; 마감 후 정정 Run 미구현",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-domain.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "PAY-07",
+    "title": "퇴직정산",
+    "kind": "업무",
+    "owner": "급여 담당",
+    "purpose": "퇴직정산의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "퇴사일·임금자료·DB/DC 관련 수기값",
+    "flow": "퇴사일 확인 → 임금 기준 산정 → 검토/수기 보완 → 확정",
+    "output": "퇴직정산 원장",
+    "stores": [
+      "retirementSettlements"
+    ],
+    "rules": [
+      "BR-10",
+      "BR-12"
+    ],
+    "evidence": {
+      "name": "calculateRetirementSettlement",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1233,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1233"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "status": "구현·증빙 및 법률 전체 자동판정 아님",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-integration.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "PAY-08",
+    "title": "연말정산",
+    "kind": "업무",
+    "owner": "급여 담당",
+    "purpose": "연말정산의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "급여 합계·기납부세액·최종세액·서류검토",
+    "flow": "자료 대조 → 최종세액 입력 → 차액 계산 → 확정",
+    "output": "정산액 원장과 서류검토 상태",
+    "stores": [
+      "yearEndTaxCases"
+    ],
+    "rules": [
+      "BR-10",
+      "BR-12"
+    ],
+    "evidence": {
+      "name": "saveYearEndBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1227,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1227"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "status": "구현·세액/서류 수기 검토 포함",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-integration.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "FILE-01",
+    "title": "원천세 신고 초안",
+    "kind": "업무",
+    "owner": "급여 담당",
+    "purpose": "원천세 신고 초안의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "Run 결과·일용 지급·회사정보·수기 검토",
+    "flow": "초안 생성 → 코드별 합계 → 검토 표시 → HTML/PDF 출력",
+    "output": "WithholdingDraft/출력",
+    "stores": [
+      "company"
+    ],
+    "rules": [
+      "BR-14"
+    ],
+    "evidence": {
+      "name": "saveWithholdingDraft",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 923,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L923"
+    },
+    "test": "scripts/test-v075.ts",
+    "status": "구현·수리 여부 미검증",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-v075.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "FILE-02",
+    "title": "보험 신고 목록",
+    "kind": "업무",
+    "owner": "HR/급여 담당",
+    "purpose": "보험 신고 목록의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "입퇴사·직종·보수·회사 관리번호",
+    "flow": "대상 자동 불러오기/수기 → 작성 → 파일 생성 → 별도 신고처 확인",
+    "output": "filingDrafts와 파일",
+    "stores": [
+      "filingDrafts"
+    ],
+    "rules": [
+      "BR-14"
+    ],
+    "evidence": {
+      "name": "saveOperation",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 884,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L884"
+    },
+    "test": "scripts/test-v078.tsx",
+    "status": "목록 작성 구현·기관 업로드 보증 아님",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-v078.tsx와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "DAILY-01",
+    "title": "일용직·근무수당",
+    "kind": "업무",
+    "owner": "HR/급여 담당",
+    "purpose": "일용직·근무수당의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "일용직 번호·기간·일급·일별 시간/수당",
+    "flow": "근로자 생성 → 근무기록 입력 → 계산 → 확정·월 마감",
+    "output": "일용직 원장·근로내용 신고 자료",
+    "stores": [
+      "persons",
+      "dailyWorkers",
+      "dailyWorkRecords",
+      "company"
+    ],
+    "rules": [
+      "BR-10",
+      "BR-15"
+    ],
+    "evidence": {
+      "name": "createDailyWorker",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1176,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1176"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "status": "구현·별도 고용 원장, Person 재사용 미구현",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-pr7-integration.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "OPS-01",
+    "title": "업무일정·이슈·문서",
+    "kind": "업무",
+    "owner": "HR 운영자",
+    "purpose": "업무일정·이슈·문서의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "공지·임금일·이슈·수기 일정·중요도",
+    "flow": "원천 일정 연동 → 변경안 검토 → 캘린더/이슈 추적",
+    "output": "운영 저장소 레코드",
+    "stores": [
+      "calendarEvents",
+      "issues",
+      "policyDocuments",
+      "company"
+    ],
+    "rules": [
+      "BR-16"
+    ],
+    "evidence": {
+      "name": "saveOperation",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 884,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L884"
+    },
+    "test": "scripts/test-planning-review.ts",
+    "status": "구현·일부 승인/역할 시뮬레이션",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-planning-review.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "SYS-01",
+    "title": "전체 백업·복원",
+    "kind": "시스템",
+    "owner": "로컬 사용자",
+    "purpose": "전체 백업·복원의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "schemaVersion 및 전체 JSON",
+    "flow": "백업 저장 → 외부 보관 → 복원 전 스키마 검사 → 변환·원자 교체",
+    "output": "로컬 전체 저장소",
+    "stores": [
+      "meta",
+      "company",
+      "persons",
+      "employments",
+      "payrollRuns",
+      "payrollResults"
+    ],
+    "rules": [
+      "BR-11"
+    ],
+    "evidence": {
+      "name": "importDatabase",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1285,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1285"
+    },
+    "test": "scripts/test-registration-integrity.ts",
+    "status": "구현·중복 PK 결함 ISS-A01",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-registration-integrity.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "SYS-02",
+    "title": "무결성 진단",
+    "kind": "시스템",
+    "owner": "개발/검토자",
+    "purpose": "무결성 진단의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "전체 SeedBundle",
+    "flow": "참조·중복·기간 검사 → finding → 수동 검토",
+    "output": "finding 목록, 임의 수정 없음",
+    "stores": [
+      "조회",
+      "전용"
+    ],
+    "rules": [
+      "BR-01",
+      "BR-02"
+    ],
+    "evidence": {
+      "name": "integrityFindings",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 208,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L208"
+    },
+    "test": "scripts/test-registration-integrity.ts",
+    "status": "함수 구현·모든 쓰기의 FK 강제는 아님",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-registration-integrity.ts와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "NFR-01",
+    "title": "권한·개인정보",
+    "kind": "비기능",
+    "owner": "관리자/설계자",
+    "purpose": "권한·개인정보의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "가상 데이터·로컬 접근권한·백업 관리",
+    "flow": "실습 데이터 사용 → 외부 전달 전 점검 → 정책 수립",
+    "output": "보안 경계·운영 정책",
+    "stores": [
+      "브라우저",
+      "전체"
+    ],
+    "rules": [
+      "BR-16"
+    ],
+    "evidence": {
+      "name": "exportDatabase",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1281,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1281"
+    },
+    "test": "scripts/test-selection.tsx",
+    "status": "로컬 통제; 운영 서버 권한 미구현",
+    "normal": "지정된 입력과 선행조건을 만족하면 저장 결과 및 후속 상태를 확인한다.",
+    "exception": "관련 BR의 거부·보류·잠금 조건을 적용하고 오류를 임의로 무시하지 않는다.",
+    "validation": "test-selection.tsx와 관련 BR을 대조한다. 테스트 파일 존재만으로 모든 경로 통과를 뜻하지 않으며 evidence 실행 기록에 한정한다."
+  },
+  {
+    "id": "FUT-01",
+    "title": "AI 업무 시뮬레이션",
+    "kind": "미래",
+    "owner": "HR/PM/개발",
+    "purpose": "AI 업무 시뮬레이션의 판단 근거와 데이터 연결을 추적하여 후속 급여 업무의 누락·오연결을 줄인다.",
+    "input": "정의된 업무 상태·시나리오·평가지표",
+    "flow": "격리 시나리오 → 도구 계약 → 실행 기록 → 결과/오류 평가",
+    "output": "TO-BE 계획, 현재 구현 주장 없음",
+    "stores": [],
+    "rules": [
+      "BR-16"
+    ],
+    "evidence": null,
+    "test": null,
+    "status": "제안·미구현",
+    "normal": "향후 격리 시나리오의 상태·로그·결과 일치를 수용조건으로 제안한다.",
+    "exception": "향후 허용되지 않은 작업 거부와 데이터 복구를 수용조건으로 제안한다.",
+    "validation": "미실행. ISS-D03의 미래 수용조건 제안.",
+    "code": null,
+    "verification": "미구현·미실행. ISS-D03 수용조건은 향후 설계안."
+  }
+]

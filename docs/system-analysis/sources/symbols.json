@@ -1,0 +1,4610 @@
+[
+  {
+    "name": "View",
+    "path": "src/app/App.tsx",
+    "line": 39,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "App",
+    "path": "src/app/App.tsx",
+    "line": 41,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Nav",
+    "path": "src/app/App.tsx",
+    "line": 119,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Dashboard",
+    "path": "src/app/App.tsx",
+    "line": 121,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Stat",
+    "path": "src/app/App.tsx",
+    "line": 132,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EmployeeList",
+    "path": "src/app/App.tsx",
+    "line": 133,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AuditList",
+    "path": "src/app/App.tsx",
+    "line": 140,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "HeadcountRow",
+    "path": "src/app/DashboardCharts.tsx",
+    "line": 8,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "HeadcountChart",
+    "path": "src/app/DashboardCharts.tsx",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ChangeChart",
+    "path": "src/app/DashboardCharts.tsx",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DataToolbar",
+    "path": "src/app/DataToolbar.tsx",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EmployeeIssueBoard",
+    "path": "src/app/EmployeeIssueBoard.tsx",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "dayCounts",
+    "path": "src/app/OperationsDashboard.tsx",
+    "line": 15,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "LineChart",
+    "path": "src/app/OperationsDashboard.tsx",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "OperationsDashboard",
+    "path": "src/app/OperationsDashboard.tsx",
+    "line": 19,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Delta",
+    "path": "src/app/OperationsDashboard.tsx",
+    "line": 27,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DailySummary",
+    "path": "src/app/OperationsDashboard.tsx",
+    "line": 28,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "hangul",
+    "path": "src/app/auditDescription.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "koreanText",
+    "path": "src/app/auditDescription.ts",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "describeAudit",
+    "path": "src/app/auditDescription.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "IssueProgressStep",
+    "path": "src/app/issueProgress.ts",
+    "line": 2,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "issueSteps",
+    "path": "src/app/issueProgress.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "nextIssueStep",
+    "path": "src/app/issueProgress.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "validateIssueProgress",
+    "path": "src/app/issueProgress.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "issuesFromLeaves",
+    "path": "src/app/issueProgress.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "projectIssueEvent",
+    "path": "src/app/issueProgress.ts",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "monthlyStatus",
+    "path": "src/app/monthlyStatus.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DownloadActions",
+    "path": "src/components/DownloadActions.tsx",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "MemoProvider",
+    "path": "src/components/MemoReference.tsx",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "MemoReference",
+    "path": "src/components/MemoReference.tsx",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "MonthPicker",
+    "path": "src/components/MonthPicker.tsx",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ScrollTable",
+    "path": "src/components/ScrollTable.tsx",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "SearchSelect",
+    "path": "src/components/SearchSelect.tsx",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "cellValue",
+    "path": "src/components/TableControls.tsx",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "compareCells",
+    "path": "src/components/TableControls.tsx",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "applyVisibility",
+    "path": "src/components/TableControls.tsx",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "TableControls",
+    "path": "src/components/TableControls.tsx",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WorkbookActions",
+    "path": "src/components/WorkbookActions.tsx",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "freezeIndex",
+    "path": "src/components/tableFreeze.ts",
+    "line": 1,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "applyFreeze",
+    "path": "src/components/tableFreeze.ts",
+    "line": 2,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "BadgeProps",
+    "path": "src/components/ui/badge.tsx",
+    "line": 26,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Badge",
+    "path": "src/components/ui/badge.tsx",
+    "line": 30,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ButtonProps",
+    "path": "src/components/ui/button.tsx",
+    "line": 38,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Modal",
+    "path": "src/components/ui/modal.tsx",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "StoredFile",
+    "path": "src/domain/attachments.ts",
+    "line": 1,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "storeFile",
+    "path": "src/domain/attachments.ts",
+    "line": 2,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "demoFile",
+    "path": "src/domain/attachments.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "IntegrityFinding",
+    "path": "src/domain/dataIntegrity.ts",
+    "line": 2,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "inspectIntegrity",
+    "path": "src/domain/dataIntegrity.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "companyRepairs",
+    "path": "src/domain/dataIntegrity.ts",
+    "line": 33,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "MasterSection",
+    "path": "src/domain/masterEdit.ts",
+    "line": 2,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "MasterEdit",
+    "path": "src/domain/masterEdit.ts",
+    "line": 3,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "EmploymentStatus",
+    "path": "src/domain/types.ts",
+    "line": 2,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "EmploymentType",
+    "path": "src/domain/types.ts",
+    "line": 3,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "Gender",
+    "path": "src/domain/types.ts",
+    "line": 4,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "DomesticForeignType",
+    "path": "src/domain/types.ts",
+    "line": 5,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "ResidentType",
+    "path": "src/domain/types.ts",
+    "line": 6,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PersonnelEventType",
+    "path": "src/domain/types.ts",
+    "line": 7,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PersonnelEventStatus",
+    "path": "src/domain/types.ts",
+    "line": 8,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "SkillCategory",
+    "path": "src/domain/types.ts",
+    "line": 9,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "MilitaryServiceStatus",
+    "path": "src/domain/types.ts",
+    "line": 10,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "DailyWorkerStatus",
+    "path": "src/domain/types.ts",
+    "line": 11,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PayrollItemCategory",
+    "path": "src/domain/types.ts",
+    "line": 12,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PayrollCalculationMethod",
+    "path": "src/domain/types.ts",
+    "line": 13,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "Company",
+    "path": "src/domain/types.ts",
+    "line": 16,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Organization",
+    "path": "src/domain/types.ts",
+    "line": 35,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Person",
+    "path": "src/domain/types.ts",
+    "line": 44,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Address",
+    "path": "src/domain/types.ts",
+    "line": 64,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Dependent",
+    "path": "src/domain/types.ts",
+    "line": 74,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Visa",
+    "path": "src/domain/types.ts",
+    "line": 90,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "BankAccount",
+    "path": "src/domain/types.ts",
+    "line": 107,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Employment",
+    "path": "src/domain/types.ts",
+    "line": 118,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Assignment",
+    "path": "src/domain/types.ts",
+    "line": 129,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "CompensationSnapshot",
+    "path": "src/domain/types.ts",
+    "line": 144,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "TaxProfile",
+    "path": "src/domain/types.ts",
+    "line": 152,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "SocialInsuranceProfile",
+    "path": "src/domain/types.ts",
+    "line": 166,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "MilitaryServiceProfile",
+    "path": "src/domain/types.ts",
+    "line": 183,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Education",
+    "path": "src/domain/types.ts",
+    "line": 200,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "CareerHistory",
+    "path": "src/domain/types.ts",
+    "line": 213,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Certification",
+    "path": "src/domain/types.ts",
+    "line": 226,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "EmployeeSkill",
+    "path": "src/domain/types.ts",
+    "line": 238,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "ResumeDocument",
+    "path": "src/domain/types.ts",
+    "line": 248,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "WorkSchedule",
+    "path": "src/domain/types.ts",
+    "line": 259,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "AttendanceSetting",
+    "path": "src/domain/types.ts",
+    "line": 269,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "ManagerRelationship",
+    "path": "src/domain/types.ts",
+    "line": 279,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PersonnelEvent",
+    "path": "src/domain/types.ts",
+    "line": 291,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "AuditLog",
+    "path": "src/domain/types.ts",
+    "line": 308,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "AttendanceMonthlySummary",
+    "path": "src/domain/types.ts",
+    "line": 318,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "AnnualLeaveLedger",
+    "path": "src/domain/types.ts",
+    "line": 348,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "DailyWorker",
+    "path": "src/domain/types.ts",
+    "line": 366,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "DailyWorkerInput",
+    "path": "src/domain/types.ts",
+    "line": 383,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "DailyWorkRecord",
+    "path": "src/domain/types.ts",
+    "line": 400,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "RetirementSettlement",
+    "path": "src/domain/types.ts",
+    "line": 429,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "YearEndTaxCase",
+    "path": "src/domain/types.ts",
+    "line": 471,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PayrollItemMaster",
+    "path": "src/domain/types.ts",
+    "line": 490,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "EmployeeView",
+    "path": "src/domain/types.ts",
+    "line": 512,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "EmployeeMasterDetail",
+    "path": "src/domain/types.ts",
+    "line": 545,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PayrollDependentInfo",
+    "path": "src/domain/types.ts",
+    "line": 568,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "SeedBundle",
+    "path": "src/domain/types.ts",
+    "line": 576,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PersonnelActionInput",
+    "path": "src/domain/types.ts",
+    "line": 615,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "DependentInput",
+    "path": "src/domain/types.ts",
+    "line": 623,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "ManagerRelationshipInput",
+    "path": "src/domain/types.ts",
+    "line": 637,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "DatabaseExport",
+    "path": "src/domain/types.ts",
+    "line": 646,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PayrollRunStatus",
+    "path": "src/domain/types.ts",
+    "line": 655,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PayrollEntryStatus",
+    "path": "src/domain/types.ts",
+    "line": 656,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "FilingFormValues",
+    "path": "src/domain/types.ts",
+    "line": 658,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PayrollRun",
+    "path": "src/domain/types.ts",
+    "line": 659,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PayrollEntry",
+    "path": "src/domain/types.ts",
+    "line": 680,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PayrollResult",
+    "path": "src/domain/types.ts",
+    "line": 725,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "InsuranceOverrides",
+    "path": "src/domain/types.ts",
+    "line": 754,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PayrollEntryInput",
+    "path": "src/domain/types.ts",
+    "line": 755,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PayrollRunInput",
+    "path": "src/domain/types.ts",
+    "line": 783,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PayrollRunSummary",
+    "path": "src/domain/types.ts",
+    "line": 789,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "AttendanceActivity",
+    "path": "src/domain/types.ts",
+    "line": 799,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "AttendanceDailyRecord",
+    "path": "src/domain/types.ts",
+    "line": 800,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "LeaveKind",
+    "path": "src/domain/types.ts",
+    "line": 835,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "LeaveCase",
+    "path": "src/domain/types.ts",
+    "line": 836,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "demoDay",
+    "path": "src/fixtures/scenarios.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "scenarioIds",
+    "path": "src/fixtures/scenarios.ts",
+    "line": 22,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "mulberry32",
+    "path": "src/fixtures/seed.ts",
+    "line": 87,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "isoDate",
+    "path": "src/fixtures/seed.ts",
+    "line": 98,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "addDays",
+    "path": "src/fixtures/seed.ts",
+    "line": 105,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "monthsBetween",
+    "path": "src/fixtures/seed.ts",
+    "line": 111,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "salaryForGrade",
+    "path": "src/fixtures/seed.ts",
+    "line": 117,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "safeTerminationDate",
+    "path": "src/fixtures/seed.ts",
+    "line": 122,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "serviceYearsAt",
+    "path": "src/fixtures/seed.ts",
+    "line": 127,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "annualLeaveGranted",
+    "path": "src/fixtures/seed.ts",
+    "line": 133,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "createSeedBundle",
+    "path": "src/fixtures/seed.ts",
+    "line": 164,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "StoreName",
+    "path": "src/infrastructure/db/config.ts",
+    "line": 54,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "StoreDefinition",
+    "path": "src/infrastructure/db/config.ts",
+    "line": 56,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "requestToPromise",
+    "path": "src/infrastructure/db/idbUtils.ts",
+    "line": 1,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "transactionDone",
+    "path": "src/infrastructure/db/idbUtils.ts",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "getAllFromStore",
+    "path": "src/infrastructure/db/idbUtils.ts",
+    "line": 22,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "getOneFromStore",
+    "path": "src/infrastructure/db/idbUtils.ts",
+    "line": 31,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "openSharedDatabase",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 87,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "dayBefore",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 128,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "today",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 134,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "inEffect",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 142,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "monthStart",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 146,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "monthEnd",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 147,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calendarProration",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 151,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "IndexedDbHrRepository",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 161,
+    "kind": "ClassDeclaration"
+  },
+  {
+    "name": "initialize",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 165,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "initializeOnce",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 176,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "integrityFindings",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 208,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "repairEmploymentCompanies",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 209,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "initializeRequestedV078",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 224,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveResume",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 232,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "editMaster",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 233,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "savePersonNames",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 236,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "registerEmployee",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 241,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "requireDb",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 262,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "indexedRows",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 267,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "getAll",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 271,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "getOne",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 280,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "put",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 289,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "deleteOne",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 297,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "seed",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 305,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "getCompany",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 361,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "employeeViews",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 367,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listEmployees",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 406,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "getEmployee",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 412,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "getEmployeeMaster",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 418,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "getDependentsAtDate",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 457,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "getPayrollDependentInfo",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 463,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "upsertDependent",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 472,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "updateManagerRelationship",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 490,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "updateMilitaryServiceProfile",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 507,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listOrganizations",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 514,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listPersonnelEvents",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 518,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "currentAssignment",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 524,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "applyEvent",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 530,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "applyDueEvents",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 576,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "createPersonnelAction",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 582,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listPayrollRuns",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 623,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "getPayrollRun",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 627,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "createPayrollRun",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 631,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "deletePayrollRun",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 679,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listPayrollEntries",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 689,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "getPayrollEntry",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 693,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "addPayrollEntry",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 697,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveFilingForm",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 733,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "savePayrollEntriesBatch",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 737,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "upsertPayrollEntry",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 754,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "deletePayrollEntry",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 766,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listPayrollResults",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 776,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "calculatePayrollRun",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 780,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "validatePayrollRun",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 809,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "setPayrollRunStatus",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 822,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "confirmRecords",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 836,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "persistSelectionUpgrade",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 853,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "refreshIssues",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 854,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "scheduleSources",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 855,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "populateWorkYear",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 856,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "setScheduleImportance",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 862,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveWorkEvents",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 863,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "syncWorkYear",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 869,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "planningReview",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 870,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "proposeWorkEvent",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 871,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "proposeWorkSettings",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 872,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "proposePayDate",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 873,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "reviewPlanningChange",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 874,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "recordDocumentDelivery",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 875,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "updatePayrollPayDate",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 876,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "operations",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 883,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveOperation",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 884,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "initializeOperations",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 885,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "recruiting",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 886,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveRecruiting",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 887,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "convertCandidate",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 899,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "withholdingDraft",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 922,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveWithholdingDraft",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 923,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "companyInfo",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 924,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveCompanyInfo",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 925,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "settlements",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 930,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveSettlements",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 931,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "isAttendanceClosed",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 932,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "closeAttendance",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 933,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "dailyClosedPeriods",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 942,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "closeDaily",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 943,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "demoEntry",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 948,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "ensureDemoHistory",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 961,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "upgradeDemoScenarios",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1027,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listAttendanceDailyRecords",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1046,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listLeaveCases",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1047,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveAttendanceBatch",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1049,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveLeaveCase",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1107,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "restorePayrollSettings",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1128,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "savePayrollSettings",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1133,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listAttendanceMonthlySummaries",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1145,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveAnnualLeaveBatch",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1149,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listAnnualLeaveLedgers",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1156,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listDailyWorkers",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1160,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listDailyWorkRecords",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1164,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveDailyWorkersBatch",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1168,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "upsertDailyWorker",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1174,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "createDailyWorker",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1176,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "deleteDailyWorker",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1194,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveDailyWorkRecordsBatch",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1206,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "upsertDailyWorkRecord",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1215,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "deleteDailyWorkRecord",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1216,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveManualLedger",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1219,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveRetirementBatch",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1222,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveYearEndBatch",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1227,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listRetirementSettlements",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1232,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "calculateRetirementSettlement",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1233,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listYearEndTaxCases",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1243,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listPayrollItemMasters",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1253,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "updatePayrollItemMaster",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1257,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "listAuditLogs",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1261,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "resetDemo",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1262,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "bundle",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1263,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "exportDatabase",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1281,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "importDatabase",
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "line": 1285,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "seedIssueProgressDemo",
+    "path": "src/infrastructure/db/issueProgressSeed.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "upgradeLemonOperations",
+    "path": "src/infrastructure/db/lemonUpgrade.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "seedLemonRetirement",
+    "path": "src/infrastructure/db/lemonUpgrade.ts",
+    "line": 22,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "repairLemonOccupationMapping",
+    "path": "src/infrastructure/db/lemonUpgrade.ts",
+    "line": 35,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "LegacyPersonV1",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 29,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "openExistingDatabase",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 43,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "readTransientV032Bundle",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 71,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ensureObjectStore",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 123,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ensureIndexes",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 130,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "upgradeDatabaseStructure",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 150,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "existingIdSet",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 188,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "migratedPerson",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 193,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "migratedAddress",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 216,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "migratedBankAccount",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 229,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "putMissingRows",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 242,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "migrateDataV1ToV2",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 262,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "migrateAttendanceSnapshotsV4ToV5",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 335,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "writeMigrationMeta",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 364,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "runDataMigrations",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 384,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "isDatabaseSeeded",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 437,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "currentSeedVersion",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 443,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "runSeedMigrations",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 449,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "markCurrentDbVersion",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 464,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "currentVersions",
+    "path": "src/infrastructure/db/migrations.ts",
+    "line": 471,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "correctedDemoDay",
+    "path": "src/infrastructure/db/operationsUpgrade.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "summaryFromDaily",
+    "path": "src/infrastructure/db/operationsUpgrade.ts",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "repairDemoOperations",
+    "path": "src/infrastructure/db/operationsUpgrade.ts",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "planningContext",
+    "path": "src/infrastructure/db/planningRepository.ts",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "storeChanges",
+    "path": "src/infrastructure/db/planningRepository.ts",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "proposeYear",
+    "path": "src/infrastructure/db/planningRepository.ts",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "proposeEvent",
+    "path": "src/infrastructure/db/planningRepository.ts",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "proposeSettings",
+    "path": "src/infrastructure/db/planningRepository.ts",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "proposePayDate",
+    "path": "src/infrastructure/db/planningRepository.ts",
+    "line": 15,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "reviewChange",
+    "path": "src/infrastructure/db/planningRepository.ts",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "recordDelivery",
+    "path": "src/infrastructure/db/planningRepository.ts",
+    "line": 19,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "seedStaffNotices",
+    "path": "src/infrastructure/db/staffNoticesSeed.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "seedWorkRules",
+    "path": "src/infrastructure/db/workRulesSeed.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "HrRepository",
+    "path": "src/infrastructure/repositories/hrRepository.ts",
+    "line": 18,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "cn",
+    "path": "src/lib/utils.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AnnualLeavePanel",
+    "path": "src/modules/attendance/AnnualLeavePanel.tsx",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AnnualLeaveEditor",
+    "path": "src/modules/attendance/AnnualLeavePanel.tsx",
+    "line": 24,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AnnualPromotion",
+    "path": "src/modules/attendance/AnnualPromotion.tsx",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AttendanceView",
+    "path": "src/modules/attendance/AttendancePage.tsx",
+    "line": 19,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "Filters",
+    "path": "src/modules/attendance/AttendancePage.tsx",
+    "line": 21,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "moneyHours",
+    "path": "src/modules/attendance/AttendancePage.tsx",
+    "line": 30,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AttendancePage",
+    "path": "src/modules/attendance/AttendancePage.tsx",
+    "line": 32,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AttendanceEditor",
+    "path": "src/modules/attendance/AttendanceTools.tsx",
+    "line": 21,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AttendanceBatchEditor",
+    "path": "src/modules/attendance/AttendanceTools.tsx",
+    "line": 26,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AttendanceCalendar",
+    "path": "src/modules/attendance/AttendanceTools.tsx",
+    "line": 49,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "LeaveCaseEditor",
+    "path": "src/modules/attendance/AttendanceTools.tsx",
+    "line": 62,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "annualValues",
+    "path": "src/modules/attendance/annualLeaveFiles.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "parseAnnualRows",
+    "path": "src/modules/attendance/annualLeaveFiles.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "FileFormat",
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "line": 3,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "attendanceIssue",
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "downloadBlob",
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "csvEncode",
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "csvDecode",
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "exportTable",
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "line": 17,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "readTable",
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "line": 23,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "attendanceRows",
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "line": 32,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "parseAttendance",
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "line": 37,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "attendanceDailyValues",
+    "path": "src/modules/attendance/dailyAttendanceFiles.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "parseAttendanceDaily",
+    "path": "src/modules/attendance/dailyAttendanceFiles.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "anniversary",
+    "path": "src/modules/attendance/leaveComparison.ts",
+    "line": 2,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "leaveComparison",
+    "path": "src/modules/attendance/leaveComparison.ts",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "clockHours",
+    "path": "src/modules/attendance/timeRules.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "dailyTotals",
+    "path": "src/modules/attendance/timeRules.ts",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calculateAttendanceDay",
+    "path": "src/modules/attendance/timeRules.ts",
+    "line": 15,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "attendanceDayLabel",
+    "path": "src/modules/attendance/timeRules.ts",
+    "line": 25,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DetailTab",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 26,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "Props",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 28,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "EmployeeDetail",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 37,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "SummaryTab",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 99,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PersonalTab",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 111,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EmploymentTab",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 135,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PayrollTaxTab",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 143,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "CapabilityTab",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 155,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AttendanceTab",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 169,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "HistoryTab",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 177,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DocumentsTab",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 188,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "militaryStatusLabel",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 193,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "VisaBadge",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 195,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Section",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 202,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Info",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 203,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "RecordCard",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 204,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "HistoryRows",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 205,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ResumeList",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 206,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DependentModal",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 208,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "MilitaryServiceModal",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 227,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ManagerModal",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 234,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ModalHead",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 245,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ModalActions",
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "line": 246,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "NameFields",
+    "path": "src/modules/core-hr/EmployeeRegistration.tsx",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "NameEditor",
+    "path": "src/modules/core-hr/EmployeeRegistration.tsx",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "NameReview",
+    "path": "src/modules/core-hr/EmployeeRegistration.tsx",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EmployeeRegistrationModal",
+    "path": "src/modules/core-hr/EmployeeRegistration.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "MasterEditor",
+    "path": "src/modules/core-hr/MasterEditor.tsx",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "HrService",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 11,
+    "kind": "ClassDeclaration"
+  },
+  {
+    "name": "saveResume",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 14,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "editMaster",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 15,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "savePersonNames",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 16,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "registerEmployee",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 17,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "initialize",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 18,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "company",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 19,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "employees",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 20,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "employee",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 21,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "employeeMaster",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 22,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "organizations",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 23,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "events",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 24,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "auditLogs",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 25,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "resetDemo",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 26,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "exportDatabase",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 27,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "importDatabase",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 28,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "dependentsAt",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 29,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "payrollDependentInfo",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 30,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveDependent",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 32,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveManagerRelationship",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 40,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveMilitaryServiceProfile",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 47,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "createPersonnelAction",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 54,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "summary",
+    "path": "src/modules/core-hr/hrService.ts",
+    "line": 60,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "money",
+    "path": "src/modules/core-hr/labels.ts",
+    "line": 15,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "shortDate",
+    "path": "src/modules/core-hr/labels.ts",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "yesNo",
+    "path": "src/modules/core-hr/labels.ts",
+    "line": 17,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "todayLocal",
+    "path": "src/modules/core-hr/labels.ts",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "reviewNames",
+    "path": "src/modules/core-hr/nameValidation.ts",
+    "line": 1,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "demoNames",
+    "path": "src/modules/core-hr/nameValidation.ts",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EmployeeRegistration",
+    "path": "src/modules/core-hr/nameValidation.ts",
+    "line": 11,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "CalendarPanel",
+    "path": "src/modules/operations/CalendarPanel.tsx",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ManualScheduleDialog",
+    "path": "src/modules/operations/ManualScheduleDialog.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "OccupationPanel",
+    "path": "src/modules/operations/OccupationPanel.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "IssuesPanel",
+    "path": "src/modules/operations/OperationsPanels.tsx",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PoliciesPanel",
+    "path": "src/modules/operations/OperationsPanels.tsx",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "CompliancePanel",
+    "path": "src/modules/operations/OperationsPanels.tsx",
+    "line": 15,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WelfarePanel",
+    "path": "src/modules/operations/OperationsPanels.tsx",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "HrSitesPanel",
+    "path": "src/modules/operations/OperationsPanels.tsx",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PeriodItem",
+    "path": "src/modules/operations/PeriodCalendar.tsx",
+    "line": 6,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "periodItems",
+    "path": "src/modules/operations/PeriodCalendar.tsx",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "periodLayout",
+    "path": "src/modules/operations/PeriodCalendar.tsx",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PeriodCalendar",
+    "path": "src/modules/operations/PeriodCalendar.tsx",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PlanningReviewPanel",
+    "path": "src/modules/operations/PlanningReviewPanel.tsx",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ChangeComparison",
+    "path": "src/modules/operations/PlanningReviewPanel.tsx",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WorkDocumentLinks",
+    "path": "src/modules/operations/PolicyConnections.tsx",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PolicyPreview",
+    "path": "src/modules/operations/PolicyConnections.tsx",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DocumentWorkConnections",
+    "path": "src/modules/operations/PolicyConnections.tsx",
+    "line": 15,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PolicyStandardsEditor",
+    "path": "src/modules/operations/PolicyConnections.tsx",
+    "line": 19,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "exportSchedules",
+    "path": "src/modules/operations/ScheduleExports.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WorkDetail",
+    "path": "src/modules/operations/WorkDetail.tsx",
+    "line": 17,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Owner",
+    "path": "src/modules/operations/WorkDetail.tsx",
+    "line": 27,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Attachments",
+    "path": "src/modules/operations/WorkRulesPanel.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "readFiles",
+    "path": "src/modules/operations/WorkRulesPanel.tsx",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "revision",
+    "path": "src/modules/operations/WorkRulesPanel.tsx",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WorkRulesPanel",
+    "path": "src/modules/operations/WorkRulesPanel.tsx",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "NoticeBoard",
+    "path": "src/modules/operations/WorkRulesPanel.tsx",
+    "line": 20,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WorkSchedulePage",
+    "path": "src/modules/operations/WorkSchedulePage.tsx",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WorkSettingsPanel",
+    "path": "src/modules/operations/WorkSettings.tsx",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ManualScheduleInput",
+    "path": "src/modules/operations/manualSchedule.ts",
+    "line": 3,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "manualScheduleRows",
+    "path": "src/modules/operations/manualSchedule.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "codeForItJob",
+    "path": "src/modules/operations/occupationDictionary.ts",
+    "line": 144,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "itOccupationSeed",
+    "path": "src/modules/operations/occupationDictionary.ts",
+    "line": 145,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "CalendarEvent",
+    "path": "src/modules/operations/operations.ts",
+    "line": 4,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Issue",
+    "path": "src/modules/operations/operations.ts",
+    "line": 5,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "ComplianceSetting",
+    "path": "src/modules/operations/operations.ts",
+    "line": 6,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PolicyAttachment",
+    "path": "src/modules/operations/operations.ts",
+    "line": 7,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PolicyStep",
+    "path": "src/modules/operations/operations.ts",
+    "line": 8,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PolicyDocument",
+    "path": "src/modules/operations/operations.ts",
+    "line": 9,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "WelfareCase",
+    "path": "src/modules/operations/operations.ts",
+    "line": 10,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "OccupationMapping",
+    "path": "src/modules/operations/operations.ts",
+    "line": 11,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "FilingDraft",
+    "path": "src/modules/operations/operations.ts",
+    "line": 12,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "OperationsData",
+    "path": "src/modules/operations/operations.ts",
+    "line": 13,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "OperationStore",
+    "path": "src/modules/operations/operations.ts",
+    "line": 14,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "dayPolicy",
+    "path": "src/modules/operations/operations.ts",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "exceptionEmployeeIds",
+    "path": "src/modules/operations/operations.ts",
+    "line": 19,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "occupationCode",
+    "path": "src/modules/operations/operations.ts",
+    "line": 20,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "complianceRules",
+    "path": "src/modules/operations/operations.ts",
+    "line": 21,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "issueForAttendance",
+    "path": "src/modules/operations/operations.ts",
+    "line": 22,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "validateOperation",
+    "path": "src/modules/operations/operations.ts",
+    "line": 23,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "dailyAccrual",
+    "path": "src/modules/operations/operations.ts",
+    "line": 24,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "SourceStamp",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 7,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PlanningChange",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 8,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "DeliveryRecord",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 9,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "PlanningReview",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 10,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "stable",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "fingerprint",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "sourceValue",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "stamp",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 15,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "isPlanningExample",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "operatingEvents",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 17,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "makeChange",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "documentVersion",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 19,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "authority",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 20,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "policyConflicts",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 21,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "projectWork",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 22,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "stripWorkflowState",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 23,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "documentTasks",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 25,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "generatePlanningChanges",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 26,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "comparable",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 27,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "changeReport",
+    "path": "src/modules/operations/planningReview.ts",
+    "line": 28,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "xmlText",
+    "path": "src/modules/operations/policyReading.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "readPolicyFile",
+    "path": "src/modules/operations/policyReading.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "archivePolicy",
+    "path": "src/modules/operations/policyReading.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calendarSeed",
+    "path": "src/modules/operations/scheduleData.ts",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "nextBusinessDay",
+    "path": "src/modules/operations/scheduleData.ts",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "hrCalendarSeed",
+    "path": "src/modules/operations/scheduleData.ts",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "scheduleTopic",
+    "path": "src/modules/operations/schedulePresentation.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "activeSchedules",
+    "path": "src/modules/operations/schedulePresentation.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "schedulesForDay",
+    "path": "src/modules/operations/schedulePresentation.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "visibleCalendar",
+    "path": "src/modules/operations/useWorkSchedule.ts",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "useWorkSchedule",
+    "path": "src/modules/operations/useWorkSchedule.ts",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WorkStatus",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 8,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PhaseKind",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 9,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "WorkRule",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 10,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "WorkStage",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 11,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "WorkTask",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 12,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "WorkSettings",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 13,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "addMonths",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 17,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "businessDay",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "businessOffset",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 19,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "stage",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 21,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "makeTask",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 22,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "payrollTask",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 24,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WorkTemplate",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 28,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "templateTask",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 33,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "reconcileGenerated",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 35,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ScheduleSources",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 36,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "generateWorkYear",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 37,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "currentStage",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 42,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "overdue",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 43,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "missingCompletion",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 44,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "completionErrors",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 45,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "validateWorkSettings",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 46,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "validateWork",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 47,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DateProposal",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 48,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "payrollChanges",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 49,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "applyPayrollChanges",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 50,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "monthlyHours",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 51,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "annualPromotion",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 52,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "updateReceipt",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 53,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "workforce",
+    "path": "src/modules/operations/workSchedule.ts",
+    "line": 54,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "CompanyInfoPage",
+    "path": "src/modules/payroll/CompanyInfoPage.tsx",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DailyWorkerPage",
+    "path": "src/modules/payroll/DailyWorkerPage.tsx",
+    "line": 23,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DailyWorkerModal",
+    "path": "src/modules/payroll/DailyWorkerPage.tsx",
+    "line": 60,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DailyWorkerEditModal",
+    "path": "src/modules/payroll/DailyWorkerPage.tsx",
+    "line": 66,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "DailyRecordModal",
+    "path": "src/modules/payroll/DailyWorkerPage.tsx",
+    "line": 68,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EdiInsuranceWorksheet",
+    "path": "src/modules/payroll/EdiInsuranceWorksheet.tsx",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "FilingPanel",
+    "path": "src/modules/payroll/FilingPanel.tsx",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Reconciliation",
+    "path": "src/modules/payroll/FilingPanel.tsx",
+    "line": 23,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "WithholdingFilingPanel",
+    "path": "src/modules/payroll/InsuranceFilingPanel.tsx",
+    "line": 15,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "InsuranceFilingPanel",
+    "path": "src/modules/payroll/InsuranceFilingPanel.tsx",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "InsuranceWorksheet",
+    "path": "src/modules/payroll/InsuranceWorksheet.tsx",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "LedgerColumn",
+    "path": "src/modules/payroll/ManualLedger.tsx",
+    "line": 9,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "ledgerValues",
+    "path": "src/modules/payroll/ManualLedger.tsx",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "parseLedgerRows",
+    "path": "src/modules/payroll/ManualLedger.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ManualLedger",
+    "path": "src/modules/payroll/ManualLedger.tsx",
+    "line": 15,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EntryModal",
+    "path": "src/modules/payroll/PayrollEntryEditor.tsx",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Key",
+    "path": "src/modules/payroll/PayrollEntryEditor.tsx",
+    "line": 12,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PayrollView",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 45,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PayrollPage",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 47,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PayrollInputPanel",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 114,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "RunRow",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 139,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "FilterBar",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 141,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "useFilterState",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 145,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "matchEmployee",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 146,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PayrollQuery",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 148,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "LeaveQuery",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 157,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "RunBadge",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 158,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Stat",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 159,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "CreateRunModal",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 160,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AddTargetModal",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 161,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "BatchEditModal",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 163,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PayDateControl",
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "line": 172,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PersonalDetail",
+    "path": "src/modules/payroll/PayrollTools.tsx",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "AnnualPolicySettings",
+    "path": "src/modules/payroll/PayrollTools.tsx",
+    "line": 17,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PayrollSettingsPanel",
+    "path": "src/modules/payroll/PayrollTools.tsx",
+    "line": 22,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "CalculationOptions",
+    "path": "src/modules/payroll/PayrollTools.tsx",
+    "line": 32,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "RemunerationWorksheet",
+    "path": "src/modules/payroll/RemunerationWorksheet.tsx",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "RetirementRules",
+    "path": "src/modules/payroll/RetirementRules.tsx",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "RetirementPanel",
+    "path": "src/modules/payroll/SettlementPanels.tsx",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "YearEndPanel",
+    "path": "src/modules/payroll/SettlementPanels.tsx",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "SettlementSettings",
+    "path": "src/modules/payroll/SettlementSettings.tsx",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "SummaryRow",
+    "path": "src/modules/payroll/UnifiedPayroll.tsx",
+    "line": 8,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "payrollSummary",
+    "path": "src/modules/payroll/UnifiedPayroll.tsx",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "summaryTotal",
+    "path": "src/modules/payroll/UnifiedPayroll.tsx",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "UnifiedPayroll",
+    "path": "src/modules/payroll/UnifiedPayroll.tsx",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "exportSummary",
+    "path": "src/modules/payroll/UnifiedPayroll.tsx",
+    "line": 23,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WithholdingCheck",
+    "path": "src/modules/payroll/WithholdingChecklist.tsx",
+    "line": 7,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "WithholdingChecklist",
+    "path": "src/modules/payroll/WithholdingChecklist.tsx",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "WithholdingEditor",
+    "path": "src/modules/payroll/WithholdingEditor.tsx",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "YearEndDocumentReview",
+    "path": "src/modules/payroll/YearEndDocumentReview.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "CompanyInfo",
+    "path": "src/modules/payroll/companyInfo.ts",
+    "line": 1,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "SettlementSetting",
+    "path": "src/modules/payroll/companyInfo.ts",
+    "line": 17,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "seoulDate",
+    "path": "src/modules/payroll/companyInfo.ts",
+    "line": 20,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "dailyValues",
+    "path": "src/modules/payroll/dailyFiles.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "parseDailyRows",
+    "path": "src/modules/payroll/dailyFiles.ts",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "dailyWorkerValues",
+    "path": "src/modules/payroll/dailyWorkerFiles.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "parseDailyWorkers",
+    "path": "src/modules/payroll/dailyWorkerFiles.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calculateDailyWorkRecord",
+    "path": "src/modules/payroll/dailyWorkerRules.ts",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EdiKind",
+    "path": "src/modules/payroll/ediFiling.ts",
+    "line": 3,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "EdiRow",
+    "path": "src/modules/payroll/ediFiling.ts",
+    "line": 5,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "validateEdi",
+    "path": "src/modules/payroll/ediFiling.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "exportEdi",
+    "path": "src/modules/payroll/ediFiling.ts",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "readEdi",
+    "path": "src/modules/payroll/ediFiling.ts",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "fieldsFor",
+    "path": "src/modules/payroll/filingWorksheet.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "blankFilingRow",
+    "path": "src/modules/payroll/filingWorksheet.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "nextCalendarDay",
+    "path": "src/modules/payroll/filingWorksheet.ts",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "filingValue",
+    "path": "src/modules/payroll/filingWorksheet.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "importFilingRows",
+    "path": "src/modules/payroll/filingWorksheet.ts",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "insuranceRules",
+    "path": "src/modules/payroll/insuranceRules.ts",
+    "line": 2,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calculationSource",
+    "path": "src/modules/payroll/insuranceRules.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "standardFormula",
+    "path": "src/modules/payroll/itemCalculation.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "evaluateFormula",
+    "path": "src/modules/payroll/itemCalculation.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "workMultipliers",
+    "path": "src/modules/payroll/itemCalculation.ts",
+    "line": 26,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "validateItemCalculation",
+    "path": "src/modules/payroll/itemCalculation.ts",
+    "line": 30,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "configuredAmount",
+    "path": "src/modules/payroll/itemCalculation.ts",
+    "line": 39,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "withDemoClassification",
+    "path": "src/modules/payroll/itemDefaults.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "NonTaxEligibility",
+    "path": "src/modules/payroll/nonTaxRules.ts",
+    "line": 1,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "splitNonTax",
+    "path": "src/modules/payroll/nonTaxRules.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "simplifiedTax",
+    "path": "src/modules/payroll/ntsTax.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EditableKey",
+    "path": "src/modules/payroll/payrollColumns.ts",
+    "line": 5,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PayrollRow",
+    "path": "src/modules/payroll/payrollColumns.ts",
+    "line": 6,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "Column",
+    "path": "src/modules/payroll/payrollColumns.ts",
+    "line": 7,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "parsePayrollRows",
+    "path": "src/modules/payroll/payrollColumns.ts",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "batchPayrollValues",
+    "path": "src/modules/payroll/payrollColumns.ts",
+    "line": 32,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "parsePayrollQueryRows",
+    "path": "src/modules/payroll/payrollColumns.ts",
+    "line": 38,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ConfirmSection",
+    "path": "src/modules/payroll/payrollRepository.ts",
+    "line": 21,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "PayrollRepository",
+    "path": "src/modules/payroll/payrollRepository.ts",
+    "line": 22,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "floor10",
+    "path": "src/modules/payroll/payrollRules.ts",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "roundWon",
+    "path": "src/modules/payroll/payrollRules.ts",
+    "line": 22,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "pensionBounds",
+    "path": "src/modules/payroll/payrollRules.ts",
+    "line": 26,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calculatePayrollEntry",
+    "path": "src/modules/payroll/payrollRules.ts",
+    "line": 31,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "RetirementRuleResult",
+    "path": "src/modules/payroll/payrollRules.ts",
+    "line": 154,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "calculateRetirementRule",
+    "path": "src/modules/payroll/payrollRules.ts",
+    "line": 162,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "PayrollService",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 6,
+    "kind": "ClassDeclaration"
+  },
+  {
+    "name": "populateWorkYear",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 7,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "setScheduleImportance",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 8,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveWorkEvents",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 9,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "applyWorkSettings",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 10,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "planningReview",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 11,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "proposeWorkEvent",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 12,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "proposeWorkSettings",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 13,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "proposePayDate",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 14,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "reviewPlanningChange",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 15,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "recordDocumentDelivery",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 16,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "scheduleSources",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 17,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "syncWorkYear",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 18,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "updatePayDate",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 19,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "workChanged",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 20,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "convertCandidate",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 22,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "operations",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 23,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveOperation",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 24,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "recruiting",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 25,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveRecruiting",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 26,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "withholdingDraft",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 27,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveWithholdingDraft",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 28,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "companyInfo",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 29,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveCompanyInfo",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 30,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "settlements",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 31,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveSettlements",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 32,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "isAttendanceClosed",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 33,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "closeAttendance",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 34,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "closeDaily",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 35,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "dailyClosedPeriods",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 36,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "refreshIssues",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 37,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "ensureDemoHistory",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 38,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "confirmRecords",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 42,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "dailyAttendance",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 43,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "leaveCases",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 44,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveLeaveCase",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 45,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveAttendanceBatch",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 46,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveSettings",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 47,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "restoreSettings",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 48,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveFilingForm",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 49,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "runs",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 50,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "run",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 51,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "entries",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 52,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "results",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 53,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "attendance",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 54,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveAnnualLeave",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 55,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "annualLeave",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 56,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "dailyWorkers",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 57,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "dailyWorkRecords",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 58,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveRetirement",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 59,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveYearEnd",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 60,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "retirementSettlements",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 61,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "calculateRetirement",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 62,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "yearEndTaxCases",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 63,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "itemMasters",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 64,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "updateItemMaster",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 65,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "createRun",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 67,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "deleteRun",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 73,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "addEntry",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 74,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveEntries",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 76,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveEntry",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 77,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "deleteEntry",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 87,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "syncAttendance",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 88,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "calculate",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 99,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "validate",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 100,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "status",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 101,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveDailyWorkers",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 102,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveDailyWorker",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 103,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "createDailyWorker",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 109,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "deleteDailyWorker",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 116,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveDailyWorkRecords",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 117,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "saveDailyWorkRecord",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 132,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "deleteDailyWorkRecord",
+    "path": "src/modules/payroll/payrollService.ts",
+    "line": 133,
+    "kind": "MethodDeclaration"
+  },
+  {
+    "name": "settingsValues",
+    "path": "src/modules/payroll/payrollSettingsFiles.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "importSettings",
+    "path": "src/modules/payroll/payrollSettingsFiles.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "formulaExplanation",
+    "path": "src/modules/payroll/payrollSettingsFiles.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "precedingThreeMonths",
+    "path": "src/modules/payroll/retirementCalculation.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "retirementFromSources",
+    "path": "src/modules/payroll/retirementCalculation.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "retirementByPlan",
+    "path": "src/modules/payroll/retirementCalculation.ts",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "SummarySheet",
+    "path": "src/modules/payroll/summaryExport.ts",
+    "line": 1,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "summaryWorkbook",
+    "path": "src/modules/payroll/summaryExport.ts",
+    "line": 2,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "visibleSummarySheets",
+    "path": "src/modules/payroll/summaryExport.ts",
+    "line": 3,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "TaxLine",
+    "path": "src/modules/payroll/withholdingForm.ts",
+    "line": 4,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "WithholdingDraft",
+    "path": "src/modules/payroll/withholdingForm.ts",
+    "line": 5,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "initialWithholding",
+    "path": "src/modules/payroll/withholdingForm.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calculateWithholding",
+    "path": "src/modules/payroll/withholdingForm.ts",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "validateWithholding",
+    "path": "src/modules/payroll/withholdingForm.ts",
+    "line": 24,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "withholdingHtml",
+    "path": "src/modules/payroll/withholdingForm.ts",
+    "line": 36,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "jpegPdf",
+    "path": "src/modules/payroll/withholdingPdf.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "withholdingPdf",
+    "path": "src/modules/payroll/withholdingPdf.ts",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "reportRows",
+    "path": "src/modules/payroll/workReport.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "buildWorkReport",
+    "path": "src/modules/payroll/workReport.ts",
+    "line": 17,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "downloadFile",
+    "path": "src/modules/payroll/workReport.ts",
+    "line": 26,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "YearEndRequirement",
+    "path": "src/modules/payroll/yearEndDocuments.ts",
+    "line": 2,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "YearEndDocumentCheck",
+    "path": "src/modules/payroll/yearEndDocuments.ts",
+    "line": 3,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "validateDocumentReview",
+    "path": "src/modules/payroll/yearEndDocuments.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "intakeSource",
+    "path": "src/modules/recruiting/ApplicantIntake.tsx",
+    "line": 14,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "parseApplicantRows",
+    "path": "src/modules/recruiting/ApplicantIntake.tsx",
+    "line": 25,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "applicantIdentity",
+    "path": "src/modules/recruiting/ApplicantIntake.tsx",
+    "line": 35,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ApplicantIntake",
+    "path": "src/modules/recruiting/ApplicantIntake.tsx",
+    "line": 39,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "parse",
+    "path": "src/modules/recruiting/ApplicantIntake.tsx",
+    "line": 41,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "commit",
+    "path": "src/modules/recruiting/ApplicantIntake.tsx",
+    "line": 64,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "IntegrationConnection",
+    "path": "src/modules/recruiting/AutomationPanel.tsx",
+    "line": 11,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "AutomationPanel",
+    "path": "src/modules/recruiting/AutomationPanel.tsx",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EvaluationPanel",
+    "path": "src/modules/recruiting/EvaluationPanel.tsx",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "KeywordReview",
+    "path": "src/modules/recruiting/KeywordReview.tsx",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "run",
+    "path": "src/modules/recruiting/KeywordReview.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "OffersPanel",
+    "path": "src/modules/recruiting/OffersPanel.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "RecruitingPage",
+    "path": "src/modules/recruiting/RecruitingPage.tsx",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "SelectionCatalog",
+    "path": "src/modules/recruiting/SelectionCatalog.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "canCompareSelection",
+    "path": "src/modules/recruiting/SelectionReview.tsx",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "CandidateEvaluationSummary",
+    "path": "src/modules/recruiting/SelectionReview.tsx",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ComparisonMatrix",
+    "path": "src/modules/recruiting/SelectionReview.tsx",
+    "line": 17,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "SelectionReview",
+    "path": "src/modules/recruiting/SelectionReview.tsx",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "SelectionWorkspace",
+    "path": "src/modules/recruiting/SelectionWorkspace.tsx",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "candidateText",
+    "path": "src/modules/recruiting/candidateText.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "keywordMatches",
+    "path": "src/modules/recruiting/candidateText.ts",
+    "line": 24,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EvaluationType",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 4,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "ScaleType",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 5,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "Recommendation",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 6,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "EvaluationCriterion",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 7,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "EvaluationTemplate",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 8,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "CriterionScore",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 9,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Evaluation",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 10,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "HiringDecision",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 11,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Offer",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 12,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "OnboardingInput",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 13,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "newCriterion",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 17,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "defaultTemplates",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 18,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "upgradeRecruiting",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 19,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "evaluationTotal",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 23,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "validateTemplate",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 24,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "saveTemplate",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 25,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "createEvaluation",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 29,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "saveEvaluation",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 30,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "visibleEvaluations",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 48,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "decideCandidate",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 49,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "saveOffer",
+    "path": "src/modules/recruiting/evaluations.ts",
+    "line": 56,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "validateConnection",
+    "path": "src/modules/recruiting/integrationValidation.ts",
+    "line": 2,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "Stage",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 4,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "Job",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 5,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Candidate",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 6,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Interview",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 7,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Event",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 8,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "RecruitingState",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 9,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "recruitingSeed",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "queueEvent",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "scheduleInterview",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "deliverEvent",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 13,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calendarStamp",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 16,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calendarFile",
+    "path": "src/modules/recruiting/recruiting.ts",
+    "line": 20,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "ScoredValue",
+    "path": "src/modules/recruiting/scoring.ts",
+    "line": 2,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "calculateAverageScore",
+    "path": "src/modules/recruiting/scoring.ts",
+    "line": 4,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calculateWeightedScore",
+    "path": "src/modules/recruiting/scoring.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "scoreMaximum",
+    "path": "src/modules/recruiting/scoring.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "checkHurdlePass",
+    "path": "src/modules/recruiting/scoring.ts",
+    "line": 7,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calculateFinalScore",
+    "path": "src/modules/recruiting/scoring.ts",
+    "line": 8,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "calculateEvaluatorVariance",
+    "path": "src/modules/recruiting/scoring.ts",
+    "line": 9,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "validateWeights",
+    "path": "src/modules/recruiting/scoring.ts",
+    "line": 10,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "submittedEvaluation",
+    "path": "src/modules/recruiting/scoring.ts",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "CompetencyCategory",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 4,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "Competency",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 5,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "InterviewQuestion",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 6,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "CalibrationItem",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 7,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "Calibration",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 8,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "SelectionSummary",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 9,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "SelectionGroup",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 10,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "competencyCriterion",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 11,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "upgradeSelectionState",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 12,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "addSelectionDemo",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 22,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "saveCompetency",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 33,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "saveQuestion",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 34,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "candidateSelectionSummary",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 35,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "newCalibration",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 42,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "saveCalibration",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 43,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "finalizeSelection",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 44,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "EvaluationAssistPort",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 46,
+    "kind": "InterfaceDeclaration"
+  },
+  {
+    "name": "evidenceWarnings",
+    "path": "src/modules/recruiting/selection.ts",
+    "line": 47,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "evaluationPayload",
+    "path": "src/modules/recruiting/selectionAudit.ts",
+    "line": 5,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "selectionAuditChanges",
+    "path": "src/modules/recruiting/selectionAudit.ts",
+    "line": 6,
+    "kind": "FunctionDeclaration"
+  },
+  {
+    "name": "RuleType",
+    "path": "src/rules/types.ts",
+    "line": 1,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "RuleStatus",
+    "path": "src/rules/types.ts",
+    "line": 2,
+    "kind": "TypeAliasDeclaration"
+  },
+  {
+    "name": "RuleDefinition",
+    "path": "src/rules/types.ts",
+    "line": 4,
+    "kind": "InterfaceDeclaration"
+  }
+]

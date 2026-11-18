@@ -1,0 +1,18 @@
+@startuml
+participant "Registration UI" as UI
+participant HrService as S
+participant IndexedDbHrRepository as R
+database IndexedDB as DB
+UI -> S: registerEmployee(input)
+S -> R: registerEmployee(input)
+R -> DB: transaction(readwrite), source reads
+DB --> R: company, organization, employments
+alt valid
+R -> DB: add Person / Employment / Assignment / Compensation
+DB --> R: transaction complete
+else invalid or request error
+R -> DB: abort
+end
+R --> S: employmentId or rejected promise
+S --> UI: result or error
+@enduml

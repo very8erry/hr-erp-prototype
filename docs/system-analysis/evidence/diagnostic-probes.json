@@ -1,0 +1,22 @@
+{
+  "baseline": "b4aeb300270a62273d3d5f0c2fea87f2a09ba800",
+  "engine": "fake-indexeddb isolated test",
+  "findings": [
+    {
+      "id": "ISS-A01",
+      "inputPersons": 399,
+      "storedPersons": 398,
+      "duplicateOverwrote": true,
+      "expected": "duplicate PK rejected before clearing original DB",
+      "actual": "restore accepted; last duplicate value wins"
+    },
+    {
+      "id": "ISS-A02",
+      "injectedFailure": "Error: injected audit write failure",
+      "storedRunStatus": "CONFIRMED",
+      "auditWritten": false,
+      "expected": "status and audit commit together or both reject",
+      "actual": "run confirmed although audit write rejected"
+    }
+  ]
+}

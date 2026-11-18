@@ -1,0 +1,6 @@
+digraph G {graph[fontname="Arial",label="Components (AS-IS)",labelloc=t,fontsize=16,bgcolor="white",pad=.3,nodesep=.4,ranksep=.65];node[fontname="Arial",fontsize=11,color="#48647d",fontcolor="#142c45"];edge[fontname="Arial",fontsize=9,color="#48647d",arrowsize=.7];rankdir=TB;node[shape=component];UI[label="React UI
+Core HR / WFM / Payroll / ATS"];HS[label="HrService"];PS[label="PayrollService"];RULE[label="Payroll / attendance rules
+Pure calculations & validation"];REPO[label="IndexedDbHrRepository
+Shared write orchestration"];DB[shape=cylinder,label="IndexedDB
+Named object stores"];OPS[label="Operations / policy / notices
+Local workflow helpers"];UI->HS;UI->PS;HS->REPO;PS->REPO;PS->RULE;REPO->RULE;REPO->OPS;REPO->DB;}

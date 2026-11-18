@@ -1,0 +1,554 @@
+[
+  {
+    "path": "src/app/App.tsx",
+    "lines": 141
+  },
+  {
+    "path": "src/app/DashboardCharts.tsx",
+    "lines": 17
+  },
+  {
+    "path": "src/app/DataToolbar.tsx",
+    "lines": 24
+  },
+  {
+    "path": "src/app/EmployeeIssueBoard.tsx",
+    "lines": 23
+  },
+  {
+    "path": "src/app/OperationsDashboard.tsx",
+    "lines": 29
+  },
+  {
+    "path": "src/app/auditDescription.ts",
+    "lines": 20
+  },
+  {
+    "path": "src/app/issueProgress.ts",
+    "lines": 8
+  },
+  {
+    "path": "src/app/monthlyStatus.ts",
+    "lines": 15
+  },
+  {
+    "path": "src/app/version.ts",
+    "lines": 2
+  },
+  {
+    "path": "src/components/DownloadActions.tsx",
+    "lines": 11
+  },
+  {
+    "path": "src/components/MemoReference.tsx",
+    "lines": 14
+  },
+  {
+    "path": "src/components/MonthPicker.tsx",
+    "lines": 4
+  },
+  {
+    "path": "src/components/ScrollTable.tsx",
+    "lines": 11
+  },
+  {
+    "path": "src/components/SearchSelect.tsx",
+    "lines": 10
+  },
+  {
+    "path": "src/components/TableControls.tsx",
+    "lines": 15
+  },
+  {
+    "path": "src/components/WorkbookActions.tsx",
+    "lines": 6
+  },
+  {
+    "path": "src/components/tableFreeze.ts",
+    "lines": 3
+  },
+  {
+    "path": "src/components/ui/badge.tsx",
+    "lines": 37
+  },
+  {
+    "path": "src/components/ui/button.tsx",
+    "lines": 74
+  },
+  {
+    "path": "src/components/ui/card.tsx",
+    "lines": 78
+  },
+  {
+    "path": "src/components/ui/input.tsx",
+    "lines": 24
+  },
+  {
+    "path": "src/components/ui/modal.tsx",
+    "lines": 19
+  },
+  {
+    "path": "src/components/ui/native-select.tsx",
+    "lines": 9
+  },
+  {
+    "path": "src/components/ui/separator.tsx",
+    "lines": 32
+  },
+  {
+    "path": "src/components/ui/textarea.tsx",
+    "lines": 24
+  },
+  {
+    "path": "src/domain/attachments.ts",
+    "lines": 4
+  },
+  {
+    "path": "src/domain/dataIntegrity.ts",
+    "lines": 40
+  },
+  {
+    "path": "src/domain/masterEdit.ts",
+    "lines": 4
+  },
+  {
+    "path": "src/domain/types.ts",
+    "lines": 853
+  },
+  {
+    "path": "src/fixtures/scenarios.ts",
+    "lines": 23
+  },
+  {
+    "path": "src/fixtures/seed.ts",
+    "lines": 454
+  },
+  {
+    "path": "src/infrastructure/db/config.ts",
+    "lines": 151
+  },
+  {
+    "path": "src/infrastructure/db/idbUtils.ts",
+    "lines": 39
+  },
+  {
+    "path": "src/infrastructure/db/indexedDb.ts",
+    "lines": 1343
+  },
+  {
+    "path": "src/infrastructure/db/issueProgressSeed.ts",
+    "lines": 6
+  },
+  {
+    "path": "src/infrastructure/db/lemonUpgrade.ts",
+    "lines": 41
+  },
+  {
+    "path": "src/infrastructure/db/migrations.ts",
+    "lines": 476
+  },
+  {
+    "path": "src/infrastructure/db/operationsUpgrade.ts",
+    "lines": 11
+  },
+  {
+    "path": "src/infrastructure/db/planningRepository.ts",
+    "lines": 20
+  },
+  {
+    "path": "src/infrastructure/db/staffNoticesSeed.ts",
+    "lines": 12
+  },
+  {
+    "path": "src/infrastructure/db/workRulesSeed.ts",
+    "lines": 13
+  },
+  {
+    "path": "src/infrastructure/repositories/hrRepository.ts",
+    "lines": 41
+  },
+  {
+    "path": "src/lib/utils.ts",
+    "lines": 7
+  },
+  {
+    "path": "src/main.tsx",
+    "lines": 7
+  },
+  {
+    "path": "src/modules/attendance/AnnualLeavePanel.tsx",
+    "lines": 31
+  },
+  {
+    "path": "src/modules/attendance/AnnualPromotion.tsx",
+    "lines": 22
+  },
+  {
+    "path": "src/modules/attendance/AttendancePage.tsx",
+    "lines": 111
+  },
+  {
+    "path": "src/modules/attendance/AttendanceTools.tsx",
+    "lines": 66
+  },
+  {
+    "path": "src/modules/attendance/annualLeaveFiles.ts",
+    "lines": 9
+  },
+  {
+    "path": "src/modules/attendance/attendanceFiles.ts",
+    "lines": 47
+  },
+  {
+    "path": "src/modules/attendance/dailyAttendanceFiles.ts",
+    "lines": 14
+  },
+  {
+    "path": "src/modules/attendance/leaveComparison.ts",
+    "lines": 27
+  },
+  {
+    "path": "src/modules/attendance/leaveLabels.ts",
+    "lines": 3
+  },
+  {
+    "path": "src/modules/attendance/timeRules.ts",
+    "lines": 26
+  },
+  {
+    "path": "src/modules/core-hr/EmployeeDetail.tsx",
+    "lines": 247
+  },
+  {
+    "path": "src/modules/core-hr/EmployeeRegistration.tsx",
+    "lines": 12
+  },
+  {
+    "path": "src/modules/core-hr/MasterEditor.tsx",
+    "lines": 13
+  },
+  {
+    "path": "src/modules/core-hr/hrService.ts",
+    "lines": 69
+  },
+  {
+    "path": "src/modules/core-hr/labels.ts",
+    "lines": 22
+  },
+  {
+    "path": "src/modules/core-hr/nameValidation.ts",
+    "lines": 12
+  },
+  {
+    "path": "src/modules/operations/CalendarPanel.tsx",
+    "lines": 28
+  },
+  {
+    "path": "src/modules/operations/ManualScheduleDialog.tsx",
+    "lines": 16
+  },
+  {
+    "path": "src/modules/operations/OccupationPanel.tsx",
+    "lines": 15
+  },
+  {
+    "path": "src/modules/operations/OperationsPanels.tsx",
+    "lines": 20
+  },
+  {
+    "path": "src/modules/operations/PeriodCalendar.tsx",
+    "lines": 11
+  },
+  {
+    "path": "src/modules/operations/PlanningReviewPanel.tsx",
+    "lines": 13
+  },
+  {
+    "path": "src/modules/operations/PolicyConnections.tsx",
+    "lines": 20
+  },
+  {
+    "path": "src/modules/operations/ScheduleExports.ts",
+    "lines": 17
+  },
+  {
+    "path": "src/modules/operations/WorkDetail.tsx",
+    "lines": 28
+  },
+  {
+    "path": "src/modules/operations/WorkRulesPanel.tsx",
+    "lines": 25
+  },
+  {
+    "path": "src/modules/operations/WorkSchedulePage.tsx",
+    "lines": 24
+  },
+  {
+    "path": "src/modules/operations/WorkSettings.tsx",
+    "lines": 10
+  },
+  {
+    "path": "src/modules/operations/manualSchedule.ts",
+    "lines": 19
+  },
+  {
+    "path": "src/modules/operations/occupationDictionary.ts",
+    "lines": 146
+  },
+  {
+    "path": "src/modules/operations/operations.ts",
+    "lines": 30
+  },
+  {
+    "path": "src/modules/operations/planningReview.ts",
+    "lines": 29
+  },
+  {
+    "path": "src/modules/operations/policyReading.ts",
+    "lines": 7
+  },
+  {
+    "path": "src/modules/operations/scheduleData.ts",
+    "lines": 19
+  },
+  {
+    "path": "src/modules/operations/schedulePresentation.ts",
+    "lines": 7
+  },
+  {
+    "path": "src/modules/operations/useWorkSchedule.ts",
+    "lines": 15
+  },
+  {
+    "path": "src/modules/operations/workSchedule.ts",
+    "lines": 55
+  },
+  {
+    "path": "src/modules/payroll/CompanyInfoPage.tsx",
+    "lines": 17
+  },
+  {
+    "path": "src/modules/payroll/DailyWorkerPage.tsx",
+    "lines": 84
+  },
+  {
+    "path": "src/modules/payroll/EdiInsuranceWorksheet.tsx",
+    "lines": 21
+  },
+  {
+    "path": "src/modules/payroll/FilingPanel.tsx",
+    "lines": 26
+  },
+  {
+    "path": "src/modules/payroll/InsuranceFilingPanel.tsx",
+    "lines": 23
+  },
+  {
+    "path": "src/modules/payroll/InsuranceWorksheet.tsx",
+    "lines": 20
+  },
+  {
+    "path": "src/modules/payroll/ManualLedger.tsx",
+    "lines": 22
+  },
+  {
+    "path": "src/modules/payroll/PayrollEntryEditor.tsx",
+    "lines": 14
+  },
+  {
+    "path": "src/modules/payroll/PayrollPage.tsx",
+    "lines": 173
+  },
+  {
+    "path": "src/modules/payroll/PayrollTools.tsx",
+    "lines": 36
+  },
+  {
+    "path": "src/modules/payroll/RemunerationWorksheet.tsx",
+    "lines": 19
+  },
+  {
+    "path": "src/modules/payroll/RetirementRules.tsx",
+    "lines": 11
+  },
+  {
+    "path": "src/modules/payroll/SettlementPanels.tsx",
+    "lines": 20
+  },
+  {
+    "path": "src/modules/payroll/SettlementSettings.tsx",
+    "lines": 12
+  },
+  {
+    "path": "src/modules/payroll/UnifiedPayroll.tsx",
+    "lines": 24
+  },
+  {
+    "path": "src/modules/payroll/WithholdingChecklist.tsx",
+    "lines": 10
+  },
+  {
+    "path": "src/modules/payroll/WithholdingEditor.tsx",
+    "lines": 21
+  },
+  {
+    "path": "src/modules/payroll/YearEndDocumentReview.tsx",
+    "lines": 16
+  },
+  {
+    "path": "src/modules/payroll/companyInfo.ts",
+    "lines": 21
+  },
+  {
+    "path": "src/modules/payroll/dailyFiles.ts",
+    "lines": 22
+  },
+  {
+    "path": "src/modules/payroll/dailyWorkerFiles.ts",
+    "lines": 8
+  },
+  {
+    "path": "src/modules/payroll/dailyWorkerRules.ts",
+    "lines": 46
+  },
+  {
+    "path": "src/modules/payroll/ediFiling.ts",
+    "lines": 14
+  },
+  {
+    "path": "src/modules/payroll/filingWorksheet.ts",
+    "lines": 10
+  },
+  {
+    "path": "src/modules/payroll/insuranceRules.ts",
+    "lines": 4
+  },
+  {
+    "path": "src/modules/payroll/itemCalculation.ts",
+    "lines": 45
+  },
+  {
+    "path": "src/modules/payroll/itemDefaults.ts",
+    "lines": 13
+  },
+  {
+    "path": "src/modules/payroll/nonTaxRules.ts",
+    "lines": 4
+  },
+  {
+    "path": "src/modules/payroll/ntsTax.ts",
+    "lines": 14
+  },
+  {
+    "path": "src/modules/payroll/payrollColumns.ts",
+    "lines": 42
+  },
+  {
+    "path": "src/modules/payroll/payrollRepository.ts",
+    "lines": 95
+  },
+  {
+    "path": "src/modules/payroll/payrollRules.ts",
+    "lines": 172
+  },
+  {
+    "path": "src/modules/payroll/payrollService.ts",
+    "lines": 135
+  },
+  {
+    "path": "src/modules/payroll/payrollSettingsFiles.ts",
+    "lines": 7
+  },
+  {
+    "path": "src/modules/payroll/retirementCalculation.ts",
+    "lines": 18
+  },
+  {
+    "path": "src/modules/payroll/summaryExport.ts",
+    "lines": 4
+  },
+  {
+    "path": "src/modules/payroll/withholdingForm.ts",
+    "lines": 43
+  },
+  {
+    "path": "src/modules/payroll/withholdingPdf.ts",
+    "lines": 18
+  },
+  {
+    "path": "src/modules/payroll/workReport.ts",
+    "lines": 27
+  },
+  {
+    "path": "src/modules/payroll/yearEndDocuments.ts",
+    "lines": 6
+  },
+  {
+    "path": "src/modules/recruiting/ApplicantIntake.tsx",
+    "lines": 77
+  },
+  {
+    "path": "src/modules/recruiting/AutomationPanel.tsx",
+    "lines": 13
+  },
+  {
+    "path": "src/modules/recruiting/EvaluationPanel.tsx",
+    "lines": 29
+  },
+  {
+    "path": "src/modules/recruiting/KeywordReview.tsx",
+    "lines": 20
+  },
+  {
+    "path": "src/modules/recruiting/OffersPanel.tsx",
+    "lines": 20
+  },
+  {
+    "path": "src/modules/recruiting/RecruitingPage.tsx",
+    "lines": 32
+  },
+  {
+    "path": "src/modules/recruiting/SelectionCatalog.tsx",
+    "lines": 21
+  },
+  {
+    "path": "src/modules/recruiting/SelectionReview.tsx",
+    "lines": 28
+  },
+  {
+    "path": "src/modules/recruiting/SelectionWorkspace.tsx",
+    "lines": 13
+  },
+  {
+    "path": "src/modules/recruiting/candidateText.ts",
+    "lines": 37
+  },
+  {
+    "path": "src/modules/recruiting/evaluations.ts",
+    "lines": 65
+  },
+  {
+    "path": "src/modules/recruiting/integrationValidation.ts",
+    "lines": 3
+  },
+  {
+    "path": "src/modules/recruiting/recruiting.ts",
+    "lines": 35
+  },
+  {
+    "path": "src/modules/recruiting/scoring.ts",
+    "lines": 12
+  },
+  {
+    "path": "src/modules/recruiting/selection.ts",
+    "lines": 48
+  },
+  {
+    "path": "src/modules/recruiting/selectionAudit.ts",
+    "lines": 19
+  },
+  {
+    "path": "src/rules/types.ts",
+    "lines": 17
+  }
+]

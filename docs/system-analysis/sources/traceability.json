@@ -1,0 +1,394 @@
+[
+  {
+    "requirement": "HR-01",
+    "rules": [
+      "BR-01",
+      "BR-02",
+      "BR-03"
+    ],
+    "code": {
+      "name": "registerEmployee",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 241,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L241"
+    },
+    "test": "scripts/test-registration-integrity.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·회귀 통과"
+  },
+  {
+    "requirement": "HR-02",
+    "rules": [
+      "BR-01",
+      "BR-09"
+    ],
+    "code": {
+      "name": "editMaster",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 233,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L233"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·이름 변경 시 잠금 결과 보존 확인"
+  },
+  {
+    "requirement": "HR-03",
+    "rules": [
+      "BR-04"
+    ],
+    "code": {
+      "name": "createPersonnelAction",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 582,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L582"
+    },
+    "test": "scripts/test-pr7-scheduled.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·정상/충돌 회귀 통과"
+  },
+  {
+    "requirement": "ATS-01",
+    "rules": [
+      "BR-13",
+      "BR-16"
+    ],
+    "code": {
+      "name": "saveRecruiting",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 887,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L887"
+    },
+    "test": "scripts/test-selection.tsx",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·로컬 역할, 외부 ATS 동기화 미확정"
+  },
+  {
+    "requirement": "ATS-02",
+    "rules": [
+      "BR-01",
+      "BR-13"
+    ],
+    "code": {
+      "name": "convertCandidate",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 899,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L899"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·정상/중복/다른 회사 조직 검사 통과"
+  },
+  {
+    "requirement": "WFM-01",
+    "rules": [
+      "BR-05"
+    ],
+    "code": {
+      "name": "saveAttendanceBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1049,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1049"
+    },
+    "test": "scripts/test-pr7-scheduled.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·실제 Chrome stale/동시 저장 통과"
+  },
+  {
+    "requirement": "WFM-02",
+    "rules": [
+      "BR-08",
+      "BR-10"
+    ],
+    "code": {
+      "name": "closeAttendance",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 933,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L933"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·선행 마감 검사 통과"
+  },
+  {
+    "requirement": "WFM-03",
+    "rules": [
+      "BR-10"
+    ],
+    "code": {
+      "name": "saveAnnualLeaveBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1149,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1149"
+    },
+    "test": "scripts/test-domain.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "원장 구현; 법정 개별 사례 전수검증 아님"
+  },
+  {
+    "requirement": "PAY-01",
+    "rules": [
+      "BR-06"
+    ],
+    "code": {
+      "name": "createPayrollRun",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 631,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L631"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·employmentId 매칭 확인"
+  },
+  {
+    "requirement": "PAY-02",
+    "rules": [
+      "BR-05",
+      "BR-06"
+    ],
+    "code": {
+      "name": "syncAttendance",
+      "path": "src/modules/payroll/payrollService.ts",
+      "line": 88,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/modules/payroll/payrollService.ts#L88"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·서비스 계층에서 실행"
+  },
+  {
+    "requirement": "PAY-03",
+    "rules": [
+      "BR-06"
+    ],
+    "code": {
+      "name": "calculatePayrollRun",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 780,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L780"
+    },
+    "test": "scripts/test-revision.tsx",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·저장 산식 적용/스냅샷 회귀"
+  },
+  {
+    "requirement": "PAY-04",
+    "rules": [
+      "BR-07",
+      "BR-08"
+    ],
+    "code": {
+      "name": "validatePayrollRun",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 809,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L809"
+    },
+    "test": "scripts/test-domain.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·별도 사용자 승인 서버는 없음"
+  },
+  {
+    "requirement": "PAY-05",
+    "rules": [
+      "BR-08",
+      "BR-09"
+    ],
+    "code": {
+      "name": "setPayrollRunStatus",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 822,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L822"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·실제 은행 이체 아님"
+  },
+  {
+    "requirement": "PAY-06",
+    "rules": [
+      "BR-05",
+      "BR-09"
+    ],
+    "code": {
+      "name": "saveAttendanceBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1049,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1049"
+    },
+    "test": "scripts/test-domain.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "미확정 정정 구현; 마감 후 정정 Run 미구현"
+  },
+  {
+    "requirement": "PAY-07",
+    "rules": [
+      "BR-10",
+      "BR-12"
+    ],
+    "code": {
+      "name": "calculateRetirementSettlement",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1233,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1233"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·증빙 및 법률 전체 자동판정 아님"
+  },
+  {
+    "requirement": "PAY-08",
+    "rules": [
+      "BR-10",
+      "BR-12"
+    ],
+    "code": {
+      "name": "saveYearEndBatch",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1227,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1227"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·세액/서류 수기 검토 포함"
+  },
+  {
+    "requirement": "FILE-01",
+    "rules": [
+      "BR-14"
+    ],
+    "code": {
+      "name": "saveWithholdingDraft",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 923,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L923"
+    },
+    "test": "scripts/test-v075.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·수리 여부 미검증"
+  },
+  {
+    "requirement": "FILE-02",
+    "rules": [
+      "BR-14"
+    ],
+    "code": {
+      "name": "saveOperation",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 884,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L884"
+    },
+    "test": "scripts/test-v078.tsx",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "목록 작성 구현·기관 업로드 보증 아님"
+  },
+  {
+    "requirement": "DAILY-01",
+    "rules": [
+      "BR-10",
+      "BR-15"
+    ],
+    "code": {
+      "name": "createDailyWorker",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1176,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1176"
+    },
+    "test": "scripts/test-pr7-integration.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·별도 고용 원장, Person 재사용 미구현"
+  },
+  {
+    "requirement": "OPS-01",
+    "rules": [
+      "BR-16"
+    ],
+    "code": {
+      "name": "saveOperation",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 884,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L884"
+    },
+    "test": "scripts/test-planning-review.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·일부 승인/역할 시뮬레이션"
+  },
+  {
+    "requirement": "SYS-01",
+    "rules": [
+      "BR-11"
+    ],
+    "code": {
+      "name": "importDatabase",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1285,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1285"
+    },
+    "test": "scripts/test-registration-integrity.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "구현·중복 PK 결함 ISS-A01"
+  },
+  {
+    "requirement": "SYS-02",
+    "rules": [
+      "BR-01",
+      "BR-02"
+    ],
+    "code": {
+      "name": "integrityFindings",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 208,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L208"
+    },
+    "test": "scripts/test-registration-integrity.ts",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "함수 구현·모든 쓰기의 FK 강제는 아님"
+  },
+  {
+    "requirement": "NFR-01",
+    "rules": [
+      "BR-16"
+    ],
+    "code": {
+      "name": "exportDatabase",
+      "path": "src/infrastructure/db/indexedDb.ts",
+      "line": 1281,
+      "kind": "MethodDeclaration",
+      "url": "https://github.com/very8erry/hr-erp-prototype/blob/b4aeb300270a62273d3d5f0c2fea87f2a09ba800/src/infrastructure/db/indexedDb.ts#L1281"
+    },
+    "test": "scripts/test-selection.tsx",
+    "verification": "기존 실행기록 재사용; FUT-01은 미래 수용조건 제안",
+    "scope": "로컬 통제; 운영 서버 권한 미구현"
+  },
+  {
+    "requirement": "FUT-01",
+    "rules": [
+      "BR-16"
+    ],
+    "code": null,
+    "test": null,
+    "verification": "미구현·미실행. ISS-D03 수용조건은 향후 설계안.",
+    "scope": "제안·미구현"
+  }
+]
