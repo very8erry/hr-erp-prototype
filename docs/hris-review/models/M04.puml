@@ -1,0 +1,29 @@
+@startuml
+' v1.0 · 2026-11-19 · b4aeb300270a62273d3d5f0c2fea87f2a09ba800
+' 유스케이스와 담당 업무 | App.tsx:86–113 · PayrollPage.tsx:128 · OffersPanel.tsx:17
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 15
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam monochrome false
+skinparam ArrowColor #156C69
+skinparam defaultTextAlignment center
+skinparam roundcorner 6
+left to right direction
+actor "채용 담당" as ats
+actor "인사 담당" as hr
+actor "급여 담당" as pay
+rectangle "로컬 HRIS" {
+usecase "수락 오퍼 입사전환" as u1
+usecase "직원 등록·발령" as u2
+usecase "월 근태 검토·마감" as u3
+usecase "급여 검증·확정" as u4
+usecase "지급 완료 기록" as u5
+}
+ats -- u1
+hr -- u2
+hr -- u3
+pay -- u3
+pay -- u4
+pay -- u5
+@enduml

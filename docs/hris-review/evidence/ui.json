@@ -1,0 +1,64 @@
+[
+  {
+    "menu": "직원 관리",
+    "headings": [
+      "직원 관리"
+    ],
+    "buttons": [
+      "직원 등록"
+    ]
+  },
+  {
+    "menu": "근태",
+    "headings": [
+      "근태"
+    ],
+    "buttons": []
+  },
+  {
+    "menu": "급여",
+    "headings": [
+      "급여"
+    ],
+    "buttons": []
+  },
+  {
+    "menu": "일용직",
+    "headings": [
+      "일용직"
+    ],
+    "buttons": [
+      "신고자료 확정"
+    ]
+  },
+  {
+    "menu": "업무일정",
+    "headings": [
+      " 업무일정",
+      "2026-11-19 적용업무표"
+    ],
+    "buttons": []
+  },
+  {
+    "menu": "수시업무관리",
+    "headings": [
+      "수시업무관리"
+    ],
+    "buttons": []
+  },
+  {
+    "menu": "복지",
+    "headings": [
+      "복지",
+      "직장어린이집 신청·선정"
+    ],
+    "buttons": []
+  },
+  {
+    "menu": "로그",
+    "headings": [
+      "로그"
+    ],
+    "buttons": []
+  }
+]

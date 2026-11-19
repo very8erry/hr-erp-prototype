@@ -1,0 +1,53 @@
+@startuml
+' v1.0 · 2026-11-19 · b4aeb300270a62273d3d5f0c2fea87f2a09ba800
+' 급여의 논리 데이터 모델 | types.ts:118, 129, 144, 680, 725 · config.ts STORE_DEFINITIONS
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 15
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam monochrome false
+skinparam ArrowColor #156C69
+skinparam defaultTextAlignment center
+skinparam roundcorner 6
+entity Person { 
+ *id : PK
+}
+entity Employment {
+ *id : PK
+ *personId : ref
+}
+entity Assignment {
+ *id : PK
+ *employmentId : ref
+}
+entity "CompensationSnapshot" as Comp {
+ *id : PK
+ *employmentId : ref
+}
+entity "AttendanceMonthlySummary" as Att {
+ *id : PK
+ *employmentId : ref
+ *period
+}
+entity "PayrollRun" as Run {
+ *id : PK
+ *period : unique
+}
+entity "PayrollEntry" as Entry {
+ *id : PK
+ *runId : ref
+ *employmentId : ref
+}
+entity "PayrollResult" as Result {
+ *id : PK
+ *runId : ref
+ *employmentId : ref
+}
+Person ||--o{ Employment
+Employment ||--o{ Assignment
+Employment ||--o{ Comp
+Employment ||--o{ Att
+Employment ||--o{ Entry
+Run ||--o{ Entry
+Entry ||--o| Result : runId + employmentId
+@enduml

@@ -1,0 +1,450 @@
+[
+  {
+    "name": "attendanceDailyRecords",
+    "indexes": [
+      {
+        "name": "byEmployeeDate",
+        "keyPath": [
+          "employmentId",
+          "workDate"
+        ],
+        "unique": true
+      }
+    ]
+  },
+  {
+    "name": "leaveCases",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "payrollSettingsHistory"
+  },
+  {
+    "name": "company"
+  },
+  {
+    "name": "organizations"
+  },
+  {
+    "name": "persons",
+    "indexes": [
+      {
+        "name": "byDomesticForeignType",
+        "keyPath": "domesticForeignType"
+      }
+    ]
+  },
+  {
+    "name": "addresses",
+    "indexes": [
+      {
+        "name": "byPersonId",
+        "keyPath": "personId"
+      }
+    ]
+  },
+  {
+    "name": "dependents",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "visas",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byExpiryDate",
+        "keyPath": "expiryDate"
+      }
+    ]
+  },
+  {
+    "name": "bankAccounts",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "employments",
+    "indexes": [
+      {
+        "name": "byPersonId",
+        "keyPath": "personId"
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      }
+    ]
+  },
+  {
+    "name": "assignments",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byEffectiveTo",
+        "keyPath": "effectiveTo"
+      }
+    ]
+  },
+  {
+    "name": "compensations",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byEffectiveTo",
+        "keyPath": "effectiveTo"
+      }
+    ]
+  },
+  {
+    "name": "taxProfiles",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "socialInsuranceProfiles",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "militaryServiceProfiles",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId",
+        "unique": true
+      }
+    ]
+  },
+  {
+    "name": "educations",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "careers",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "certifications",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "skills",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byCategory",
+        "keyPath": "category"
+      }
+    ]
+  },
+  {
+    "name": "resumes",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "workSchedules"
+  },
+  {
+    "name": "attendanceSettings",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      }
+    ]
+  },
+  {
+    "name": "managerRelationships",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId",
+        "unique": true
+      }
+    ]
+  },
+  {
+    "name": "personnelEvents",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      },
+      {
+        "name": "byEffectiveDate",
+        "keyPath": "effectiveDate"
+      }
+    ]
+  },
+  {
+    "name": "auditLogs",
+    "indexes": [
+      {
+        "name": "byOccurredAt",
+        "keyPath": "occurredAt"
+      },
+      {
+        "name": "byEntityId",
+        "keyPath": "entityId"
+      }
+    ]
+  },
+  {
+    "name": "payrollRuns",
+    "indexes": [
+      {
+        "name": "byPeriod",
+        "keyPath": "period",
+        "unique": true
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      }
+    ]
+  },
+  {
+    "name": "payrollEntries",
+    "indexes": [
+      {
+        "name": "byRunId",
+        "keyPath": "runId"
+      },
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byRunEmployment",
+        "keyPath": [
+          "runId",
+          "employmentId"
+        ],
+        "unique": true
+      }
+    ]
+  },
+  {
+    "name": "payrollResults",
+    "indexes": [
+      {
+        "name": "byRunId",
+        "keyPath": "runId"
+      },
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byRunEmployment",
+        "keyPath": [
+          "runId",
+          "employmentId"
+        ],
+        "unique": true
+      }
+    ]
+  },
+  {
+    "name": "attendanceMonthlySummaries",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byPeriod",
+        "keyPath": "period"
+      },
+      {
+        "name": "byEmploymentPeriod",
+        "keyPath": [
+          "employmentId",
+          "period"
+        ],
+        "unique": true
+      }
+    ]
+  },
+  {
+    "name": "annualLeaveLedgers",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byYear",
+        "keyPath": "year"
+      },
+      {
+        "name": "byEmploymentYear",
+        "keyPath": [
+          "employmentId",
+          "year"
+        ],
+        "unique": true
+      }
+    ]
+  },
+  {
+    "name": "dailyWorkers",
+    "indexes": [
+      {
+        "name": "byPersonId",
+        "keyPath": "personId"
+      },
+      {
+        "name": "byOrganizationId",
+        "keyPath": "organizationId"
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      }
+    ]
+  },
+  {
+    "name": "dailyWorkRecords",
+    "indexes": [
+      {
+        "name": "byDailyWorkerId",
+        "keyPath": "dailyWorkerId"
+      },
+      {
+        "name": "byWorkDate",
+        "keyPath": "workDate"
+      }
+    ]
+  },
+  {
+    "name": "retirementSettlements",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byStatus",
+        "keyPath": "status"
+      }
+    ]
+  },
+  {
+    "name": "yearEndTaxCases",
+    "indexes": [
+      {
+        "name": "byEmploymentId",
+        "keyPath": "employmentId"
+      },
+      {
+        "name": "byTaxYear",
+        "keyPath": "taxYear"
+      },
+      {
+        "name": "byEmploymentYear",
+        "keyPath": [
+          "employmentId",
+          "taxYear"
+        ],
+        "unique": true
+      }
+    ]
+  },
+  {
+    "name": "payrollItemMasters",
+    "indexes": [
+      {
+        "name": "byCode",
+        "keyPath": "code",
+        "unique": true
+      },
+      {
+        "name": "byCategory",
+        "keyPath": "category"
+      }
+    ]
+  },
+  {
+    "name": "calendarEvents"
+  },
+  {
+    "name": "issues"
+  },
+  {
+    "name": "complianceSettings"
+  },
+  {
+    "name": "policyDocuments"
+  },
+  {
+    "name": "welfareCases"
+  },
+  {
+    "name": "occupationCodeMappings"
+  },
+  {
+    "name": "filingDrafts"
+  },
+  {
+    "name": "meta"
+  }
+]
