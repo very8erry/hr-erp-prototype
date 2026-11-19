@@ -89,7 +89,7 @@ export function AttendancePage({service,employees,allowLeaveRegistration=true}:{
 
   return <MemoProvider attendance={rows} service={service}><section>
     <div className="pageTitle"><div><h2>근태</h2></div><div className="pageActions"><Button onClick={()=>setBatch(true)}>근태 일괄 수기 수정</Button><Button onClick={()=>setCalendar(true)}>근태 캘린더</Button></div></div>
-    <div className="moduleTabs"><Button className={view==='summary'?'active':''} onClick={()=>setView('summary')}>근태 조회</Button><Button className={view==='leave'?'active':''} onClick={()=>setView('leave')}>연차 조회</Button></div>
+    <div className="moduleTabs"><Button className={view==='summary'?'active':''} onClick={()=>setView('summary')}>근태 조회</Button><Button className={view==='leave'?'active':''} onClick={()=>setView('leave')}>연차</Button></div>
     <div className="filters attendanceFilters"><Input aria-label="근태 이름 검색" placeholder="이름 / 사번 검색" value={filters.query} onChange={e=>{setFilters(v=>({...v,query:e.target.value}));setApplied(v=>({...v,query:e.target.value}))}}/>
       <NativeSelect value={filters.org} onChange={e=>setFilters(v=>({...v,org:e.target.value}))}><option value="ALL">전체 팀</option>{orgs.map(v=><option key={v}>{v}</option>)}</NativeSelect>
       <NativeSelect value={filters.grade} onChange={e=>setFilters(v=>({...v,grade:e.target.value}))}><option value="ALL">전체 직급</option>{grades.map(v=><option key={v}>{v}</option>)}</NativeSelect>

@@ -276,3 +276,13 @@ tfoot td { background:#fafafa;border-top:1px solid var(--border);font-size:12px;
 .columnFilterModal{padding:14px!important}.columnFilterModal table.columnChooser{border-spacing:0 2px!important}
 .columnFilterModal table.columnChooser th:not(:last-child),.columnFilterModal table.columnChooser td:not(:last-child){padding-right:1cm!important}
 .issueDigest h4{margin:14px 0 8px}.issueBars{display:grid;gap:5px;max-width:680px}.issueBars>div{display:grid;grid-template-columns:minmax(85px,135px) 1fr 92px;gap:8px;align-items:center;font-size:12px}.issueBars meter{width:100%;accent-color:#2563eb}.issueDigest ul{padding:0;list-style:none;margin:10px 0}.issueDigest li{padding:5px 0;border-bottom:1px solid #edf0f4;font-size:12px;white-space:nowrap;overflow:auto}.annualPromotionList{max-height:220px;overflow:auto;display:grid;gap:4px}.annualPromotionList label{display:flex;align-items:center;gap:8px}
+
+/* Compact chooser and aligned payroll period controls. */
+.columnFilterModal table.columnChooser { width:100%!important; border-spacing:0!important; }
+.columnFilterModal table.columnChooser th,.columnFilterModal table.columnChooser td { padding:7px 10px!important; }
+.columnFilterModal table.columnChooser th:not(:last-child),.columnFilterModal table.columnChooser td:not(:last-child) { padding-right:14px!important; }
+.columnFilterModal table.columnChooser tbody tr:nth-child(even) { background:#f8fafc; }
+.payrollRunHeader { justify-content:flex-start; align-items:flex-end; }
+.payrollRunHeader .inlineFields { display:flex; align-items:flex-end; gap:10px; }
+.payrollRunHeader .inlineFields button,.payrollRunHeader input,.payrollRunHeader select { height:40px; }
+.payrollRunHeader > :last-child { margin-left:auto; }

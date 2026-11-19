@@ -777,17 +777,30 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     return await this.indexedRows<PayrollResult>(STORES.payrollResults,'byRunId',runId)
   }
 
-  async calculatePayrollRun(runId:string, overrides?:Record<string,boolean>|null):Promise<PayrollResult[]>{
-    const run=await this.getPayrollRun(runId); if(!run) throw new Error('급여 Run을 찾을 수 없습니다.')
+  async calculatePayrollRun(runId:string, overrides?:Record<string,boolean>|null, validate=false):Promise<PayrollResult[]>{
+    // Read source hours, calculate and persist the consumed revision under one lock.
+    const tx=this.requireDb().transaction([STORES.payrollEntries,STORES.payrollResults,STORES.payrollRuns,STORES.payrollItemMasters,STORES.attendanceMonthlySummaries,STORES.attendanceDailyRecords,STORES.leaveCases,STORES.auditLogs],'readwrite')
+    const done=txDone(tx)
+    try {
+    const all=<T>(store:string)=>requestToPromise<T[]>(tx.objectStore(store).getAll())
+    const run=await requestToPromise<PayrollRun|undefined>(tx.objectStore(STORES.payrollRuns).get(runId)); if(!run) throw new Error('급여 Run을 찾을 수 없습니다.')
     if(['CONFIRMED','CLOSED','PAID'].includes(run.status)) throw new Error('확정 또는 마감된 급여 Run은 재계산할 수 없습니다.')
-    const entries=await this.listPayrollEntries(runId); if(entries.length===0) throw new Error('급여 대상자가 없습니다.')
-    const currentItems=await this.listPayrollItemMasters()
+    let entries=(await all<PayrollEntry>(STORES.payrollEntries)).filter(e=>e.runId===runId); if(entries.length===0) throw new Error('급여 대상자가 없습니다.')
+    const storedItems=(await all<PayrollItemMaster>(STORES.payrollItemMasters)).map(i=>i.code==='P101'?{ordinaryWage:true,minimumWage:true,pensionIncluded:true,healthIncluded:true,employmentIncluded:true,...i}:i)
+    const currentItems=[...storedItems,...extraItems.filter(i=>!storedItems.some(r=>r.code===i.code))].sort((a,b)=>a.sortOrder-b.sortOrder)
     const items=overrides===undefined&&run.itemSnapshot?run.itemSnapshot:currentItems
     const effectiveOverrides=overrides===undefined&&run.itemOverrides?run.itemOverrides:Object.fromEntries(items.map(i=>[i.code,overrides?.[i.code]??i.active]))
-    const attendance=await this.indexedRows<AttendanceMonthlySummary>(STORES.attendanceMonthlySummaries,'byPeriod',run.period)
-    const leaves=await this.listLeaveCases()
-    const previousRun=(await this.listPayrollRuns()).find((candidate)=>candidate.period<run.period && ['CLOSED','PAID'].includes(candidate.status))
-    const previousResults=previousRun?await this.listPayrollResults(previousRun.id):[]
+    const attendance=(await all<AttendanceMonthlySummary>(STORES.attendanceMonthlySummaries)).filter(a=>a.period===run.period)
+    const daily=await all<AttendanceDailyRecord>(STORES.attendanceDailyRecords)
+    entries=entries.map(entry=>{
+      if(!entry.calculationInputs)return entry // Explicit manual amount mode stays manual.
+      const source=attendance.find(a=>a.employmentId===entry.employmentId)
+      if(!source)throw new Error(`${entry.employeeNumberSnapshot}: 근태 연동 원본이 없습니다. 근태를 등록하거나 수기 금액 방식을 선택하세요.`)
+      return {...entry,calculationInputs:{...entry.calculationInputs,overtimeHours:source.overtimeHours,nightHours:source.nightHours,holidayHours:source.holidayHours,holidayOvertimeHours:daily.filter(d=>d.employmentId===entry.employmentId&&d.workDate.startsWith(run.period)).reduce((sum,d)=>sum+(d.holidayOvertimeHours??0),0)},attendanceRevision:source.revision??0}
+    })
+    const leaves=await all<LeaveCase>(STORES.leaveCases)
+    const previousRun=(await all<PayrollRun>(STORES.payrollRuns)).sort((a,b)=>b.period.localeCompare(a.period)).find((candidate)=>candidate.period<run.period && ['CLOSED','PAID'].includes(candidate.status))
+    const previousResults=previousRun?(await all<PayrollResult>(STORES.payrollResults)).filter(r=>r.runId===previousRun.id):[]
     const previousMap=new Map(previousResults.map((result)=>[result.employmentId,result]))
     const results=entries.map((entry)=>{
       const result=calculatePayrollEntry(entry,run.period,items,effectiveOverrides,leaves,run.payDate)
@@ -798,39 +811,43 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       }
       return result
     }); const now=new Date().toISOString()
-    const db=this.requireDb(); const tx=db.transaction([STORES.payrollEntries,STORES.payrollResults,STORES.payrollRuns,STORES.auditLogs],'readwrite'); const done=txDone(tx)
     const entryStore=tx.objectStore(STORES.payrollEntries); const resultStore=tx.objectStore(STORES.payrollResults)
-    results.forEach((result)=>resultStore.put(result)); entries.forEach((entry)=>entryStore.put({...entry,attendanceRevision:attendance.find(a=>a.employmentId===entry.employmentId&&a.period===run.period)?.revision??0,status:results.find((r)=>r.employmentId===entry.employmentId)?.errors.length?'ERROR':'CALCULATED',updatedAt:now}))
-    tx.objectStore(STORES.payrollRuns).put({...run,itemSnapshot:items.map(i=>({...i,formula:i.calculationMode==='FORMULA'?i.formula:standardFormula(i.code)})),itemOverrides:effectiveOverrides,attendanceStale:false,status:'CALCULATED',calculatedAt:now,validatedAt:null,confirmedAt:null})
+    results.forEach((result)=>resultStore.put(result)); entries.forEach((entry)=>entryStore.put({...entry,status:results.find((r)=>r.employmentId===entry.employmentId)?.errors.length?'ERROR':'CALCULATED',updatedAt:now}))
+    tx.objectStore(STORES.payrollRuns).put({...run,itemSnapshot:items.map(i=>({...i,formula:i.calculationMode==='FORMULA'?i.formula:standardFormula(i.code)})),itemOverrides:effectiveOverrides,attendanceStale:false,status:validate&&results.every(r=>r.errors.length===0)?'VALIDATED':'CALCULATED',calculatedAt:now,validatedAt:validate&&results.every(r=>r.errors.length===0)?now:null,confirmedAt:null})
     tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'CALCULATE_PAYROLL_RUN',entityType:'PAYROLL_RUN',entityId:runId,detail:`${run.period} 급여를 ${entries.length}명 대상으로 계산했습니다.`} satisfies AuditLog)
+    if(validate)tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'VALIDATE_PAYROLL_RUN',entityType:'PAYROLL_RUN',entityId:runId,detail:`검증 결과 경고 ${results.reduce((n,r)=>n+r.warnings.length,0)}건, 오류 ${results.reduce((n,r)=>n+r.errors.length,0)}건`} satisfies AuditLog)
     await done; return results
+    } catch(error) {try{tx.abort()}catch{} await done.catch(()=>{});throw error}
   }
 
   async validatePayrollRun(runId:string):Promise<{warnings:number;errors:number}>{
-    const run=await this.getPayrollRun(runId); if(!run) throw new Error('급여 Run을 찾을 수 없습니다.')
-    if(['CONFIRMED','CLOSED','PAID'].includes(run.status)) throw new Error('확정 또는 마감된 급여 Run은 다시 검증할 수 없습니다.')
-    // 검증은 항상 현재 입력 Snapshot 전체를 다시 계산한 결과를 사용한다.
-    // 일부 행 수정 시 해당 행의 기존 Result가 삭제되므로, 남아 있는 과거 Result만 검증하면 누락될 수 있다.
-    const results=await this.calculatePayrollRun(runId)
-    const latestRun=(await this.getPayrollRun(runId)) ?? run
-    const warnings=results.reduce((sum,v)=>sum+v.warnings.length,0); const errors=results.reduce((sum,v)=>sum+v.errors.length,0)
-    const now=new Date().toISOString(); await this.put(STORES.payrollRuns,{...latestRun,status:errors===0?'VALIDATED':'CALCULATED',validatedAt:errors===0?now:null})
-    await this.put(STORES.auditLogs,{id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'VALIDATE_PAYROLL_RUN',entityType:'PAYROLL_RUN',entityId:runId,detail:`검증 결과 경고 ${warnings}건, 오류 ${errors}건`} satisfies AuditLog)
-    return {warnings,errors}
+    const results=await this.calculatePayrollRun(runId,undefined,true)
+    return {warnings:results.reduce((n,r)=>n+r.warnings.length,0),errors:results.reduce((n,r)=>n+r.errors.length,0)}
   }
 
   async setPayrollRunStatus(runId:string,status:PayrollRunStatus):Promise<PayrollRun>{
-    const run=await this.getPayrollRun(runId); if(!run) throw new Error('급여 Run을 찾을 수 없습니다.')
+    const tx=this.requireDb().transaction([STORES.payrollRuns,STORES.payrollEntries,STORES.attendanceMonthlySummaries,STORES.company,STORES.auditLogs],'readwrite'),done=txDone(tx)
+    try {
+    const run=await requestToPromise<PayrollRun|undefined>(tx.objectStore(STORES.payrollRuns).get(runId)); if(!run) throw new Error('급여 Run을 찾을 수 없습니다.')
     if(!['CONFIRMED','CLOSED','PAID'].includes(status)) throw new Error('확정 또는 마감 전환만 허용됩니다.')
     if(run.attendanceStale) throw new Error('근태 또는 휴직이 변경되었습니다. 다시 계산·검증하세요.')
     if(run.status==='PAID'||run.status==='CLOSED'&&status!=='PAID') throw new Error('마감된 급여 Run은 상태를 변경할 수 없습니다.')
     if(status==='CONFIRMED' && run.status!=='VALIDATED') throw new Error('검증 완료 후에만 급여를 확정할 수 있습니다.')
-    if(status==='CLOSED' && !(await this.isAttendanceClosed(run.period)))throw new Error('먼저 해당 월의 근태 마감을 완료하세요.')
+    if(status==='CLOSED' && !(await requestToPromise<Company[]>(tx.objectStore(STORES.company).getAll()))[0]?.attendanceClosed?.[run.period])throw new Error('먼저 해당 월의 근태 마감을 완료하세요.')
     if(status==='CLOSED' && run.status!=='CONFIRMED') throw new Error('확정된 급여만 마감할 수 있습니다.')
     if(status==='PAID'&&run.status!=='CLOSED')throw new Error('급여 마감 후에만 지급 완료할 수 있습니다.')
+    if(status==='CONFIRMED'){
+      const entries=await requestToPromise<PayrollEntry[]>(tx.objectStore(STORES.payrollEntries).getAll())
+      const summaries=await requestToPromise<AttendanceMonthlySummary[]>(tx.objectStore(STORES.attendanceMonthlySummaries).getAll())
+      for(const e of entries.filter(e=>e.runId===runId&&e.calculationInputs)){
+        const a=summaries.find(a=>a.employmentId===e.employmentId&&a.period===run.period),i=e.calculationInputs!
+        if(!a||e.attendanceRevision!==(a.revision??0)||i.overtimeHours!==a.overtimeHours||i.nightHours!==a.nightHours||i.holidayHours!==a.holidayHours)throw new Error('계산에 사용한 근태와 원본이 다릅니다. 다시 검증하세요.')
+      }
+    }
     const now=new Date().toISOString(); const next:PayrollRun={...run,status,paidAt:status==='PAID'?now:run.paidAt,confirmedAt:status==='CONFIRMED'?now:run.confirmedAt,closedAt:status==='CLOSED'?now:run.closedAt}
-    await this.put(STORES.payrollRuns,next); await this.put(STORES.auditLogs,{id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:`PAYROLL_${status}`,entityType:'PAYROLL_RUN',entityId:runId,detail:`${run.period} 급여 Run 상태를 ${status}로 변경했습니다.`} satisfies AuditLog)
-    return next
+    tx.objectStore(STORES.payrollRuns).put(next); tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:`PAYROLL_${status}`,entityType:'PAYROLL_RUN',entityId:runId,detail:`${run.period} 급여 Run 상태를 ${status}로 변경했습니다.`} satisfies AuditLog)
+    await done; return next
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
 
   async confirmRecords(section:import('../../modules/payroll/payrollRepository').ConfirmSection,ids:string[]):Promise<void>{

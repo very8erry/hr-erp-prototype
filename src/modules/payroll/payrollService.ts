@@ -1,3 +1,4 @@
+import {calculatePayrollEntry} from './payrollRules'
 import {validateWorkSettings} from '../operations/workSchedule'
 import {calculateDailyWorkRecord} from './dailyWorkerRules'
 import type { FilingFormValues,RetirementSettlement,YearEndTaxCase,AnnualLeaveLedger, AttendanceDailyRecord, AttendanceMonthlySummary, LeaveCase, DailyWorkRecord, DailyWorker, DailyWorkerInput, PayrollEntryInput, PayrollItemMaster, PayrollRunInput, PayrollRunStatus } from '../../domain/types'
@@ -87,13 +88,14 @@ export class PayrollService {
   deleteEntry(runId:string, employmentId:string) { return this.repository.deletePayrollEntry(runId,employmentId) }
   async syncAttendance(runId:string){
     const run=await this.repository.getPayrollRun(runId);if(!run)throw new Error('급여월을 찾을 수 없습니다.')
-    const [entries,summaries,daily,items]=await Promise.all([this.entries(runId),this.attendance(),this.dailyAttendance(),this.itemMasters()])
+    const [entries,summaries,daily,currentItems,leaves]=await Promise.all([this.entries(runId),this.attendance(),this.dailyAttendance(),this.itemMasters(),this.repository.listLeaveCases()])
+    const items=run.itemSnapshot??currentItems
     for(const e of entries){
       const a=summaries.find(r=>r.employmentId===e.employmentId&&r.period===run.period);if(!a)continue
-      const extraOrdinary=Object.entries(e.itemAmounts??{}).reduce((sum,[code,v])=>sum+(items.find(i=>i.code===code)?.ordinaryWage?v:0),0)
-      const hourly=(e.monthlyBasePay+extraOrdinary)/209
-      const over8=daily.filter(r=>r.employmentId===e.employmentId&&r.workDate.startsWith(run.period)).reduce((s,r)=>s+r.holidayOvertimeHours,0)
-      await this.saveEntry({...e,calculationInputs:{ordinaryMonthlyHours:e.calculationInputs?.ordinaryMonthlyHours??209,overtimeHours:a.overtimeHours,nightHours:a.nightHours,holidayHours:a.holidayHours,holidayOvertimeHours:over8},overtimePay:Math.round(hourly*a.overtimeHours*1.5),itemAmounts:{...e.itemAmounts,P121:Math.round(hourly*a.nightHours*0.5),P122:Math.round(hourly*(a.holidayHours*1.5+over8*0.5))},memo:`${e.memo} / 근태 ${a.revision??0}차: 통상시급 ${Math.round(hourly)}원, 연장 ${a.overtimeHours}h, 야간 ${a.nightHours}h, 휴일 ${a.holidayHours}h, 휴일8h초과 ${over8}h (월209h 기준 검토)`})
+      const over8=daily.filter(r=>r.employmentId===e.employmentId&&r.workDate.startsWith(run.period)).reduce((sum,r)=>sum+r.holidayOvertimeHours,0)
+      const next={...e,calculationInputs:{ordinaryMonthlyHours:e.calculationInputs?.ordinaryMonthlyHours??209,overtimeHours:a.overtimeHours,nightHours:a.nightHours,holidayHours:a.holidayHours,holidayOvertimeHours:over8}}
+      const calculated=calculatePayrollEntry(next,run.period,items,run.itemOverrides,leaves,run.payDate)
+      await this.saveEntry({...next,overtimePay:calculated.appliedItemAmounts?.P120??0,itemAmounts:{...e.itemAmounts,P121:calculated.appliedItemAmounts?.P121??0,P122:calculated.appliedItemAmounts?.P122??0},memo:`${e.memo} / 근태 ${a.revision??0}차: 연장 ${a.overtimeHours}h, 야간 ${a.nightHours}h, 휴일 ${a.holidayHours}h, 휴일8h초과 ${over8}h`})
     }
   }
   calculate(runId:string, overrides?:Record<string,boolean>|null) { return this.repository.calculatePayrollRun(runId,overrides) }
