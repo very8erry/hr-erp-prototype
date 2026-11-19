@@ -42,7 +42,7 @@ const won = new Intl.NumberFormat('ko-KR')
 const money = (value:number) => `${won.format(Math.round(value))}원`
 const currentMonth = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` }
 const defaultPayDate = (period:string) => `${period}-25`
-type PayrollView='input'|'query'|'attendance'|'leave'|'daily'|'retirement'|'yearend'|'filing'|'insurance'|'summary'|'settings'
+type PayrollView='input'|'query'|'attendance'|'daily'|'retirement'|'yearend'|'filing'|'insurance'|'summary'|'settings'
 
 export function PayrollPage({service,onNotice,employees,organizations}:{service:PayrollService;onNotice:(message:string)=>void;employees:EmployeeView[];organizations:Organization[]}) {
   const [settingsView,setSettingsView]=useState('급여 산출기준');const [view,setView]=useState<PayrollView>('input'),[separation,setSeparation]=useState(false)
@@ -90,11 +90,10 @@ export function PayrollPage({service,onNotice,employees,organizations}:{service:
 
   return <MemoProvider attendance={attendance} service={service}><section className="payrollWorkspace">
     <div className="pageTitle"><div><h2>급여</h2></div>{view==='input'&&<Button className="primary" onClick={()=>setCreateOpen(true)}>+ 급여월 생성</Button>}</div>
-    <div className="moduleTabs">{([['input','급여 입력'],['query','급여 조회'],['attendance','근태 조회'],['leave','연차'],['daily','일용직 급여'],['retirement','퇴직정산'],['yearend','연말정산'],['filing','원천세 신고'],['insurance','4대보험 신고'],['summary','급여요약'],['settings','급여 설정']] as Array<[PayrollView,string]>).map(([k,l])=><Button key={k} className={view===k?'active':''} onClick={()=>setView(k)}>{l}</Button>)}</div>
+    <div className="moduleTabs">{([['input','급여 입력'],['query','급여 조회'],['attendance','근태 조회'],['daily','일용직 급여'],['retirement','퇴직정산'],['yearend','연말정산'],['filing','원천세 신고'],['insurance','4대보험 신고'],['summary','급여요약'],['settings','급여 설정']] as Array<[PayrollView,string]>).map(([k,l])=><Button key={k} className={view===k?'active':''} onClick={()=>setView(k)}>{l}</Button>)}</div>
     {view==='input'&&<PayrollInputPanel service={service} runs={runs} selected={selected} selectedId={selectedId} setSelectedId={setSelectedId} entries={entries} results={results} resultMap={resultMap} employees={employees} totals={totals} busy={busy} act={act} onNotice={onNotice} setEditEntry={setEditEntry} setAddTargetOpen={setAddTargetOpen} selectedRows={selectedRows} setSelectedRows={setSelectedRows} setCalcOpen={setCalcOpen} copyPrevious={()=>act(copyPrevious,'이전 급여월의 입력항목을 복사했습니다.')} uploadRef={uploadRef} onDeleteSelected={()=>act(async()=>{for(const id of selectedRows) await service.deleteEntry(selected!.id,id);setSelectedRows(new Set())},'선택한 급여대상자를 삭제했습니다.')} onGoQuery={()=>setView('query')}/>}
     {view==='query'&&<PayrollQuery runs={runs} service={service} employees={employees} onChanged={async()=>{await refreshRuns();await refreshReference();if(selectedId)await refreshSelected(selectedId)}}/>}
     {view==='attendance'&&<AttendancePage service={service} employees={employees} allowLeaveRegistration={false}/>}
-    {view==='leave'&&<LeaveQuery rows={leave} employees={employees} service={service} onChanged={refreshReference}/>}
     {view==='daily'&&<DailyWorkerPage service={service} organizations={organizations} onNotice={onNotice}/>}
     {view==='retirement'&&<><Button onClick={()=>setSeparation(v=>!v)}>이직확인서 작성</Button>{separation&&<InsuranceFilingPanel runs={runs} service={service} employees={employees} initialKind="SEPARATION"/>}<RetirementPanel onConfirm={async(rows)=>{await service.confirmRecords('retirement',rows.map(r=>r.id));await refreshReference()}} rows={retirement} employees={employees} onSave={async(rows,reason)=>{await service.saveRetirement(rows,reason);await refreshReference()}} onCalculate={async(id)=>{await act(()=>service.calculateRetirement(id),'퇴직정산을 계산했습니다.')}}/></>}
     {view==='yearend'&&<><YearEndDocumentReview service={service} employees={employees} rows={yearEnd} onSaved={refreshReference}/><YearEndPanel onConfirm={async(rows)=>{await service.confirmRecords('yearend',rows.map(r=>r.id));await refreshReference()}} rows={yearEnd} employees={employees} onSave={async(rows,reason)=>{await service.saveYearEnd(rows,reason);await refreshReference()}}/></>}

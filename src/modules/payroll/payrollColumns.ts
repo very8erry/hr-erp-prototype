@@ -10,7 +10,12 @@ const results:Column[]=(Object.entries({taxableEarnings:'과세급여',nonTaxabl
 export const payrollColumns:Column[]=[...identity,...Object.entries(inputLabels).map(([key,label])=>({label,editable:true,read:(r:PayrollRow)=>r.entry[key as EditableKey]})),...Object.entries(amountLabels).map(([code,label])=>({label,editable:true,read:(r:PayrollRow)=>r.entry.itemAmounts?.[code]??0})),...Object.entries(insuranceLabels).map(([key,label])=>({label,editable:true,read:(r:PayrollRow)=>r.entry.insuranceOverrides?.[key as keyof typeof insuranceLabels]??''})),...results,...(['P120','P121','P122'] as const).map(code=>({label:{P120:'산출 연장수당',P121:'산출 야간수당',P122:'산출 휴일수당'}[code],read:(r:PayrollRow)=>r.result?.appliedItemAmounts?.[code]??''})),{label:'상태',read:r=>({DRAFT:'입력',CALCULATED:'계산',VALIDATED:'검증 완료',CONFIRMED:'확정',CLOSED:'마감',PAID:'지급 완료'})[r.run.status]},{label:'계산 경고',read:r=>r.result?.warnings.join(' / ')??''},{label:'오류',read:r=>r.result?.errors.join(' / ')??''},{label:'메모',editable:true,read:r=>r.entry.memo}]
 export const payrollHeaders=payrollColumns.map(c=>c.label)
 export const payrollValues=(row:PayrollRow)=>payrollColumns.map(c=>c.read(row))
-export const payrollDetail=(row:PayrollRow)=>Object.fromEntries(payrollColumns.map(c=>[c.label,c.read(row)]))
+export const payrollDetail=(row:PayrollRow)=>Object.fromEntries(payrollColumns.map(c=>{
+ const inputs=row.entry.calculationInputs
+ const hours:Record<string,string>={ '산출 연장수당':`${inputs?.overtimeHours??0}시간`, '산출 야간수당':`${inputs?.nightHours??0}시간`, '산출 휴일수당':`${inputs?.holidayHours??0}시간 · 8시간 초과 ${inputs?.holidayOvertimeHours??0}시간` }
+ const value=c.read(row)
+ return [c.label,c.label in hours?`${typeof value==='number'?value.toLocaleString('ko-KR')+'원':value||'미계산'} (${inputs?hours[c.label]:'수기 금액 · 시간 미연동'})`:value]
+}))
 export function parsePayrollRows(data:Record<string,unknown>[],run:PayrollRun,entries:PayrollEntry[]):PayrollEntryInput[]{
   if(!data.length)throw new Error('급여 입력 데이터가 없습니다.')
   const seen=new Set<string>()

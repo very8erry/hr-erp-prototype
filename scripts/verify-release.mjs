@@ -40,7 +40,7 @@ const checks=[
   ['일용직 활성 메뉴', /<Nav[^>]*view==='daily'[\s\S]*?>일용직/.test(app) && app.includes("{view==='daily'&&<DailyWorkerPage"), 'App.tsx daily route/nav'],
   ['근태/급여 disabled 잔존 없음', !/근태[^\n]{0,120}disabled/.test(app) && !/급여[^\n]{0,120}disabled/.test(app), 'active modules must not be disabled'],
   ['Payroll 필수 탭', ['급여 입력','급여 조회','근태 조회','연차','일용직 급여','퇴직정산','연말정산','원천세 신고'].every(x=>payroll.includes(x)), 'PayrollPage required tabs'],
-  ['WFM 필수 탭', ['근태 조회','연차 조회'].every(x=>attendance.includes(x)), 'AttendancePage required tabs'],
+  ['WFM 필수 탭', ['근태 조회','>연차</Button>'].every(x=>attendance.includes(x)), 'AttendancePage required tabs'],
   ['WFM 필터', ['전체 팀','전체 직급','전체 개인'].every(x=>attendance.includes(x)) && attendance.includes('MonthPicker'), 'team/grade/person/period filters'],
   ['초록 버전 안내 제거·버전 식별 유지',!app.includes('runtimeProof')&&app.includes('Build {BUILD_VERSION}'),'quiet build identity'],
   ['대시보드 조회대상 없음',!app.includes('조회대상'),'dashboard'],
@@ -86,3 +86,5 @@ const integrityTest=spawnSync(process.execPath,['--import','tsx',path.join(root,
 const pr7Test=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-pr7-integration.ts')],{cwd:root,stdio:'inherit'});if(pr7Test.status!==0)process.exit(1)
 const scheduleIntegrity=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-pr7-scheduled.ts')],{cwd:root,stdio:'inherit'});if(scheduleIntegrity.status!==0)process.exit(1)
 console.log(`\nRelease verification passed: v${version}`)
+
+const consistencyTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-payroll-attendance-consistency.ts')],{cwd:root,stdio:'inherit'});if(consistencyTest.status!==0)process.exit(1)
