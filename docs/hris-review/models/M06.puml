@@ -1,0 +1,28 @@
+@startuml
+' v1.0 · 2026-11-19 · b4aeb300270a62273d3d5f0c2fea87f2a09ba800
+' 검증 호출과 응답 | PayrollPage.tsx:128 · payrollService.ts validate · indexedDb.ts:780–821
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 15
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam monochrome false
+skinparam ArrowColor #156C69
+skinparam defaultTextAlignment center
+skinparam roundcorner 6
+participant PayrollPage as UI
+participant PayrollService as S
+participant IndexedDbHrRepository as R
+database IndexedDB as D
+UI -> S : validate(runId)
+S -> R : validatePayrollRun(runId)
+R -> R : calculatePayrollRun(runId)
+R -> D : read Run, Entry, settings, attendance
+D --> R : inputs and revisions
+R -> R : calculatePayrollEntry per Entry
+R -> D : transaction (Entry, Result, Run, log)
+D --> R : committed
+R -> D : put Run validation status
+R -> D : put validation log
+R --> S : warnings, errors
+S --> UI : counts
+@enduml

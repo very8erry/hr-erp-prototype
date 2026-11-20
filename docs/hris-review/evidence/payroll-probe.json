@@ -1,0 +1,41 @@
+{
+  "before": {
+    "sourceHours": 2,
+    "sourceRevision": 1,
+    "inputHours": 2,
+    "markedRevision": 1,
+    "gross": 4240000,
+    "stale": false,
+    "status": "CALCULATED"
+  },
+  "changed": {
+    "sourceHours": 10,
+    "sourceRevision": 2,
+    "inputHours": 2,
+    "markedRevision": 1,
+    "stale": true,
+    "status": "DRAFT"
+  },
+  "verify": {
+    "warnings": 1,
+    "errors": 0
+  },
+  "after": {
+    "sourceHours": 10,
+    "sourceRevision": 2,
+    "inputHours": 2,
+    "markedRevision": 2,
+    "gross": 4240000,
+    "stale": false,
+    "status": "VALIDATED"
+  },
+  "synced": {
+    "sourceHours": 10,
+    "sourceRevision": 2,
+    "inputHours": 10,
+    "markedRevision": 2,
+    "gross": 4480000,
+    "stale": false,
+    "status": "VALIDATED"
+  }
+}

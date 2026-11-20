@@ -1,0 +1,20 @@
+@startuml
+' v1.0 · 2026-11-19 · b4aeb300270a62273d3d5f0c2fea87f2a09ba800
+' 급여월 상태 전이 | indexedDb.ts:754–835 · PayrollRunStatus
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 15
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam monochrome false
+skinparam ArrowColor #156C69
+skinparam defaultTextAlignment center
+skinparam roundcorner 6
+[*] --> DRAFT
+DRAFT --> CALCULATED : 계산
+CALCULATED --> VALIDATED : 검증·오류 없음
+VALIDATED --> DRAFT : 입력 수정
+CALCULATED --> DRAFT : 근태 변경
+VALIDATED --> CONFIRMED : 확정
+CONFIRMED --> CLOSED : 근태 마감 확인
+CLOSED --> PAID : 지급 완료 표시
+@enduml

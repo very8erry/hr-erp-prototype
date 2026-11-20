@@ -1,0 +1,73 @@
+{
+  "browser": "153.0.8010.0",
+  "engine": "Real Chrome / native IndexedDB",
+  "records": [
+    {
+      "name": "UI employee registration",
+      "status": "PASS",
+      "detail": "Rendered registration form → native DB persisted"
+    },
+    {
+      "name": "attendance payroll validation confirmation closure",
+      "status": "PASS",
+      "detail": {
+        "entries": 337,
+        "status": "CLOSED"
+      }
+    },
+    {
+      "name": "two tabs same employee number race",
+      "status": "PASS",
+      "detail": [
+        {
+          "ok": true,
+          "id": "EMPLOY-e6f25e10-35d1-4a5f-9a75-ff2635854539"
+        },
+        {
+          "ok": false,
+          "error": "이미 등록된 사번입니다."
+        }
+      ]
+    },
+    {
+      "name": "refresh persistence and closed lock",
+      "status": "PASS",
+      "detail": {
+        "runId": "PAYRUN-2026-11",
+        "results": 337
+      }
+    },
+    {
+      "name": "backup restore preserves payroll attendance and IDs",
+      "status": "PASS",
+      "detail": [
+        "persons",
+        "employments",
+        "assignments",
+        "compensations",
+        "payrollRuns",
+        "payrollEntries",
+        "payrollResults",
+        "attendanceMonthlySummaries"
+      ]
+    },
+    {
+      "name": "stale attendance edit from second tab rejected",
+      "status": "PASS",
+      "detail": "rejected"
+    },
+    {
+      "name": "simultaneous native attendance writes serialize",
+      "status": "PASS",
+      "detail": [
+        true,
+        false
+      ]
+    },
+    {
+      "name": "native upgrade blocked and recovery",
+      "status": "PASS",
+      "detail": "Actual native onblocked then upgrade completes after old tab closes; value preserved (isolated probe DB)"
+    }
+  ]
+}

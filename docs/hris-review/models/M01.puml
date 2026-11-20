@@ -1,0 +1,35 @@
+@startuml
+' v1.0 · 2026-11-19 · b4aeb300270a62273d3d5f0c2fea87f2a09ba800
+' 클래스와 저장 계약 | src/app/App.tsx:35 · payrollRepository.ts · indexedDb.ts:161
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 15
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam monochrome false
+skinparam ArrowColor #156C69
+skinparam defaultTextAlignment center
+skinparam roundcorner 6
+class PayrollService {
+  -repository : PayrollRepository
+  +validate(runId)
+  +calculate(runId)
+}
+interface PayrollRepository {
+  +validatePayrollRun(runId)
+  +calculatePayrollRun(runId)
+}
+class IndexedDbHrRepository {
+  -db : IDBDatabase
+  +validatePayrollRun(runId)
+  +calculatePayrollRun(runId)
+}
+interface PayrollRun {
+  id : string
+  status : PayrollRunStatus
+}
+class PayrollRunStatus <<type>>
+PayrollService --> PayrollRepository : repository
+IndexedDbHrRepository ..|> PayrollRepository
+IndexedDbHrRepository ..> PayrollRun : reads / writes
+PayrollRun --> PayrollRunStatus : status type
+@enduml
