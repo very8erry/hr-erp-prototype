@@ -206,10 +206,9 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   }
 
   async integrityFindings(){return inspectIntegrity((await this.exportDatabase()).data)}
-  private async repairEmploymentCompanies(){
+  private async repairEmploymentCompanies(tx?: IDBTransaction): Promise<void> {
     const names=[STORES.company,STORES.persons,STORES.employments,STORES.organizations,STORES.assignments,STORES.auditLogs];
-    const tx=this.requireDb().transaction(names,'readwrite'),done=txDone(tx);
-    try{
+    if (!tx) return this.writeTransaction(names, active => this.repairEmploymentCompanies(active))
       const [companies,persons,employments,organizations,assignments]=await Promise.all(names.slice(0,5).map(n=>requestToPromise(tx.objectStore(n).getAll())));
       const data={company:companies[0],persons,employments,organizations,assignments};
       const repairs=companies.length===1?companyRepairs(data):[];
@@ -218,8 +217,6 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
         const id='COMPANY-REVIEW-'+row.id;
         if(!await requestToPromise(tx.objectStore(STORES.auditLogs).get(id)))tx.objectStore(STORES.auditLogs).add({id,occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'REVIEW_EMPLOYMENT_COMPANY',entityType:'EMPLOYMENT',entityId:row.id,detail:'회사 소속 근거 부족 또는 충돌: 원본 보존, 수동 검토 필요'});
       }
-      await done
-    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
   private async initializeRequestedV078(){
     if(await this.getOne(STORES.meta,'requestedV078'))return;
@@ -302,13 +299,28 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     await done
   }
 
-  private async seed(bundle: SeedBundle): Promise<void> {
-    const db = this.requireDb()
-    const names = Object.values(STORES)
-    const tx = db.transaction(names, 'readwrite')
+  private async writeTransaction<T>(stores: StoreName[], operation: (tx: IDBTransaction) => Promise<T>): Promise<T> {
+    const tx = this.requireDb().transaction(stores, 'readwrite')
     const done = txDone(tx)
+    // A failed request may reject done before the operation's await resumes.
+    void done.catch(() => {})
     try {
-    names.forEach((name) => tx.objectStore(name).clear())
+      const result = await operation(tx)
+      await done
+      return result
+    } catch (error) {
+      try { tx.abort() } catch {}
+      await done.catch(() => {})
+      throw error
+    }
+  }
+
+  private async seed(bundle: SeedBundle): Promise<void> {
+    await this.writeTransaction(Object.values(STORES), async tx => this.writeSeed(tx, bundle))
+  }
+
+  private writeSeed(tx: IDBTransaction, bundle: SeedBundle): void {
+    Object.values(STORES).forEach((name) => tx.objectStore(name).clear())
 
     tx.objectStore(STORES.company).put(bundle.company)
     bundle.organizations.forEach((v) => tx.objectStore(STORES.organizations).put(v))
@@ -350,11 +362,23 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     tx.objectStore(STORES.meta).put({ id: 'dbVersion' , value: String(DB_VERSION) })
     tx.objectStore(STORES.meta).put({ id: 'seedVersion', value: String(SEED_VERSION) })
     tx.objectStore(STORES.meta).put({ id: 'schemaVersion', value: String(SCHEMA_VERSION) })
-    await done
-    } catch (error) {
-      try { tx.abort() } catch {}
-      await done.catch(() => {})
-      throw error
+  }
+
+  private validateRestoreBundle(bundle: SeedBundle): void {
+    if (typeof bundle.company?.id !== 'string' || !bundle.company.id.trim()) throw new Error('백업 회사 ID를 확인하세요.')
+    const optional = new Set<StoreName>([...operationStores, STORES.attendanceDailyRecords, STORES.leaveCases, STORES.payrollSettingsHistory])
+    for (const store of Object.values(STORES)) {
+      if (store === STORES.meta || store === STORES.company) continue
+      const records = bundle[store]
+      if (records == null && optional.has(store)) continue
+      if (!Array.isArray(records)) throw new Error(`백업 저장소 형식이 올바르지 않습니다: ${store}`)
+      const ids = new Set<string>()
+      for (const record of records) {
+        if (typeof record?.id !== 'string' || !record.id.trim() || ids.has(record.id)) {
+          throw new Error(`백업에 올바르지 않거나 중복된 ID가 있습니다: ${store}`)
+        }
+        ids.add(record.id)
+      }
     }
   }
 
@@ -670,20 +694,31 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       })
     }
     if(demo||company.demoScenarioVersion){const items=await this.listPayrollItemMasters(),leaves=await this.listLeaveCases();for(let i=0;i<entries.length;i++)entries[i]=this.demoEntry(entries[i],run,items,leaves,dependents).entry}
-    const db=this.requireDb(); const tx=db.transaction([STORES.payrollRuns,STORES.payrollEntries,STORES.auditLogs],'readwrite'); const done=txDone(tx)
-    tx.objectStore(STORES.payrollRuns).put(run); entries.forEach((entry)=>tx.objectStore(STORES.payrollEntries).put(entry))
-    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'CREATE_PAYROLL_RUN',entityType:'PAYROLL_RUN',entityId:run.id,detail:`${input.period} 급여 Run을 ${entries.length}명 대상으로 생성했습니다.`} satisfies AuditLog)
-    await done; return run
+    return this.writeTransaction([STORES.payrollRuns, STORES.payrollEntries, STORES.auditLogs], async tx => {
+      const stored = await requestToPromise<PayrollRun[]>(tx.objectStore(STORES.payrollRuns).getAll())
+      if (stored.some(row=>row.period===input.period)) throw new Error(`${input.period} 급여 Run이 이미 존재합니다.`)
+      tx.objectStore(STORES.payrollRuns).add(run); entries.forEach((entry)=>tx.objectStore(STORES.payrollEntries).put(entry))
+      tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'CREATE_PAYROLL_RUN',entityType:'PAYROLL_RUN',entityId:run.id,detail:`${input.period} 급여 Run을 ${entries.length}명 대상으로 생성했습니다.`} satisfies AuditLog)
+      return run
+    })
+  }
+
+  private async payrollRunIn(tx: IDBTransaction, id: string): Promise<PayrollRun | undefined> {
+    return requestToPromise<PayrollRun | undefined>(tx.objectStore(STORES.payrollRuns).get(id))
+  }
+
+  private async payrollEntriesIn(tx: IDBTransaction, runId: string): Promise<PayrollEntry[]> {
+    return requestToPromise<PayrollEntry[]>(tx.objectStore(STORES.payrollEntries).index('byRunId').getAll(runId))
   }
 
   async deletePayrollRun(runId:string):Promise<void>{
-    const run=await this.getPayrollRun(runId); if(!run) return
-    if(['CONFIRMED','CLOSED','PAID'].includes(run.status)) throw new Error('확정 또는 마감된 급여 Run은 삭제할 수 없습니다.')
-    const entries=await this.listPayrollEntries(runId); const results=await this.listPayrollResults(runId)
-    const db=this.requireDb(); const tx=db.transaction([STORES.payrollRuns,STORES.payrollEntries,STORES.payrollResults,STORES.auditLogs],'readwrite'); const done=txDone(tx)
-    entries.forEach((v)=>tx.objectStore(STORES.payrollEntries).delete(v.id)); results.forEach((v)=>tx.objectStore(STORES.payrollResults).delete(v.id)); tx.objectStore(STORES.payrollRuns).delete(runId)
-    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'DELETE_PAYROLL_RUN',entityType:'PAYROLL_RUN',entityId:runId,detail:`${run.period} 급여 Run을 삭제했습니다.`} satisfies AuditLog)
-    await done
+    return this.writeTransaction([STORES.payrollRuns, STORES.payrollEntries, STORES.payrollResults, STORES.auditLogs], async tx => {
+      const run=await this.payrollRunIn(tx,runId); if(!run) return
+      if(['CONFIRMED','CLOSED','PAID'].includes(run.status)) throw new Error('확정 또는 마감된 급여 Run은 삭제할 수 없습니다.')
+      const entries=await this.payrollEntriesIn(tx,runId); const results=await requestToPromise<PayrollResult[]>(tx.objectStore(STORES.payrollResults).index('byRunId').getAll(runId))
+      entries.forEach((v)=>tx.objectStore(STORES.payrollEntries).delete(v.id)); results.forEach((v)=>tx.objectStore(STORES.payrollResults).delete(v.id)); tx.objectStore(STORES.payrollRuns).delete(runId)
+      tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'DELETE_PAYROLL_RUN',entityType:'PAYROLL_RUN',entityId:runId,detail:`${run.period} 급여 Run을 삭제했습니다.`} satisfies AuditLog)
+    })
   }
 
   async listPayrollEntries(runId:string):Promise<PayrollEntry[]>{
@@ -724,53 +759,67 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
       basicDeductionCount:activeDeps.filter((v)=>v.basicDeductionEligible).length,childDeductionCount:activeDeps.filter((v)=>v.childDeductionEligible).length,
       incomeTaxManual:0,memo:'수동 추가',status:'DRAFT',updatedAt:now,
     }
-    const db=this.requireDb(); const tx=db.transaction([STORES.payrollEntries,STORES.payrollRuns,STORES.auditLogs],'readwrite'); const done=txDone(tx)
-    tx.objectStore(STORES.payrollEntries).put(entry); tx.objectStore(STORES.payrollRuns).put({...run,status:'DRAFT',calculatedAt:null,validatedAt:null,confirmedAt:null})
-    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'ADD_PAYROLL_ENTRY',entityType:'PAYROLL_ENTRY',entityId:entry.id,detail:`${entry.employeeNameSnapshot}을(를) ${run.period} 급여 대상에 추가했습니다.`} satisfies AuditLog)
-    await done; return entry
+    return this.writeTransaction([STORES.payrollRuns, STORES.payrollEntries, STORES.payrollResults, STORES.auditLogs], async tx => {
+      const current = await this.payrollRunIn(tx,runId)
+      if (!current || ['CONFIRMED','CLOSED','PAID'].includes(current.status)) throw new Error('확정 또는 마감된 급여 Run에는 대상자를 추가할 수 없습니다.')
+      if ((await this.payrollEntriesIn(tx,runId)).some(row=>row.employmentId===employmentId)) throw new Error('이미 급여 대상에 포함된 직원입니다.')
+      tx.objectStore(STORES.payrollEntries).add(entry); tx.objectStore(STORES.payrollRuns).put({...current,status:'DRAFT',calculatedAt:null,validatedAt:null,confirmedAt:null})
+      tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'ADD_PAYROLL_ENTRY',entityType:'PAYROLL_ENTRY',entityId:entry.id,detail:`${entry.employeeNameSnapshot}을(를) ${run.period} 급여 대상에 추가했습니다.`} satisfies AuditLog)
+      return entry
+    })
   }
 
   async saveFilingForm(runId:string,values:FilingFormValues,reason:string):Promise<void>{
-    const run=await this.getPayrollRun(runId);if(!run||['CONFIRMED','CLOSED','PAID'].includes(run.status))throw new Error('확정·마감월 신고 대사는 수정할 수 없습니다.');if(!reason.trim()||!values.incomeName.trim()||!values.incomeCode.trim())throw new Error('소득명·코드·수정 사유를 입력하세요.');if([values.headcount,values.grossPay,values.incomeTax,values.localIncomeTax].some(v=>!Number.isFinite(v)||v<0)||!Number.isInteger(values.headcount))throw new Error('신고 대사 인원·금액을 확인하세요.')
-    const next={incomeName:values.incomeName,incomeCode:values.incomeCode,headcount:values.headcount,grossPay:values.grossPay,incomeTax:values.incomeTax,localIncomeTax:values.localIncomeTax,note:values.note,updatedAt:new Date().toISOString(),editReason:reason};const tx=this.requireDb().transaction([STORES.payrollRuns,STORES.auditLogs],'readwrite'),done=txDone(tx);tx.objectStore(STORES.payrollRuns).put({...run,filingFormOverrides:next});tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'EDIT_FILING_FORM',entityType:'PAYROLL_RUN',entityId:runId,detail:JSON.stringify({reason,before:run.filingFormOverrides,after:next})});await done
+    if(!reason.trim()||!values.incomeName.trim()||!values.incomeCode.trim())throw new Error('소득명·코드·수정 사유를 입력하세요.')
+    if([values.headcount,values.grossPay,values.incomeTax,values.localIncomeTax].some(v=>!Number.isFinite(v)||v<0)||!Number.isInteger(values.headcount))throw new Error('신고 대사 인원·금액을 확인하세요.')
+    return this.writeTransaction([STORES.payrollRuns, STORES.auditLogs], async tx => {
+      const run = await this.payrollRunIn(tx, runId)
+      if (!run || ['CONFIRMED','CLOSED','PAID'].includes(run.status)) throw new Error('확정·마감월 신고 대사는 수정할 수 없습니다.')
+      const next={incomeName:values.incomeName,incomeCode:values.incomeCode,headcount:values.headcount,grossPay:values.grossPay,incomeTax:values.incomeTax,localIncomeTax:values.localIncomeTax,note:values.note,updatedAt:new Date().toISOString(),editReason:reason}
+      tx.objectStore(STORES.payrollRuns).put({...run,filingFormOverrides:next});tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'EDIT_FILING_FORM',entityType:'PAYROLL_RUN',entityId:runId,detail:JSON.stringify({reason,before:run.filingFormOverrides,after:next})})
+    })
   }
+
   async savePayrollEntriesBatch(inputs:PayrollEntryInput[]):Promise<void>{
     if(!inputs.length)return
-    const allRuns=await this.listPayrollRuns(),runIds=new Set(inputs.map(i=>i.runId)),runs=allRuns.filter(r=>runIds.has(r.id))
-    if(runs.length!==runIds.size||runs.some(r=>['CONFIRMED','CLOSED','PAID'].includes(r.status)))throw new Error('수정 가능한 급여월이 아닙니다.')
-    const entries=(await Promise.all(runs.map(r=>this.listPayrollEntries(r.id)))).flat(),seen=new Set<string>()
-    const next=inputs.map(input=>{
-      const old=entries.find(e=>e.runId===input.runId&&e.employmentId===input.employmentId),key=`${input.runId}-${input.employmentId}`
-      if(!old||seen.has(key))throw new Error('중복·잘못된 급여 대상입니다.');seen.add(key)
-      const numbers=[...Object.values(input.insuranceOverrides??{}),input.monthlyBasePay??0,input.prorationRate,input.taxableAllowance,input.nonTaxableAllowance,input.overtimePay,input.bonus,input.retroPay,input.otherEarnings,input.unpaidDeduction,input.otherDeductions,input.pensionBaseMonthly,input.healthBaseMonthly,input.employmentInsuranceBaseMonthly,input.incomeTaxManual,...Object.values(input.itemAmounts??{})]
-      if(numbers.some(v=>!Number.isFinite(v)||v<0)||input.prorationRate>1)throw new Error('급여 숫자·일할비율을 확인하세요.')
-      return {...old,...input,id:old.id,status:'DRAFT',updatedAt:new Date().toISOString()}
+    return this.writeTransaction([STORES.payrollRuns, STORES.payrollEntries, STORES.payrollResults, STORES.auditLogs], async tx => {
+      const allRuns=await requestToPromise<PayrollRun[]>(tx.objectStore(STORES.payrollRuns).getAll()),runIds=new Set(inputs.map(i=>i.runId)),runs=allRuns.filter(r=>runIds.has(r.id))
+      if(runs.length!==runIds.size||runs.some(r=>['CONFIRMED','CLOSED','PAID'].includes(r.status)))throw new Error('수정 가능한 급여월이 아닙니다.')
+      const entries=(await Promise.all(runs.map(r=>this.payrollEntriesIn(tx,r.id)))).flat(),seen=new Set<string>()
+      const next=inputs.map(input=>{
+        const old=entries.find(e=>e.runId===input.runId&&e.employmentId===input.employmentId),key=`${input.runId}-${input.employmentId}`
+        if(!old||seen.has(key))throw new Error('중복·잘못된 급여 대상입니다.');seen.add(key)
+        const numbers=[...Object.values(input.insuranceOverrides??{}),input.monthlyBasePay??0,input.prorationRate,input.taxableAllowance,input.nonTaxableAllowance,input.overtimePay,input.bonus,input.retroPay,input.otherEarnings,input.unpaidDeduction,input.otherDeductions,input.pensionBaseMonthly,input.healthBaseMonthly,input.employmentInsuranceBaseMonthly,input.incomeTaxManual,...Object.values(input.itemAmounts??{})]
+        if(numbers.some(v=>!Number.isFinite(v)||v<0)||input.prorationRate>1)throw new Error('급여 숫자·일할비율을 확인하세요.')
+        return {...old,...input,id:old.id,status:'DRAFT',updatedAt:new Date().toISOString()}
+      })
+      next.forEach(e=>tx.objectStore(STORES.payrollEntries).put(e));runs.forEach(run=>tx.objectStore(STORES.payrollRuns).put({...run,status:'DRAFT',calculatedAt:null,validatedAt:null}))
+      const req=tx.objectStore(STORES.payrollResults).openCursor();req.onsuccess=()=>{const c=req.result;if(c){if(runIds.has(c.value.runId))c.delete();c.continue()}}
+      tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'IMPORT_PAYROLL_INPUT',entityType:'PAYROLL_RUN',entityId:[...runIds].join(','),detail:JSON.stringify({before:entries.filter(e=>seen.has(`${e.runId}-${e.employmentId}`)),after:next})})
     })
-    const tx=this.requireDb().transaction([STORES.payrollEntries,STORES.payrollResults,STORES.payrollRuns,STORES.auditLogs],'readwrite'),done=txDone(tx)
-    next.forEach(e=>tx.objectStore(STORES.payrollEntries).put(e));runs.forEach(run=>tx.objectStore(STORES.payrollRuns).put({...run,status:'DRAFT',calculatedAt:null,validatedAt:null}))
-    const req=tx.objectStore(STORES.payrollResults).openCursor();req.onsuccess=()=>{const c=req.result;if(c){if(runIds.has(c.value.runId))c.delete();c.continue()}}
-    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'IMPORT_PAYROLL_INPUT',entityType:'PAYROLL_RUN',entityId:[...runIds].join(','),detail:JSON.stringify({before:entries.filter(e=>seen.has(`${e.runId}-${e.employmentId}`)),after:next})});await done
   }
+
   async upsertPayrollEntry(input:PayrollEntryInput):Promise<PayrollEntry>{
-    const run=await this.getPayrollRun(input.runId); if(!run) throw new Error('급여 Run을 찾을 수 없습니다.')
-    if(['CONFIRMED','CLOSED','PAID'].includes(run.status)) throw new Error('확정 또는 마감된 급여 Run은 수정할 수 없습니다.')
-    const existing=await this.getPayrollEntry(input.runId,input.employmentId); if(!existing) throw new Error('급여 대상자를 찾을 수 없습니다.')
-    const next:PayrollEntry={...existing,calculationInputs:input.calculationInputs===undefined?existing.calculationInputs:input.calculationInputs,deriveEmploymentBase:input.deriveEmploymentBase??existing.deriveEmploymentBase,nonTaxEligibility:input.nonTaxEligibility??existing.nonTaxEligibility,monthlyBasePay:input.monthlyBasePay??existing.monthlyBasePay,insuranceOverrides:input.insuranceOverrides??existing.insuranceOverrides,prorationRate:input.prorationRate,taxableAllowance:input.taxableAllowance,nonTaxableAllowance:input.nonTaxableAllowance,overtimePay:input.overtimePay,bonus:input.bonus,retroPay:input.retroPay,otherEarnings:input.otherEarnings,unpaidDeduction:input.unpaidDeduction,otherDeductions:input.otherDeductions,pensionBaseMonthly:input.pensionBaseMonthly,healthBaseMonthly:input.healthBaseMonthly,employmentInsuranceBaseMonthly:input.employmentInsuranceBaseMonthly,incomeTaxManual:input.incomeTaxManual,itemAmounts:input.itemAmounts??existing.itemAmounts,memo:input.memo.trim(),status:'DRAFT',updatedAt:new Date().toISOString()}
-    const db=this.requireDb(); const tx=db.transaction([STORES.payrollEntries,STORES.payrollResults,STORES.payrollRuns,STORES.auditLogs],'readwrite'); const done=txDone(tx)
-    tx.objectStore(STORES.payrollEntries).put(next); tx.objectStore(STORES.payrollResults).delete(`PAYRES-${input.runId}-${input.employmentId}`)
-    tx.objectStore(STORES.payrollRuns).put({...run,status:'DRAFT',calculatedAt:null,validatedAt:null,confirmedAt:null})
-    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'UPDATE_PAYROLL_ENTRY',entityType:'PAYROLL_ENTRY',entityId:next.id,detail:`${next.employeeNameSnapshot} 급여 입력값을 수정했습니다.`} satisfies AuditLog)
-    await done; return next
+    return this.writeTransaction([STORES.payrollRuns, STORES.payrollEntries, STORES.payrollResults, STORES.auditLogs], async tx => {
+      const run=await this.payrollRunIn(tx,input.runId); if(!run) throw new Error('급여 Run을 찾을 수 없습니다.')
+      if(['CONFIRMED','CLOSED','PAID'].includes(run.status)) throw new Error('확정 또는 마감된 급여 Run은 수정할 수 없습니다.')
+      const existing=(await this.payrollEntriesIn(tx,input.runId)).find(entry=>entry.employmentId===input.employmentId); if(!existing) throw new Error('급여 대상자를 찾을 수 없습니다.')
+      const next:PayrollEntry={...existing,calculationInputs:input.calculationInputs===undefined?existing.calculationInputs:input.calculationInputs,deriveEmploymentBase:input.deriveEmploymentBase??existing.deriveEmploymentBase,nonTaxEligibility:input.nonTaxEligibility??existing.nonTaxEligibility,monthlyBasePay:input.monthlyBasePay??existing.monthlyBasePay,insuranceOverrides:input.insuranceOverrides??existing.insuranceOverrides,prorationRate:input.prorationRate,taxableAllowance:input.taxableAllowance,nonTaxableAllowance:input.nonTaxableAllowance,overtimePay:input.overtimePay,bonus:input.bonus,retroPay:input.retroPay,otherEarnings:input.otherEarnings,unpaidDeduction:input.unpaidDeduction,otherDeductions:input.otherDeductions,pensionBaseMonthly:input.pensionBaseMonthly,healthBaseMonthly:input.healthBaseMonthly,employmentInsuranceBaseMonthly:input.employmentInsuranceBaseMonthly,incomeTaxManual:input.incomeTaxManual,itemAmounts:input.itemAmounts??existing.itemAmounts,memo:input.memo.trim(),status:'DRAFT',updatedAt:new Date().toISOString()}
+      tx.objectStore(STORES.payrollEntries).put(next); tx.objectStore(STORES.payrollResults).delete(`PAYRES-${input.runId}-${input.employmentId}`)
+      tx.objectStore(STORES.payrollRuns).put({...run,status:'DRAFT',calculatedAt:null,validatedAt:null,confirmedAt:null})
+      tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'UPDATE_PAYROLL_ENTRY',entityType:'PAYROLL_ENTRY',entityId:next.id,detail:`${next.employeeNameSnapshot} 급여 입력값을 수정했습니다.`} satisfies AuditLog)
+      return next
+    })
   }
 
   async deletePayrollEntry(runId:string,employmentId:string):Promise<void>{
-    const run=await this.getPayrollRun(runId); if(!run) return
-    if(['CONFIRMED','CLOSED','PAID'].includes(run.status)) throw new Error('확정 또는 마감된 급여 Run은 대상자를 삭제할 수 없습니다.')
-    const entry=await this.getPayrollEntry(runId,employmentId); if(!entry) return
-    const db=this.requireDb(); const tx=db.transaction([STORES.payrollEntries,STORES.payrollResults,STORES.payrollRuns,STORES.auditLogs],'readwrite'); const done=txDone(tx)
-    tx.objectStore(STORES.payrollEntries).delete(entry.id); tx.objectStore(STORES.payrollResults).delete(`PAYRES-${runId}-${employmentId}`); tx.objectStore(STORES.payrollRuns).put({...run,status:'DRAFT',calculatedAt:null,validatedAt:null,confirmedAt:null})
-    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'DELETE_PAYROLL_ENTRY',entityType:'PAYROLL_ENTRY',entityId:entry.id,detail:`${entry.employeeNameSnapshot}을(를) 급여 대상에서 제외했습니다.`} satisfies AuditLog)
-    await done
+    return this.writeTransaction([STORES.payrollRuns, STORES.payrollEntries, STORES.payrollResults, STORES.auditLogs], async tx => {
+      const run=await this.payrollRunIn(tx,runId); if(!run) return
+      if(['CONFIRMED','CLOSED','PAID'].includes(run.status)) throw new Error('확정 또는 마감된 급여 Run은 대상자를 삭제할 수 없습니다.')
+      const entry=(await this.payrollEntriesIn(tx,runId)).find(row=>row.employmentId===employmentId); if(!entry) return
+      tx.objectStore(STORES.payrollEntries).delete(entry.id); tx.objectStore(STORES.payrollResults).delete(`PAYRES-${runId}-${employmentId}`); tx.objectStore(STORES.payrollRuns).put({...run,status:'DRAFT',calculatedAt:null,validatedAt:null,confirmedAt:null})
+      tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'DELETE_PAYROLL_ENTRY',entityType:'PAYROLL_ENTRY',entityId:entry.id,detail:`${entry.employeeNameSnapshot}을(를) 급여 대상에서 제외했습니다.`} satisfies AuditLog)
+    })
   }
 
   async listPayrollResults(runId:string):Promise<PayrollResult[]>{
@@ -867,7 +916,16 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     }catch(e){try{tx.abort()}catch{}await done.catch(()=>{});throw e}
   }
 
-  private async persistSelectionUpgrade(){const c=await this.getCompany();if(c.recruiting?.selectionVersion)return;const next=upgradeRecruiting(c.recruiting??recruitingSeed()),tx=this.requireDb().transaction([STORES.company,STORES.auditLogs],'readwrite'),done=txDone(tx);tx.objectStore(STORES.company).put({...c,recruiting:next});tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'UPGRADE_SELECTION_EVALUATION',entityType:'RECRUITING',entityId:c.id,detail:'기존 평가 사본과 원점수를 보존하며 역량·질문·Calibration 저장구조와 Payroll 평가 실습자료를 보강했습니다.'} satisfies AuditLog);await done}
+  private async persistSelectionUpgrade(tx?: IDBTransaction): Promise<void> {
+    if (!tx) return this.writeTransaction([STORES.company, STORES.auditLogs], active => this.persistSelectionUpgrade(active))
+    const companyStore = tx.objectStore(STORES.company)
+    const [company] = await requestToPromise<Company[]>(companyStore.getAll())
+    if (!company) throw new Error('Company data is missing')
+    if (company.recruiting?.selectionVersion) return
+    const next = upgradeRecruiting(company.recruiting ?? recruitingSeed())
+    companyStore.put({...company, recruiting:next})
+    tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'SYSTEM',action:'UPGRADE_SELECTION_EVALUATION',entityType:'COMPANY',entityId:company.id,detail:'기존 평가 사본과 원점수를 보존하며 역량·질문·Calibration 저장구조와 Payroll 평가 실습자료를 보강했습니다.'})
+  }
   async refreshIssues():Promise<void>{const [ops,employees,attendance,leaves,daily,runs,results,recruiting]=await Promise.all([this.operations(),this.listEmployees(),this.listAttendanceDailyRecords(),this.listLeaveCases(),this.listDailyWorkRecords(),this.listPayrollRuns(),this.getAll<PayrollResult>(STORES.payrollResults),this.recruiting()]);const generated:import('../../modules/operations/operations').Issue[]=[],now=new Date().toISOString();const add=(sourceType:string,sourceId:string,date:string,title:string,description:string,employmentId?:string,category=sourceType)=>generated.push({id:'ISS-'+sourceType+'-'+sourceId,occurredDate:date,title,description,sourceType,sourceId,employmentId,organizationId:employees.find(e=>e.employmentId===employmentId)?.organizationId,category,severity:'MEDIUM',status:'OPEN',manual:false,createdAt:now});const em=new Map(employees.map(e=>[e.employmentId,e]));for(const r of attendance){const issue=issueForAttendance(r,em.get(r.employmentId),ops.calendarEvents);if(issue)generated.push(issue);else if(r.absence||r.activity==='SICK')add('AttendanceDailyRecord',r.id,r.workDate,r.absence?'결근 확인':'병가 처리 확인',r.note||r.editReason||'근태·급여 지급 구분 확인',r.employmentId,'근태')}for(const l of leaves)add('LeaveCase',l.id,l.startDate,'휴직 및 보험 처리 검토',l.note,l.employmentId,'휴직');for(const r of daily)if(r.hours>0&&dayPolicy(r.workDate,ops.calendarEvents).off)add('DailyWorkRecord',r.id,r.workDate,'일용직 휴무일 근로',r.note||'실제 근로·휴일수당 근거 확인',undefined,'일용직');for(const r of results)if(r.errors.length||r.warnings.length){const run=runs.find(v=>v.id===r.runId);add('PayrollResult',r.id,(run?.period??now.slice(0,7))+'-01',r.errors.length?'급여 오류':'급여 검토사항',[...r.errors,...r.warnings].join(' / '),r.employmentId,'급여')}for(const e of ops.calendarEvents.filter(e=>e.scope==='HR'&&e.startDate===seoulDate()))add('CalendarEvent',e.id,e.startDate,'오늘 HR 일정 · '+e.title,e.note||'HR 일정 확인',undefined,'HR스케줄');for(const e of recruiting.events.filter(e=>e.status==='실패'))add('RecruitingEvent',e.id,now.slice(0,10),'채용 자동화 전달 실패',e.error||'연결 설정 확인',undefined,'채용');for(const e of employees)if(e.terminationDate&&e.terminationDate<e.hireDate)add('Employment',e.employmentId,seoulDate(),'고용기간 오류','입사·퇴사일 원천정보 확인',e.employmentId,'직원');const known=new Set(ops.issues.map(i=>i.id)),fresh=generated.filter(i=>!known.has(i.id));if(!fresh.length)return;const tx=this.requireDb().transaction([STORES.issues,STORES.auditLogs],'readwrite'),done=txDone(tx);fresh.forEach(i=>tx.objectStore(STORES.issues).put(i));tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:now,actor:'SYSTEM',action:'DERIVE_ISSUES',entityType:'ISSUE',entityId:'BATCH',detail:JSON.stringify({added:fresh.length,sourceIds:fresh.map(i=>i.sourceId)})});await done}
   async scheduleSources():Promise<ScheduleSources>{return {issues:(await this.operations()).issues,employees:await this.listEmployees(),runs:await this.listPayrollRuns(),leaves:await this.listLeaveCases(),ledgers:await this.listAnnualLeaveLedgers(),visas:await this.getAll<Visa>(STORES.visas)}}
   async populateWorkYear(year:number):Promise<void>{
@@ -899,7 +957,18 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
 
   async operations():Promise<OperationsData>{const entries=await Promise.all(operationStores.map(async name=>[name,await this.getAll(STORES[name])] as const));return Object.fromEntries(entries) as unknown as OperationsData}
   async saveOperation<K extends OperationStore>(name:K,row:OperationsData[K][number]){validateOperation(name,row,await this.listEmployees());if(name==='calendarEvents'&&(row as CalendarEvent).work)throw new Error('업무 일정은 변경안 검토·승인 후 반영하세요.');if(name==='policyDocuments'){const old=await this.getOne<import('../../modules/operations/operations').PolicyDocument>(STORES.policyDocuments,row.id);row=archivePolicy(old,row as import('../../modules/operations/operations').PolicyDocument) as OperationsData[K][number]}if(name==='calendarEvents')validateWork(row as CalendarEvent,await this.listEmployees());const before=await this.getOne<CalendarEvent>(STORES[name],row.id);if(name==='calendarEvents'&&(row as CalendarEvent).work){const e=row as CalendarEvent,w=e.work!;if(before?.work&&w.revision!==before.work.revision)throw new Error('다른 화면에서 수정되었습니다. 새로고침 후 다시 저장하세요.');w.revision=(before?.work?.revision??0)+1;w.history=[...(before?.work?.history??[]),{at:new Date().toISOString(),reason:e.note||'업무·단계·상태·증빙 수정'}]}if(name==='filingDrafts'&&before&&JSON.stringify(before)!==JSON.stringify(row))throw new Error('신고 초안 원천 스냅샷은 변경할 수 없습니다. 새 초안을 생성하세요.');const tx=this.requireDb().transaction([STORES[name],STORES.auditLogs],'readwrite'),done=txDone(tx);if(name==='calendarEvents'&&(row as CalendarEvent).work){const check=tx.objectStore(STORES[name]).get(row.id);check.onsuccess=()=>{if((check.result?.work?.revision??0)!==(before?.work?.revision??0)){tx.abort();return}tx.objectStore(STORES[name]).put(structuredClone(row))}}else tx.objectStore(STORES[name]).put(structuredClone(row));tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:before?'UPDATE':'CREATE',entityType:name,entityId:row.id,detail:JSON.stringify({before,after:row})});await done}
-  private async initializeOperations(){const marker=await this.getOne(STORES.meta,'operationsV7');if(marker)return;const existing=await this.operations(),now=new Date().toISOString(),tx=this.requireDb().transaction([STORES.calendarEvents,STORES.policyDocuments,STORES.meta,STORES.auditLogs],'readwrite'),done=txDone(tx);for(const event of calendarSeed())if(!existing.calendarEvents.some(x=>x.id===event.id))tx.objectStore(STORES.calendarEvents).put(event);for(const doc of [{id:'POL-MOEL-2026',category:'MOEL_STANDARD',title:'2026년 표준취업규칙 · 고용노동부 원문 기준',source:'https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20260200740',contents:'고용노동부 2026년 표준취업규칙 (2026.2.13 게시). 위 출처의 원본 첨부파일을 기준으로 회사 적용안과 비교·검토하세요. 이 레코드는 정부 문서를 대체하는 원문 복제본이 아닌 원본 연결 정보입니다.'},{id:'POL-COMPANY',category:'COMPANY_OPERATION',title:'회사 운영 정책 초안',source:'회사 HR 검토 초안',contents:'근로조건: 근로계약서와 적용 법령을 따른다. 연장·야간·휴일근로는 실제 근로시간을 기록하고 법정 가산수당을 검토한다. 법정 휴가·휴직을 회사 승인 여부로 축소하지 않는다. 변경 시 근로자 의견청취 및 불이익 변경 동의 요건을 검토한다.'},{id:'POL-TECH',category:'TECH_OPERATION',title:'기술기업 운영 정책 초안',source:'회사 운영 초안 · 정부 표준과 별도',contents:'장애대응·온콜: 대기와 실제 근로를 구분하여 기록한다. 야간·휴일 실제 대응시간과 휴게를 기록하고 수당·대체휴일을 법령과 합의에 따라 검토한다. 유연근무는 해당 제도 요건과 근로자 동의를 확인한다. 보안·원격근무 규정은 법정 근로조건을 축소하지 않는다.'},{id:'POL-BYLAW',category:'BYLAW',title:'사규 초안',source:'회사 사규 · HR 검토 필요',contents:'규정 관리: 담당자·시행일·버전·변경 사유를 기록한다. 보안·복무·복리후생 세부 규칙은 근로계약·취업규칙·법령과 충돌하지 않도록 검토한다.'}])if(!existing.policyDocuments.some(d=>d.id===doc.id))tx.objectStore(STORES.policyDocuments).put({...doc,version:1,effectiveDate:'2026-02-13',status:'Draft',reviewRequired:true,history:[]});tx.objectStore(STORES.meta).put({id:'operationsV7' ,value:'1'});tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:now,actor:'SYSTEM',action:'MIGRATE_V7_ADDITIVE',entityType:'DATABASE',entityId:'v7',detail:'v0.7.5 기반 7개 신규 저장소와 법정 캘린더를 추가. 직원·급여·확정·수기·가져오기 데이터는 보존.'});await done}
+  private async initializeOperations(tx?: IDBTransaction): Promise<void> {
+    const stores = [STORES.calendarEvents, STORES.policyDocuments, STORES.meta, STORES.auditLogs]
+    if (!tx) return this.writeTransaction(stores, active => this.initializeOperations(active))
+    if (await requestToPromise(tx.objectStore(STORES.meta).get('operationsV7'))) return
+    const [calendarEvents, policyDocuments] = await Promise.all([
+      requestToPromise<CalendarEvent[]>(tx.objectStore(STORES.calendarEvents).getAll()),
+      requestToPromise<import('../../modules/operations/operations').PolicyDocument[]>(tx.objectStore(STORES.policyDocuments).getAll()),
+    ])
+    const existing = {calendarEvents, policyDocuments}
+    const now = new Date().toISOString()
+    for(const event of calendarSeed())if(!existing.calendarEvents.some(x=>x.id===event.id))tx.objectStore(STORES.calendarEvents).put(event);for(const doc of [{id:'POL-MOEL-2026',category:'MOEL_STANDARD',title:'2026년 표준취업규칙 · 고용노동부 원문 기준',source:'https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20260200740',contents:'고용노동부 2026년 표준취업규칙 (2026.2.13 게시). 위 출처의 원본 첨부파일을 기준으로 회사 적용안과 비교·검토하세요. 이 레코드는 정부 문서를 대체하는 원문 복제본이 아닌 원본 연결 정보입니다.'},{id:'POL-COMPANY',category:'COMPANY_OPERATION',title:'회사 운영 정책 초안',source:'회사 HR 검토 초안',contents:'근로조건: 근로계약서와 적용 법령을 따른다. 연장·야간·휴일근로는 실제 근로시간을 기록하고 법정 가산수당을 검토한다. 법정 휴가·휴직을 회사 승인 여부로 축소하지 않는다. 변경 시 근로자 의견청취 및 불이익 변경 동의 요건을 검토한다.'},{id:'POL-TECH',category:'TECH_OPERATION',title:'기술기업 운영 정책 초안',source:'회사 운영 초안 · 정부 표준과 별도',contents:'장애대응·온콜: 대기와 실제 근로를 구분하여 기록한다. 야간·휴일 실제 대응시간과 휴게를 기록하고 수당·대체휴일을 법령과 합의에 따라 검토한다. 유연근무는 해당 제도 요건과 근로자 동의를 확인한다. 보안·원격근무 규정은 법정 근로조건을 축소하지 않는다.'},{id:'POL-BYLAW',category:'BYLAW',title:'사규 초안',source:'회사 사규 · HR 검토 필요',contents:'규정 관리: 담당자·시행일·버전·변경 사유를 기록한다. 보안·복무·복리후생 세부 규칙은 근로계약·취업규칙·법령과 충돌하지 않도록 검토한다.'}])if(!existing.policyDocuments.some(d=>d.id===doc.id))tx.objectStore(STORES.policyDocuments).put({...doc,version:1,effectiveDate:'2026-02-13',status:'Draft',reviewRequired:true,history:[]});tx.objectStore(STORES.meta).put({id:'operationsV7' ,value:'1'});tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:now,actor:'SYSTEM',action:'MIGRATE_V7_ADDITIVE',entityType:'DATABASE',entityId:'v7',detail:'v0.7.5 기반 7개 신규 저장소와 법정 캘린더를 추가. 직원·급여·확정·수기·가져오기 데이터는 보존.'})
+  }
   async recruiting(){return upgradeRecruiting((await this.getCompany()).recruiting??recruitingSeed())}
   async saveRecruiting(state:RecruitingState){
     const c=await this.getCompany(),before=upgradeRecruiting(c.recruiting??recruitingSeed()),next=upgradeRecruiting(state),logs:AuditLog[]=[],now=new Date().toISOString()
@@ -1128,18 +1197,18 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     for(const n of [row.healthPremiumOverride,row.employmentBaseOverride])if(n!==null&&(!Number.isFinite(n)||n<0))throw new Error('보험 고지값은 0 이상의 숫자여야 합니다.')
     if(row.endDate&&row.endDate<row.startDate)throw new Error('휴직 종료일을 확인하세요.')
     if(!(await this.listEmployees()).some(e=>e.employmentId===row.employmentId))throw new Error('직원을 찾을 수 없습니다.')
-    const existing=await this.listLeaveCases()
-    const end=row.endDate??'9999-12-31'
-    if(existing.some(x=>x.id!==row.id&&x.employmentId===row.employmentId&&x.startDate<=end&&(x.endDate??'9999-12-31')>=row.startDate))throw new Error('동일 직원의 휴직기간이 중복됩니다.')
-    const old=existing.find(r=>r.id===row.id)
-    const runs=(await this.listPayrollRuns()).filter(r=>(r.period>=row.startDate.slice(0,7)&&r.period<=end.slice(0,7))||(old&&r.period>=old.startDate.slice(0,7)&&r.period<=(old.endDate??'9999-12-31').slice(0,7)))
-    if(runs.some(r=>['CONFIRMED','CLOSED','PAID'].includes(r.status)))throw new Error('확정·마감월 휴직정보는 변경할 수 없습니다.')
-    const tx=this.requireDb().transaction([STORES.leaveCases,STORES.payrollRuns,STORES.payrollResults,STORES.auditLogs],'readwrite');const done=txDone(tx)
-    tx.objectStore(STORES.leaveCases).put({...row,updatedAt:new Date().toISOString()})
-    runs.forEach(r=>tx.objectStore(STORES.payrollRuns).put({...r,status:'DRAFT',attendanceStale:true,validatedAt:null,calculatedAt:null}))
-    const ids=new Set(runs.map(r=>r.id));const req=tx.objectStore(STORES.payrollResults).openCursor();req.onsuccess=()=>{const c=req.result;if(c){if(ids.has(c.value.runId))c.delete();c.continue()}}
-    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'EDIT_LEAVE_CASE',entityType:'LEAVE_CASE',entityId:row.id,detail:JSON.stringify({before:existing.find(x=>x.id===row.id),after:row})})
-    await done
+    return this.writeTransaction([STORES.leaveCases, STORES.payrollRuns, STORES.payrollResults, STORES.auditLogs], async tx => {
+      const existing=await requestToPromise<LeaveCase[]>(tx.objectStore(STORES.leaveCases).getAll())
+      const end=row.endDate??'9999-12-31'
+      if(existing.some(x=>x.id!==row.id&&x.employmentId===row.employmentId&&x.startDate<=end&&(x.endDate??'9999-12-31')>=row.startDate))throw new Error('동일 직원의 휴직기간이 중복됩니다.')
+      const old=existing.find(r=>r.id===row.id)
+      const runs=(await requestToPromise<PayrollRun[]>(tx.objectStore(STORES.payrollRuns).getAll())).filter(r=>(r.period>=row.startDate.slice(0,7)&&r.period<=end.slice(0,7))||(old&&r.period>=old.startDate.slice(0,7)&&r.period<=(old.endDate??'9999-12-31').slice(0,7)))
+      if(runs.some(r=>['CONFIRMED','CLOSED','PAID'].includes(r.status)))throw new Error('확정·마감월 휴직정보는 변경할 수 없습니다.')
+      tx.objectStore(STORES.leaveCases).put({...row,updatedAt:new Date().toISOString()})
+      runs.forEach(r=>tx.objectStore(STORES.payrollRuns).put({...r,status:'DRAFT',attendanceStale:true,validatedAt:null,calculatedAt:null}))
+      const ids=new Set(runs.map(r=>r.id));const req=tx.objectStore(STORES.payrollResults).openCursor();req.onsuccess=()=>{const c=req.result;if(c){if(ids.has(c.value.runId))c.delete();c.continue()}}
+      tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'EDIT_LEAVE_CASE',entityType:'LEAVE_CASE',entityId:row.id,detail:JSON.stringify({before:existing.find(x=>x.id===row.id),after:row})})
+    })
   }
 
   async restorePayrollSettings():Promise<void> {
@@ -1149,16 +1218,18 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   }
   async savePayrollSettings(items:PayrollItemMaster[]):Promise<void> {
     items.forEach(validateItemCalculation)
-    const before=await this.listPayrollItemMasters(),runs=(await this.listPayrollRuns()).filter(r=>!['CONFIRMED','CLOSED','PAID'].includes(r.status)),now=new Date().toISOString()
-    const affected=new Set(runs.map(r=>r.id))
-    const tx=this.requireDb().transaction([STORES.payrollItemMasters,STORES.payrollSettingsHistory,STORES.payrollRuns,STORES.payrollResults,STORES.auditLogs],'readwrite');const done=txDone(tx)
-    tx.objectStore(STORES.payrollSettingsHistory).put({id:'previous',items:before})
-    items.forEach(i=>tx.objectStore(STORES.payrollItemMasters).put({...i,updatedAt:now}))
-    runs.forEach(r=>tx.objectStore(STORES.payrollRuns).put({...r,itemSnapshot:undefined,itemOverrides:undefined,status:'DRAFT',calculatedAt:null,validatedAt:null}))
-    const cursor=tx.objectStore(STORES.payrollResults).openCursor();cursor.onsuccess=()=>{const c=cursor.result;if(c){if(affected.has(c.value.runId))c.delete();c.continue()}}
-    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'UPDATE_PAYROLL_SETTINGS',entityType:'PAYROLL_SETTINGS',entityId:'master',detail:JSON.stringify({before,after:items})})
-    await done
+    const before = await this.listPayrollItemMasters()
+    return this.writeTransaction([STORES.payrollItemMasters, STORES.payrollSettingsHistory, STORES.payrollRuns, STORES.payrollResults, STORES.auditLogs], async tx => {
+      const runs=(await requestToPromise<PayrollRun[]>(tx.objectStore(STORES.payrollRuns).getAll())).filter(r=>!['CONFIRMED','CLOSED','PAID'].includes(r.status)),now=new Date().toISOString()
+      const affected=new Set(runs.map(r=>r.id))
+      tx.objectStore(STORES.payrollSettingsHistory).put({id:'previous',items:before})
+      items.forEach(i=>tx.objectStore(STORES.payrollItemMasters).put({...i,updatedAt:now}))
+      runs.forEach(r=>tx.objectStore(STORES.payrollRuns).put({...r,itemSnapshot:undefined,itemOverrides:undefined,status:'DRAFT',calculatedAt:null,validatedAt:null}))
+      const cursor=tx.objectStore(STORES.payrollResults).openCursor();cursor.onsuccess=()=>{const c=cursor.result;if(c){if(affected.has(c.value.runId))c.delete();c.continue()}}
+      tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'UPDATE_PAYROLL_SETTINGS',entityType:'PAYROLL_SETTINGS',entityId:'master',detail:JSON.stringify({before,after:items})})
+    })
   }
+
   async listAttendanceMonthlySummaries(): Promise<AttendanceMonthlySummary[]> {
     return (await this.getAll<AttendanceMonthlySummary>(STORES.attendanceMonthlySummaries)).sort((a,b)=>b.period.localeCompare(a.period))
   }
@@ -1300,6 +1371,9 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   }
 
   async importDatabase(payload: DatabaseExport): Promise<void> {
+    payload = structuredClone(payload)
+    if (!payload?.data?.company || typeof payload.exportedAt !== 'string') throw new Error('올바른 HR Simulator 백업 파일이 아닙니다.')
+    let bundle: SeedBundle
     const raw=payload as unknown as {schemaVersion:number;exportedAt:string;data:Record<string,unknown>}
     if (raw.schemaVersion===1) {
       const legacy=raw.data as unknown as {
@@ -1327,7 +1401,7 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
         resumes:fresh.resumes.filter((v)=>employmentIds.has(v.employmentId)), attendanceSettings:fresh.attendanceSettings.filter((v)=>employmentIds.has(v.employmentId)),
         managerRelationships:fresh.managerRelationships.filter((v)=>employmentIds.has(v.employmentId)),
       }
-      await this.seed(upgraded)
+      bundle = upgraded
     } else {
       if (![2,3,4,5,6,SCHEMA_VERSION].includes(raw.schemaVersion)) throw new Error(`지원하지 않는 스키마 버전입니다: ${raw.schemaVersion}`)
       if (!payload.data?.company || !Array.isArray(payload.data.persons)) throw new Error('올바른 HR Simulator 백업 파일이 아닙니다.')
@@ -1336,24 +1410,30 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
         const fresh=createSeedBundle()
         const freshAttendance=new Map(fresh.attendanceMonthlySummaries.map(row=>[row.id,row]))
         const legacyAttendance=(legacy.attendanceMonthlySummaries??fresh.attendanceMonthlySummaries).map(row=>({...(freshAttendance.get(row.id)??{}),...row})) as AttendanceMonthlySummary[]
-        await this.seed({...fresh,...legacy,
+        bundle = {...fresh,...legacy,
           payrollRuns:legacy.payrollRuns??[],payrollEntries:legacy.payrollEntries??[],payrollResults:legacy.payrollResults??[],
           attendanceMonthlySummaries:legacyAttendance,
           annualLeaveLedgers:legacy.annualLeaveLedgers??fresh.annualLeaveLedgers,dailyWorkers:legacy.dailyWorkers??fresh.dailyWorkers,
           dailyWorkRecords:legacy.dailyWorkRecords??fresh.dailyWorkRecords,retirementSettlements:legacy.retirementSettlements??[],
           yearEndTaxCases:legacy.yearEndTaxCases??fresh.yearEndTaxCases,payrollItemMasters:legacy.payrollItemMasters??fresh.payrollItemMasters,
           militaryServiceProfiles:legacy.militaryServiceProfiles??fresh.militaryServiceProfiles,
-        } as SeedBundle)
+        } as SeedBundle
       } else {
-        await this.seed(payload.data)
+        bundle = payload.data
       }
     }
-    await this.repairEmploymentCompanies()
-    await this.put(STORES.meta,{id:'importedData',value:'1'})
-    await this.persistSelectionUpgrade();await this.initializeOperations()
-    await this.put(STORES.auditLogs,{
-      id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'IMPORT_DATABASE',
-      entityType:'DATABASE',entityId:(await this.getCompany()).id,detail:`${raw.exportedAt} 백업을 가져왔습니다.`,
-    } satisfies AuditLog)
+    this.validateRestoreBundle(bundle)
+    // All follow-up requests use the same transaction as the replacement.
+    await this.writeTransaction(Object.values(STORES), async tx => {
+      this.writeSeed(tx, bundle)
+      await this.repairEmploymentCompanies(tx)
+      tx.objectStore(STORES.meta).put({id:'importedData', value:'1'})
+      await this.persistSelectionUpgrade(tx)
+      await this.initializeOperations(tx)
+      tx.objectStore(STORES.auditLogs).put({
+        id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'IMPORT_DATABASE',
+        entityType:'DATABASE',entityId:bundle.company.id,detail:`${raw.exportedAt} 백업을 가져왔습니다.`,
+      } satisfies AuditLog)
+    })
   }
 }
