@@ -1,0 +1,293 @@
+[
+ {
+  "name": "normal initialization is idempotent",
+  "input": {},
+  "steps": "initialize new repository twice",
+  "expected": "All exported records including audit timestamps unchanged",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "employee registration",
+  "input": {
+   "fullName": "검증직원",
+   "englishName": "Validation User",
+   "hanjaName": "",
+   "birthDate": "1995-01-01",
+   "employeeNumber": "PR7-001",
+   "hireDate": "2026-09-01",
+   "annualSalary": 36000000,
+   "organizationId": "ORG-000",
+   "grade": "사원",
+   "job": "개발",
+   "gender": "F",
+   "mobile": "",
+   "nameReviewed": false
+  },
+  "steps": "registerEmployee, export linked records",
+  "expected": "Exactly one Person, Employment, Assignment and Compensation added; companyId set",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "duplicate employee number rejected",
+  "input": {
+   "fullName": "검증직원",
+   "englishName": "Validation User",
+   "hanjaName": "",
+   "birthDate": "1995-01-01",
+   "employeeNumber": "PR7-001",
+   "hireDate": "2026-09-01",
+   "annualSalary": 36000000,
+   "organizationId": "ORG-000",
+   "grade": "사원",
+   "job": "개발",
+   "gender": "F",
+   "mobile": "",
+   "nameReviewed": false
+  },
+  "steps": "register same employeeNumber",
+  "expected": "Full data unchanged",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "missing company repair and repeated initialization",
+  "input": {
+   "employmentId": "EMPLOY-f00e33ac-1dc9-42cb-9c46-b68bfd3f144e"
+  },
+  "steps": "remove companyId only, initialize twice",
+  "expected": "Only companyId and one repair audit change; histories and PKs unchanged",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "ambiguous organization stays unresolved",
+  "input": {
+   "employmentId": "EMPLOY-f00e33ac-1dc9-42cb-9c46-b68bfd3f144e"
+  },
+  "steps": "remove companyId; change assignment organization to missing ID; initialize twice",
+  "expected": "Original employment remains; single stable review audit; no invented company",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "personnel transfer valid and invalid",
+  "input": {
+   "employmentId": "EMPLOY-f00e33ac-1dc9-42cb-9c46-b68bfd3f144e",
+   "effectiveDate": "2026-09-02"
+  },
+  "steps": "transfer to existing organization, reject pre-hire date",
+  "expected": "New assignment preserves old ID with previous-day end; invalid input changes nothing",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "same-day personnel action cannot create reversed interval",
+  "input": {
+   "employmentId": "EMPLOY-f00e33ac-1dc9-42cb-9c46-b68bfd3f144e",
+   "effectiveDate": "2026-09-02"
+  },
+  "steps": "submit promotion on current assignment start date",
+  "expected": "Reject without creating effectiveTo before effectiveFrom",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "payroll targets include new employment",
+  "input": {
+   "period": "2026-09",
+   "payDate": "2026-09-25"
+  },
+  "steps": "createRun and inspect entries",
+  "expected": "New employment matches entry and Person, no duplicate entries",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "attendance change and allowance sync",
+  "input": {
+   "employmentId": "EMPLOY-f00e33ac-1dc9-42cb-9c46-b68bfd3f144e",
+   "period": "2026-09",
+   "overtimeHours": 10
+  },
+  "steps": "save monthly attendance; invalid batch; syncAttendance; calculate",
+  "expected": "Invalid batch atomic; overtime input 10; positive overtime calculated",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "validation confirmation close and source edit protection",
+  "input": {
+   "runId": "September run"
+  },
+  "steps": "validate, confirm, reject premature close, close attendance, close payroll; edit name",
+  "expected": "Closed entries/results unchanged; recalculation and attendance edit rejected",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "withholding generation and invalid draft",
+  "input": {
+   "period": "2026-09"
+  },
+  "steps": "generate draft from closed results; validate reviewed draft; generate HTML; reject unreviewed",
+  "expected": "A01 totals match included results; company rendered; no source mutation",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "retirement calculation and locked edit",
+  "input": {
+   "employee": "existing terminated employee"
+  },
+  "steps": "calculateRetirement; confirm; attempt recalculation and missing employment",
+  "expected": "Positive service days; confirmed result unchanged after errors",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "year-end settlement save and validation",
+  "input": {
+   "employmentId": "EMPLOY-f00e33ac-1dc9-42cb-9c46-b68bfd3f144e",
+   "taxYear": 2026,
+   "withheld": 100000,
+   "finalTax": 75000
+  },
+  "steps": "save; verify derived settlement; reject invalid employee; confirm; reject edit",
+  "expected": "Settlement -25000; all error paths preserve stores",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "ATS rejects unaccepted offer",
+  "input": {
+   "candidateId": "CAND-0",
+   "offerId": "PR7-OFFER",
+   "employeeNumber": "PR7-ATS",
+   "birthDate": "1994-01-01",
+   "gender": "M",
+   "nationality": "대한민국",
+   "workLocation": "본사"
+  },
+  "steps": "convertCandidate with DRAFT offer",
+  "expected": "All stores unchanged",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "ATS conversion and duplicate conversion",
+  "input": {
+   "candidateId": "CAND-0",
+   "offerId": "PR7-OFFER",
+   "employeeNumber": "PR7-ATS",
+   "birthDate": "1994-01-01",
+   "gender": "M",
+   "nationality": "대한민국",
+   "workLocation": "본사"
+  },
+  "steps": "convert accepted candidate; repeat conversion",
+  "expected": "One Person and Employment; company and candidate links; duplicate causes no writes",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "ATS rejects organization from another company",
+  "input": {
+   "organizationId": "PR7-FOREIGN-ORG"
+  },
+  "steps": "convert accepted candidate with foreign company organization",
+  "expected": "Reject without Person or Employment writes",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "personnel rejects nonexistent organization",
+  "input": {
+   "employmentId": "EMPLOY-f00e33ac-1dc9-42cb-9c46-b68bfd3f144e",
+   "organizationId": "missing-org"
+  },
+  "steps": "submit immediate organization transfer",
+  "expected": "Reject without assignment/event/audit changes",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "daily registration cannot overwrite existing Person",
+  "input": {
+   "personId": "PER-00001"
+  },
+  "steps": "createDailyWorker with existing regular Person ID",
+  "expected": "Reject and preserve original Person and linked payroll",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "daily registration creates separate linked person",
+  "input": {
+   "name": "일용검증",
+   "birthDate": "1990-01-01",
+   "mobile": "",
+   "organizationId": "ORG-000",
+   "job": "IT 행사",
+   "status": "ACTIVE",
+   "startDate": "2026-09-01",
+   "endDate": null,
+   "dailyRate": 180000,
+   "bankName": "",
+   "accountNumberMasked": ""
+  },
+  "steps": "createDailyWorker",
+  "expected": "New daily worker and Person; no Employment mutation",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "paid payroll remains immutable",
+  "input": {
+   "period": "2026-09"
+  },
+  "steps": "mark closed run paid; edit source name; attempt calculate, validate, delete run, edit entry",
+  "expected": "Paid state retained; entry and result snapshots unchanged",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "registration mid-write failure rolls back",
+  "input": {},
+  "steps": "inject synchronous Assignment.add error after Person and Employment requests",
+  "expected": "No partial Person/Employment/Assignment/Compensation or audit saved",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "company repair preserves nonempty closed payroll and attendance",
+  "input": {
+   "employmentId": "EMPLOY-f00e33ac-1dc9-42cb-9c46-b68bfd3f144e",
+   "period": "2026-09"
+  },
+  "steps": "remove companyId; reopen after closed payroll exists",
+  "expected": "Only companyId and repair audit change; entries/results/attendance and all IDs preserved",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "missing Person and conflicting organization never inferred",
+  "input": {},
+  "steps": "register isolated employee; remove companyId; point Person to missing ID; then conflicting organization",
+  "expected": "No company invention; stable review record; other histories preserved",
+  "status": "PASS",
+  "error": ""
+ },
+ {
+  "name": "multiple companies do not cause arbitrary repair",
+  "input": {
+   "employmentId": "EMPLOY-f00e33ac-1dc9-42cb-9c46-b68bfd3f144e",
+   "companyCount": 2
+  },
+  "steps": "add second company; remove companyId; reopen",
+  "expected": "Missing company preserved; stable review marker available",
+  "status": "PASS",
+  "error": ""
+ }
+]

@@ -1,0 +1,12 @@
+{
+  "environment": "fault injection in fake-indexeddb, synthetic records",
+  "confirmation": {
+    "status": "CONFIRMED",
+    "confirmationLog": false
+  },
+  "attendance": {
+    "confirmedRows": 336,
+    "monthClosed": false
+  },
+  "monthClosedAfterRetry": true
+}

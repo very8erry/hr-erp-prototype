@@ -1,0 +1,27 @@
+@startuml
+' v1.0 · 2026-11-19 · b4aeb300270a62273d3d5f0c2fea87f2a09ba800
+' 컴포넌트와 저장 경계 | App.tsx:35–37 · hrService.ts · payrollService.ts · indexedDb.ts:161
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 15
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam monochrome false
+skinparam ArrowColor #156C69
+skinparam defaultTextAlignment center
+skinparam roundcorner 6
+package "Browser" {
+[Core HR UI] as hr
+[Payroll / WFM / ATS UI] as ui
+[HrService] as hs
+[PayrollService] as ps
+[IndexedDbHrRepository] as repo
+[payrollRules] as rules
+database "IndexedDB v7" as db
+hr ..> hs
+ui ..> ps
+hs ..> repo
+ps ..> repo
+repo ..> rules : calculatePayrollEntry
+repo ..> db : transaction
+}
+@enduml

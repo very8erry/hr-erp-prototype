@@ -1,0 +1,25 @@
+@startuml
+' v1.0 · 2026-11-19 · b4aeb300270a62273d3d5f0c2fea87f2a09ba800
+' 배포와 데이터 위치 | deploy.yml · vite.config.ts · DataToolbar.tsx:14
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 15
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam monochrome false
+skinparam ArrowColor #156C69
+skinparam defaultTextAlignment center
+skinparam roundcorner 6
+node "GitHub Actions" as build
+node "GitHub Pages" as pages
+node "사용자 기기" {
+node "브라우저 프로필" {
+artifact "React / Vite" as app
+database "IndexedDB" as db
+}
+artifact "백업 파일" as bak
+}
+build --> pages : dist
+pages --> app : static files
+app --> db : read / write
+app --> bak : export
+@enduml

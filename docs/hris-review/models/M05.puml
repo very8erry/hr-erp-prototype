@@ -1,0 +1,27 @@
+@startuml
+' v1.0 · 2026-11-19 · b4aeb300270a62273d3d5f0c2fea87f2a09ba800
+' 근태 수정 후 급여 검증 | AttendancePage.tsx:105 · PayrollPage.tsx:127–128 · A01 재현
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 15
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam monochrome false
+skinparam ArrowColor #156C69
+skinparam defaultTextAlignment center
+skinparam roundcorner 6
+start
+:근태 수정·저장;
+if (수당 반영 선택?) then (예)
+:Entry 시간 갱신;
+else (아니오)
+:기존 Entry 시간 유지;
+endif
+:검증 요청 및 전체 Entry 재계산;
+if (계산 오류 0건?) then (예)
+:VALIDATED;
+else (아니오)
+:CALCULATED 유지;
+:원천·입력 재검토;
+endif
+stop
+@enduml

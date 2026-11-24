@@ -1,0 +1,149 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> hr-training-simulator@0.7.9 prebuild
+> npm run verify:release
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> hr-training-simulator@0.7.9 verify:release
+> node scripts/verify-release.mjs
+
+✅ 다운로드 팝업·샘플
+✅ 확정 저장·잠금
+✅ 급여 조회 버튼·일괄수정 재확인
+✅ 근태 합계 행·요약박스 제거
+✅ 화면·파일 공통 급여 열
+✅ 개인 다운로드·일괄 수정
+✅ 테이블 내부 가로 스크롤
+✅ 일용직 수당·파일 재입력
+✅ 보고서 메뉴 이동
+✅ 수기 근태·캘린더
+✅ CSV/XLSX/JSON 공통 양식
+✅ 급여 일시적용·설정 복원
+✅ v7 마이그레이션
+✅ GitHub Pages 상대 경로
+✅ package/version 일치
+✅ 브라우저 title 버전 일치
+✅ 근태 활성 메뉴
+✅ 급여 활성 메뉴
+✅ 일용직 활성 메뉴
+✅ 근태/급여 disabled 잔존 없음
+✅ Payroll 필수 탭
+✅ WFM 필수 탭
+✅ WFM 필터
+✅ 초록 버전 안내 제거·버전 식별 유지
+✅ 대시보드 조회대상 없음
+✅ Core HR 검색 드롭다운·퇴사일
+✅ 연차 개별·일괄 저장
+✅ 근태 일괄 수정·휴가 구간
+✅ 정산 수기·파일 재입력
+✅ macOS 터미널 실행
+✅ 5173 strictPort
+✅ Finder 실행파일 제거
+✅ 구버전 Build 문자열 없음
+PASS real CSV writer→reader Korean numeric/text round trip
+PASS real XLSX writer→reader Korean numeric/text round trip
+PASS real JSON writer→reader Korean numeric/text round trip
+PASS CSV shared UI column order, payroll/daily value edit and computed-field isolation
+PASS XLSX shared UI column order, payroll/daily value edit and computed-field isolation
+PASS JSON shared UI column order, payroll/daily value edit and computed-field isolation
+PASS real CSV annual/day-interval/daily-master/manual-settlement edit and shared order
+PASS real XLSX annual/day-interval/daily-master/manual-settlement edit and shared order
+PASS real JSON annual/day-interval/daily-master/manual-settlement edit and shared order
+PASS v5→v6 migration preserves records and does not invent clock data
+PASS temporary settings survive validation; reset preserves master
+PASS atomic invalid import and payroll invalidation after attendance edit
+PASS Korean payroll batch import is atomic
+PASS selective payroll batch edit, daily allowance recalculation and atomic invalid batch
+PASS attendance work/leave intervals, annual individual/batch persistence, cross-month atomic import, salary/insurance overrides and manual settlements
+PASS clock/night/holiday overlap and Korean CSV round trip
+PASS daily small-tax exemption and July pension ceiling
+PASS settings restoration and approved leave payroll/insurance treatment
+PASS closed payroll cannot be recalculated or modified
+PASS full backup preserves leave intervals, annual/manual settlements/filing overrides and new stores
+PASS atomic confirmation, all five ledger locks, daily/master/delete/calculate guards and backup preservation
+PASS rendered annual/attendance/payroll manual controls and shared table order; dropdown semantics, termination column, compact/no-wrap CSS and banner removal
+PASS confirmation color/disabled controls, plain year, row estimate placement, sample buttons and daily-state batch options
+PASS batch payroll shows actual existing individual allowances; mixed values stay distinct
+PASS actual formula/manual payroll calculation, persistence/atomic rejection/restore, stale snapshot invalidation, paid lifecycle and locks, leave/hire/termination export compatibility, rendered daily single-row controls/settings/native scrollbar
+PASS initialization clears actual confirmed rows and daily/month closures
+PASS monthly/yearly unique headcounts, deduction reconciliation, recorded-day categories, missing-day handling, dashboard chart markup, shared identity order, payroll summary location, report-only download, reset remount and grade freeze
+PASS 646 contiguous NTS brackets, 2025/2026 child credits and pay-date boundary, withholding ratio, numeric/date sorting, interview overlap, ICS timezone/cancellation, consent, webhook acknowledgment/failure/idempotency, ATS save/reset
+PASS real summary Excel writer→reader: visible column order, current sort order, numeric cells, summed headcounts, year sheet, total style and freeze
+PASS v074: exclusive sorting/freeze UI, 90-day maternity with 45 postnatal days, 20-day spouse leave, paid/unpaid sick/absence/annual/training/care, holidays, unique cases, attachment bytes/size, workforce types, summary run eligibility
+PASS v075 names/registration persistence and duplicate/review guards; agency isolation; HWP form code totals/refund validation and stored backup; duplicate monthly memo removed with source note intact; filled original-template HTML
+PASS schedule domain: payroll stages/business offsets/manual protection, overlap/month-year bars, delay, independent completion/evidence, leave reply deadlines, split hours and baseline policies
+PASS planning review: no pre-approval changes; idempotent proposals; partial approval and repeat protection; stale-source re-review; payroll date gate; canonical work-rule workflow in both directions; posted Draft guard; actual DOCX body reading; immutable version/attachment references and seed safety; separate delivery/receipt/training/consent; backup persistence; source foundations preserved
+PASS v077: populated 12-month operational schedules, foundation preservation, repeat/idempotency/delete/stale guards; explicit formulas and configurable night rate; conditional non-tax caps and 2026 childcare; worksheet/settings round trip; issue journeys and document review guards; removed review/example UI
+PASS v077 CSV settings + acquisition/loss/separation real writer/reader round trip
+PASS v077 XLSX settings + acquisition/loss/separation real writer/reader round trip
+PASS v077 JSON settings + acquisition/loss/separation real writer/reader round trip
+PASS v078: safe/idempotent company migration, anniversary calendar linkage, topic/day projection, employee occupation/reason sources, annual promotion stages, exact NHIS 39/22 columns, headerless XLSX and zero-prefixed ID round trip, calendar/list XLSX, compact/filter UI contracts
+PASS v079: importance survives regeneration; insurance eligibility and occupation edits persist; overtime multiplier and taxable excess reconcile; applicant import and keyword review
+PASS registration company, required links, concurrent duplicate prevention, same-name isolation, failed write preservation
+PASS legacy company inference, ambiguous company preservation, backup restore preserves payroll and people
+PASS synchronous restore failure rolls back all cleared stores
+PASS non-mutating orphan, duplicate payroll and overlapping-history diagnostics
+PASS v1 unknown-person restore refused without silent person deletion
+PASS normal initialization is idempotent 
+PASS employee registration 
+PASS duplicate employee number rejected 
+PASS missing company repair and repeated initialization 
+PASS ambiguous organization stays unresolved 
+PASS personnel transfer valid and invalid 
+PASS same-day personnel action cannot create reversed interval 
+PASS payroll targets include new employment 
+PASS attendance change and allowance sync 
+PASS validation confirmation close and source edit protection 
+PASS withholding generation and invalid draft 
+PASS retirement calculation and locked edit 
+PASS year-end settlement save and validation 
+PASS ATS rejects unaccepted offer 
+PASS ATS conversion and duplicate conversion 
+PASS ATS rejects organization from another company 
+PASS personnel rejects nonexistent organization 
+PASS daily registration cannot overwrite existing Person 
+PASS daily registration creates separate linked person 
+PASS paid payroll remains immutable 
+PASS registration mid-write failure rolls back 
+PASS company repair preserves nonempty closed payroll and attendance 
+PASS missing Person and conflicting organization never inferred 
+PASS multiple companies do not cause arbitrary repair 
+PASS same-day legacy schedules preserved and held, repeated initialization stable
+PASS changed employment status held
+PASS changed effective period held
+PASS missing target organization held
+PASS normal due event applies exactly once
+PASS immediate action cannot overwrite same-day reservation
+PASS concurrent reservation creation serialized
+PASS stale attendance rejected with all records preserved
+PASS concurrent attendance updates serialize without lost update
+PASS changed source organization held without history modification
+PASS intervening immediate action makes reservation require review
+
+Release verification passed: v0.7.9
+
+> hr-training-simulator@0.7.9 build
+> tsc -b && vite build
+
+vite v7.1.7 building for production...
+transforming...
+✓ 2115 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) /workspace/scratch/02713d7b5f95/source/src/domain/masterEdit.ts is dynamically imported by /workspace/scratch/02713d7b5f95/source/src/infrastructure/db/indexedDb.ts but also statically imported by /workspace/scratch/02713d7b5f95/source/src/modules/core-hr/MasterEditor.tsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/index.html                              0.54 kB │ gzip:   0.40 kB
+dist/assets/pdf.worker.min-iDqQPrd3.mjs  1,232.30 kB
+dist/assets/index-CizYIA8g.css              92.86 kB │ gzip:  20.13 kB
+dist/assets/pdf.worker.min-Bol1FlMW.js       0.09 kB │ gzip:   0.11 kB
+dist/assets/pdf-B88xoa0-.js                415.96 kB │ gzip: 123.51 kB
+dist/assets/exceljs.min-D3voXTfe.js        939.85 kB │ gzip: 271.19 kB
+dist/assets/index-BWAnJbri.js            1,885.94 kB │ gzip: 874.42 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 9.92s

@@ -1,0 +1,9 @@
+{
+  "before": "custom@fixture.invalid",
+  "after": "custom@lemonpai314.com",
+  "expected": "custom@fixture.invalid",
+  "mobilePreserved": true,
+  "schemaFrom": 6,
+  "schemaTo": 7,
+  "requestedV078MarkerBefore": false
+}
