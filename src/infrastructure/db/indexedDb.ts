@@ -942,10 +942,22 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
   async saveCompanyInfo(info:CompanyInfo){
     if(!info.name.trim()||!info.address.trim()||!info.representative.trim()||!/^\d{3}-?\d{2}-?\d{5}$/.test(info.businessNumber)||!/^\d{11}$/.test(info.managementNumber)||!/^\d{2,3}-\d{3,4}-\d{4}$/.test(info.telephone)||!/^\d{3}$/.test(info.occupationCode)||![1,3,5].includes(info.insuranceCode)||![1,2,3].includes(info.departureCode))throw new Error('회사정보의 필수값·번호 형식을 확인하세요. 회사 전화번호는 02-0000-0000 형태로 입력하세요.')
     if(info.foundedOn&&!validDate(info.foundedOn))throw new Error('회사설립일을 확인하세요.');if(info.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email))throw new Error('회사 이메일 형식을 확인하세요.');for(const rate of [info.industrialAccidentEmployerRate,info.employmentInsuranceEmployerAdditionalRate])if(rate!=null&&(!Number.isFinite(rate)||rate<0||rate>100))throw new Error('보험요율 범위는 0~100%입니다.');
-    const c=await this.getCompany();await this.put(STORES.company,{...c,name:info.name,reportingInfo:info})
+    await this.updateCompanyWithAudit('UPDATE_COMPANY_INFO',c=>({...c,name:info.name,reportingInfo:info}))
+  }
+  private async updateCompanyWithAudit(action:string,update:(company:Company)=>Company){
+    const tx=this.requireDb().transaction([STORES.company,STORES.auditLogs],'readwrite'),done=txDone(tx)
+    try {
+      const before=(await requestToPromise<Company[]>(tx.objectStore(STORES.company).getAll()))[0]
+      if(!before)throw new Error('회사정보를 찾을 수 없습니다.')
+      const after=update(before)
+      tx.objectStore(STORES.company).put(after)
+      const snapshot=(c:Company)=>action==='UPDATE_COMPANY_INFO'?c.reportingInfo:c.settlements
+      tx.objectStore(STORES.auditLogs).add({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action,entityType:'COMPANY',entityId:before.id,detail:JSON.stringify({before:snapshot(before),after:snapshot(after)})})
+      await done
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
   async settlements():Promise<SettlementSetting[]>{return (await this.getCompany()).settlements??defaultSettlements}
-  async saveSettlements(rows:SettlementSetting[]){const c=await this.getCompany();await this.put(STORES.company,{...c,settlements:rows})}
+  async saveSettlements(rows:SettlementSetting[]){await this.updateCompanyWithAudit('UPDATE_SETTLEMENT_SETTINGS',c=>({...c,settlements:rows}))}
   async isAttendanceClosed(period:string){return !!(await this.getCompany()).attendanceClosed?.[period]}
   async closeAttendance(period:string){
     if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(period))throw new Error('마감월을 선택하세요.')
@@ -1127,19 +1139,22 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     if(!/^\d{4}-\d{2}-\d{2}$/.test(row.startDate)||new Date(row.startDate+'T00:00:00Z').toISOString().slice(0,10)!==row.startDate||(row.endDate&&(!/^\d{4}-\d{2}-\d{2}$/.test(row.endDate)||new Date(row.endDate+'T00:00:00Z').toISOString().slice(0,10)!==row.endDate)))throw new Error('휴직 날짜 형식을 확인하세요.')
     for(const n of [row.healthPremiumOverride,row.employmentBaseOverride])if(n!==null&&(!Number.isFinite(n)||n<0))throw new Error('보험 고지값은 0 이상의 숫자여야 합니다.')
     if(row.endDate&&row.endDate<row.startDate)throw new Error('휴직 종료일을 확인하세요.')
-    if(!(await this.listEmployees()).some(e=>e.employmentId===row.employmentId))throw new Error('직원을 찾을 수 없습니다.')
-    const existing=await this.listLeaveCases()
-    const end=row.endDate??'9999-12-31'
+    const tx=this.requireDb().transaction([STORES.employments,STORES.leaveCases,STORES.payrollRuns,STORES.payrollResults,STORES.auditLogs],'readwrite');const done=txDone(tx)
+    try {
+    if(!await requestToPromise(tx.objectStore(STORES.employments).get(row.employmentId)))throw new Error('직원을 찾을 수 없습니다.')
+    const existing=await requestToPromise<LeaveCase[]>(tx.objectStore(STORES.leaveCases).getAll())
+    const end=row.endDate??'9999-12-31',old=existing.find(r=>r.id===row.id)
+    if(old&&old.updatedAt!==row.updatedAt)throw new Error('휴직정보가 변경되었습니다. 새로 조회하세요.')
     if(existing.some(x=>x.id!==row.id&&x.employmentId===row.employmentId&&x.startDate<=end&&(x.endDate??'9999-12-31')>=row.startDate))throw new Error('동일 직원의 휴직기간이 중복됩니다.')
-    const old=existing.find(r=>r.id===row.id)
-    const runs=(await this.listPayrollRuns()).filter(r=>(r.period>=row.startDate.slice(0,7)&&r.period<=end.slice(0,7))||(old&&r.period>=old.startDate.slice(0,7)&&r.period<=(old.endDate??'9999-12-31').slice(0,7)))
+    const runs=(await requestToPromise<PayrollRun[]>(tx.objectStore(STORES.payrollRuns).getAll())).filter(r=>(r.period>=row.startDate.slice(0,7)&&r.period<=end.slice(0,7))||(old&&r.period>=old.startDate.slice(0,7)&&r.period<=(old.endDate??'9999-12-31').slice(0,7)))
     if(runs.some(r=>['CONFIRMED','CLOSED','PAID'].includes(r.status)))throw new Error('확정·마감월 휴직정보는 변경할 수 없습니다.')
-    const tx=this.requireDb().transaction([STORES.leaveCases,STORES.payrollRuns,STORES.payrollResults,STORES.auditLogs],'readwrite');const done=txDone(tx)
-    tx.objectStore(STORES.leaveCases).put({...row,updatedAt:new Date().toISOString()})
+    const now=new Date(Math.max(Date.now(),Date.parse(old?.updatedAt??'')+1||0)).toISOString()
+    tx.objectStore(STORES.leaveCases).put({...row,updatedAt:now})
     runs.forEach(r=>tx.objectStore(STORES.payrollRuns).put({...r,status:'DRAFT',attendanceStale:true,validatedAt:null,calculatedAt:null}))
     const ids=new Set(runs.map(r=>r.id));const req=tx.objectStore(STORES.payrollResults).openCursor();req.onsuccess=()=>{const c=req.result;if(c){if(ids.has(c.value.runId))c.delete();c.continue()}}
-    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'EDIT_LEAVE_CASE',entityType:'LEAVE_CASE',entityId:row.id,detail:JSON.stringify({before:existing.find(x=>x.id===row.id),after:row})})
+    tx.objectStore(STORES.auditLogs).put({id:`AUD-${crypto.randomUUID()}`,occurredAt:now,actor:'HR_ADMIN',action:'EDIT_LEAVE_CASE',entityType:'LEAVE_CASE',entityId:row.id,detail:JSON.stringify({before:old,after:row})})
     await done
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
   }
 
   async restorePayrollSettings():Promise<void> {
