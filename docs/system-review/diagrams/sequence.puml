@@ -1,0 +1,25 @@
+@startuml
+' v1.0 b4aeb300270a62273d3d5f0c2fea87f2a09ba800 R-01~17
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam monochrome true
+participant "등록 UI" as UI
+participant HrService as S
+participant IndexedDbHrRepository as R
+database IndexedDB as DB
+UI -> S : registerEmployee(input)
+S -> R : registerEmployee(input)
+R -> R : 이름·일자·금액 검사 및 Person 생성
+R -> DB : readwrite / 조직·회사·사번 조회
+alt 소속 및 사번 유효
+R -> DB : 고용·배치·보상·로그 추가
+DB --> R : 트랜잭션 완료
+R --> S : employmentId
+S --> UI : 완료
+else 중복 또는 소속 오류
+R -> DB : abort
+R --> S : 오류
+S --> UI : 오류 전달
+end
+@enduml

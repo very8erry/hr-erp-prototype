@@ -1,0 +1,17 @@
+@startuml
+' v1.0 b4aeb300270a62273d3d5f0c2fea87f2a09ba800 R-01~17
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam monochrome true
+[직원 등록] ..> [HrService]
+[ATS 오퍼] ..> [PayrollService]
+[근태 편집] ..> [PayrollService]
+[급여 화면] ..> [PayrollService]
+[HrService] ..> [IndexedDbHrRepository]
+[PayrollService] ..> [IndexedDbHrRepository]
+[IndexedDbHrRepository] ..> [IndexedDB]
+note bottom of PayrollService
+ATS와 WFM도 호출하는 서비스
+end note
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+' v1.0 b4aeb300270a62273d3d5f0c2fea87f2a09ba800 R-01~17
+skinparam defaultFontName Noto Sans CJK KR
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam monochrome true
+node "GitHub Actions" {
+ artifact "dist" as dist
+}
+node "GitHub Pages" as pages
+node "브라우저 프로필" {
+ component "React 앱" as app
+ database "IndexedDB v7" as db
+}
+dist ..> pages : 배포
+app ..> pages : 정적 자산 요청
+app --> db : 로컬 읽기·쓰기
+@enduml
