@@ -937,7 +937,16 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     }catch(e){try{tx.abort()}catch{}await done.catch(()=>{});throw e}
   }
   async withholdingDraft(id:string){return (await this.getCompany()).withholdingDrafts?.[id]}
-  async saveWithholdingDraft(id:string,draft:import('../../modules/payroll/withholdingForm').WithholdingDraft){const c=await this.getCompany();await this.put(STORES.company,{...c,withholdingDrafts:{...c.withholdingDrafts,[id]:structuredClone(draft)}});await this.put(STORES.auditLogs,{id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'SAVE_WITHHOLDING_FORM',entityType:'PAYROLL_RUN',entityId:id,detail:'별지 제21호 신고서 작성값 저장'});}
+  async saveWithholdingDraft(id:string,draft:import('../../modules/payroll/withholdingForm').WithholdingDraft){
+    const tx=this.requireDb().transaction([STORES.company,STORES.auditLogs],'readwrite'),done=txDone(tx)
+    try {
+      const company=(await requestToPromise<Company[]>(tx.objectStore(STORES.company).getAll()))[0]
+      if(!company)throw new Error('회사정보를 찾을 수 없습니다.')
+      tx.objectStore(STORES.company).put({...company,withholdingDrafts:{...company.withholdingDrafts,[id]:structuredClone(draft)}})
+      tx.objectStore(STORES.auditLogs).put({id:crypto.randomUUID(),occurredAt:new Date().toISOString(),actor:'HR_ADMIN',action:'SAVE_WITHHOLDING_FORM',entityType:'PAYROLL_RUN',entityId:id,detail:'별지 제21호 신고서 작성값 저장'})
+      await done
+    }catch(error){try{tx.abort()}catch{}await done.catch(()=>{});throw error}
+  }
   async companyInfo():Promise<CompanyInfo>{const c=await this.getCompany();return {...defaultCompanyInfo,name:c.name,...c.reportingInfo}}
   async saveCompanyInfo(info:CompanyInfo){
     if(!info.name.trim()||!info.address.trim()||!info.representative.trim()||!/^\d{3}-?\d{2}-?\d{5}$/.test(info.businessNumber)||!/^\d{11}$/.test(info.managementNumber)||!/^\d{2,3}-\d{3,4}-\d{4}$/.test(info.telephone)||!/^\d{3}$/.test(info.occupationCode)||![1,3,5].includes(info.insuranceCode)||![1,2,3].includes(info.departureCode))throw new Error('회사정보의 필수값·번호 형식을 확인하세요. 회사 전화번호는 02-0000-0000 형태로 입력하세요.')

@@ -90,3 +90,5 @@ console.log(`\nRelease verification passed: v${version}`)
 const consistencyTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-payroll-attendance-consistency.ts')],{cwd:root,stdio:'inherit'});if(consistencyTest.status!==0)process.exit(1)
 const workflowLinks=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-workflow-links.ts')],{cwd:root,stdio:'inherit'});if(workflowLinks.status!==0)process.exit(1)
 const dashboardPayments=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-dashboard-payroll.ts')],{cwd:root,stdio:'inherit'});if(dashboardPayments.status!==0)process.exit(1)
+
+const withholdingAtomic=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-withholding-atomic.ts')],{cwd:root,stdio:'inherit'});if(withholdingAtomic.status!==0)process.exit(1)

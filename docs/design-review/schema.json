@@ -1,0 +1,5168 @@
+{
+  "Company": {
+    "source": "src/domain/types.ts",
+    "line": 16,
+    "fields": [
+      {
+        "name": "scheduleReview",
+        "optional": true,
+        "type": "import('../modules/operations/planningReview').PlanningReview",
+        "line": 17
+      },
+      {
+        "name": "withholdingDrafts",
+        "optional": true,
+        "type": "Record<string,import('../modules/payroll/withholdingForm').WithholdingDraft>",
+        "line": 19
+      },
+      {
+        "name": "recruiting",
+        "optional": true,
+        "type": "import(\"../modules/recruiting/recruiting\").RecruitingState",
+        "line": 20
+      },
+      {
+        "name": "demoPayrollVersion",
+        "optional": true,
+        "type": "number",
+        "line": 21
+      },
+      {
+        "name": "reportingInfo",
+        "optional": true,
+        "type": "import(\"../modules/payroll/companyInfo\").CompanyInfo",
+        "line": 22
+      },
+      {
+        "name": "settlements",
+        "optional": true,
+        "type": "import(\"../modules/payroll/companyInfo\").SettlementSetting[]",
+        "line": 23
+      },
+      {
+        "name": "attendanceClosed",
+        "optional": true,
+        "type": "Record<string,string>",
+        "line": 24
+      },
+      {
+        "name": "dailyClosed",
+        "optional": true,
+        "type": "Record<string,string>",
+        "line": 25
+      },
+      {
+        "name": "demoScenarioVersion",
+        "optional": true,
+        "type": "number",
+        "line": 26
+      },
+      {
+        "name": "demoHistoryVersion",
+        "optional": true,
+        "type": "number",
+        "line": 27
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 28
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 29
+      },
+      {
+        "name": "countryCode",
+        "optional": false,
+        "type": "'KR'",
+        "line": 30
+      },
+      {
+        "name": "employeeSizeBand",
+        "optional": false,
+        "type": "'300_PLUS'",
+        "line": 31
+      },
+      {
+        "name": "demoNotice",
+        "optional": false,
+        "type": "string",
+        "line": 32
+      }
+    ]
+  },
+  "Organization": {
+    "source": "src/domain/types.ts",
+    "line": 35,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 36
+      },
+      {
+        "name": "companyId",
+        "optional": false,
+        "type": "string",
+        "line": 37
+      },
+      {
+        "name": "parentId",
+        "optional": false,
+        "type": "string | null",
+        "line": 38
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 39
+      },
+      {
+        "name": "type",
+        "optional": false,
+        "type": "'COMPANY' | 'DIVISION' | 'DEPARTMENT' | 'TEAM'",
+        "line": 40
+      }
+    ]
+  },
+  "Person": {
+    "source": "src/domain/types.ts",
+    "line": 44,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 45
+      },
+      {
+        "name": "fullName",
+        "optional": false,
+        "type": "string",
+        "line": 46
+      },
+      {
+        "name": "englishName",
+        "optional": false,
+        "type": "string",
+        "line": 47
+      },
+      {
+        "name": "hanjaName",
+        "optional": false,
+        "type": "string",
+        "line": 48
+      },
+      {
+        "name": "birthDate",
+        "optional": false,
+        "type": "string",
+        "line": 49
+      },
+      {
+        "name": "gender",
+        "optional": false,
+        "type": "Gender",
+        "line": 50
+      },
+      {
+        "name": "domesticForeignType",
+        "optional": false,
+        "type": "DomesticForeignType",
+        "line": 51
+      },
+      {
+        "name": "nationality",
+        "optional": false,
+        "type": "string",
+        "line": 52
+      },
+      {
+        "name": "reportingNationality",
+        "optional": false,
+        "type": "string",
+        "line": 53
+      },
+      {
+        "name": "syntheticIdentifier",
+        "optional": false,
+        "type": "string",
+        "line": 54
+      },
+      {
+        "name": "profileImageUrl",
+        "optional": false,
+        "type": "string | null",
+        "line": 55
+      },
+      {
+        "name": "mobile",
+        "optional": false,
+        "type": "string",
+        "line": 56
+      },
+      {
+        "name": "phone",
+        "optional": false,
+        "type": "string",
+        "line": 57
+      },
+      {
+        "name": "email",
+        "optional": false,
+        "type": "string",
+        "line": 58
+      },
+      {
+        "name": "emergencyContactName",
+        "optional": false,
+        "type": "string",
+        "line": 59
+      },
+      {
+        "name": "emergencyContactPhone",
+        "optional": false,
+        "type": "string",
+        "line": 60
+      },
+      {
+        "name": "emergencyContactRelation",
+        "optional": false,
+        "type": "string",
+        "line": 61
+      }
+    ]
+  },
+  "Address": {
+    "source": "src/domain/types.ts",
+    "line": 64,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 65
+      },
+      {
+        "name": "personId",
+        "optional": false,
+        "type": "string",
+        "line": 66
+      },
+      {
+        "name": "postalCode",
+        "optional": false,
+        "type": "string",
+        "line": 67
+      },
+      {
+        "name": "addressLine1",
+        "optional": false,
+        "type": "string",
+        "line": 68
+      },
+      {
+        "name": "addressLine2",
+        "optional": false,
+        "type": "string",
+        "line": 69
+      },
+      {
+        "name": "effectiveStartDate",
+        "optional": false,
+        "type": "string",
+        "line": 70
+      },
+      {
+        "name": "effectiveEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 71
+      }
+    ]
+  },
+  "Dependent": {
+    "source": "src/domain/types.ts",
+    "line": 74,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 75
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 76
+      },
+      {
+        "name": "relation",
+        "optional": false,
+        "type": "'배우자' | '자녀' | '부' | '모' | '형제자매' | '기타'",
+        "line": 77
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 78
+      },
+      {
+        "name": "birthDate",
+        "optional": false,
+        "type": "string",
+        "line": 79
+      },
+      {
+        "name": "cohabitation",
+        "optional": false,
+        "type": "boolean",
+        "line": 80
+      },
+      {
+        "name": "disabilityStatus",
+        "optional": false,
+        "type": "boolean",
+        "line": 81
+      },
+      {
+        "name": "basicDeductionEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 82
+      },
+      {
+        "name": "childDeductionEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 83
+      },
+      {
+        "name": "effectiveStartDate",
+        "optional": false,
+        "type": "string",
+        "line": 84
+      },
+      {
+        "name": "effectiveEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 85
+      },
+      {
+        "name": "createdAt",
+        "optional": false,
+        "type": "string",
+        "line": 86
+      },
+      {
+        "name": "updatedAt",
+        "optional": false,
+        "type": "string",
+        "line": 87
+      }
+    ]
+  },
+  "Visa": {
+    "source": "src/domain/types.ts",
+    "line": 90,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 91
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 92
+      },
+      {
+        "name": "nationality",
+        "optional": false,
+        "type": "string",
+        "line": 93
+      },
+      {
+        "name": "visaType",
+        "optional": false,
+        "type": "string",
+        "line": 94
+      },
+      {
+        "name": "visaStatus",
+        "optional": false,
+        "type": "'ACTIVE' | 'EXPIRED' | 'PENDING' | 'NOT_REQUIRED'",
+        "line": 95
+      },
+      {
+        "name": "issueDate",
+        "optional": false,
+        "type": "string",
+        "line": 96
+      },
+      {
+        "name": "expiryDate",
+        "optional": false,
+        "type": "string",
+        "line": 97
+      },
+      {
+        "name": "workPermission",
+        "optional": false,
+        "type": "boolean",
+        "line": 98
+      },
+      {
+        "name": "foreignRegistrationStatus",
+        "optional": false,
+        "type": "'REGISTERED' | 'PENDING' | 'NOT_REQUIRED'",
+        "line": 99
+      },
+      {
+        "name": "foreignRegistrationNumberMasked",
+        "optional": false,
+        "type": "string",
+        "line": 100
+      },
+      {
+        "name": "passportNumberMasked",
+        "optional": false,
+        "type": "string",
+        "line": 101
+      },
+      {
+        "name": "passportExpiryDate",
+        "optional": false,
+        "type": "string",
+        "line": 102
+      },
+      {
+        "name": "effectiveStartDate",
+        "optional": false,
+        "type": "string",
+        "line": 103
+      },
+      {
+        "name": "effectiveEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 104
+      }
+    ]
+  },
+  "BankAccount": {
+    "source": "src/domain/types.ts",
+    "line": 107,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 108
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 109
+      },
+      {
+        "name": "bankName",
+        "optional": false,
+        "type": "string",
+        "line": 110
+      },
+      {
+        "name": "accountNumberMasked",
+        "optional": false,
+        "type": "string",
+        "line": 111
+      },
+      {
+        "name": "accountHolder",
+        "optional": false,
+        "type": "string",
+        "line": 112
+      },
+      {
+        "name": "isPayrollAccount",
+        "optional": false,
+        "type": "boolean",
+        "line": 113
+      },
+      {
+        "name": "effectiveStartDate",
+        "optional": false,
+        "type": "string",
+        "line": 114
+      },
+      {
+        "name": "effectiveEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 115
+      }
+    ]
+  },
+  "Employment": {
+    "source": "src/domain/types.ts",
+    "line": 118,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 119
+      },
+      {
+        "name": "personId",
+        "optional": false,
+        "type": "string",
+        "line": 120
+      },
+      {
+        "name": "companyId",
+        "optional": false,
+        "type": "string",
+        "line": 121
+      },
+      {
+        "name": "employeeNumber",
+        "optional": false,
+        "type": "string",
+        "line": 122
+      },
+      {
+        "name": "hireDate",
+        "optional": false,
+        "type": "string",
+        "line": 123
+      },
+      {
+        "name": "terminationDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 124
+      },
+      {
+        "name": "employmentType",
+        "optional": false,
+        "type": "EmploymentType",
+        "line": 125
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "EmploymentStatus",
+        "line": 126
+      }
+    ]
+  },
+  "Assignment": {
+    "source": "src/domain/types.ts",
+    "line": 129,
+    "fields": [
+      {
+        "name": "occupationCode",
+        "optional": true,
+        "type": "string",
+        "line": 130
+      },
+      {
+        "name": "occupationCodeSource",
+        "optional": true,
+        "type": "string",
+        "line": 131
+      },
+      {
+        "name": "occupationCodeManual",
+        "optional": true,
+        "type": "boolean",
+        "line": 132
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 133
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 134
+      },
+      {
+        "name": "organizationId",
+        "optional": false,
+        "type": "string",
+        "line": 135
+      },
+      {
+        "name": "grade",
+        "optional": false,
+        "type": "string",
+        "line": 136
+      },
+      {
+        "name": "title",
+        "optional": false,
+        "type": "string",
+        "line": 137
+      },
+      {
+        "name": "job",
+        "optional": false,
+        "type": "string",
+        "line": 138
+      },
+      {
+        "name": "workLocation",
+        "optional": false,
+        "type": "string",
+        "line": 139
+      },
+      {
+        "name": "effectiveFrom",
+        "optional": false,
+        "type": "string",
+        "line": 140
+      },
+      {
+        "name": "effectiveTo",
+        "optional": false,
+        "type": "string | null",
+        "line": 141
+      }
+    ]
+  },
+  "CompensationSnapshot": {
+    "source": "src/domain/types.ts",
+    "line": 144,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 145
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 146
+      },
+      {
+        "name": "annualSalary",
+        "optional": false,
+        "type": "number",
+        "line": 147
+      },
+      {
+        "name": "effectiveFrom",
+        "optional": false,
+        "type": "string",
+        "line": 148
+      },
+      {
+        "name": "effectiveTo",
+        "optional": false,
+        "type": "string | null",
+        "line": 149
+      }
+    ]
+  },
+  "TaxProfile": {
+    "source": "src/domain/types.ts",
+    "line": 152,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 153
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 154
+      },
+      {
+        "name": "residentType",
+        "optional": false,
+        "type": "ResidentType",
+        "line": 155
+      },
+      {
+        "name": "residenceCountry",
+        "optional": false,
+        "type": "string",
+        "line": 156
+      },
+      {
+        "name": "residenceCountryCode",
+        "optional": false,
+        "type": "string",
+        "line": 157
+      },
+      {
+        "name": "foreignEmployee",
+        "optional": false,
+        "type": "boolean",
+        "line": 158
+      },
+      {
+        "name": "foreignFlatTaxEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 159
+      },
+      {
+        "name": "foreignFlatTaxApplied",
+        "optional": false,
+        "type": "boolean",
+        "line": 160
+      },
+      {
+        "name": "selfBasicDeductionEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 161
+      },
+      {
+        "name": "effectiveStartDate",
+        "optional": false,
+        "type": "string",
+        "line": 162
+      },
+      {
+        "name": "effectiveEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 163
+      }
+    ]
+  },
+  "SocialInsuranceProfile": {
+    "source": "src/domain/types.ts",
+    "line": 166,
+    "fields": [
+      {
+        "name": "longTermCareReduction",
+        "optional": true,
+        "type": "boolean",
+        "line": 167
+      },
+      {
+        "name": "healthDependentRegistered",
+        "optional": true,
+        "type": "boolean",
+        "line": 168
+      },
+      {
+        "name": "basicLivelihoodReduction",
+        "optional": true,
+        "type": "boolean",
+        "line": 169
+      },
+      {
+        "name": "departureReasonCode",
+        "optional": true,
+        "type": "string",
+        "line": 171
+      },
+      {
+        "name": "departureReason",
+        "optional": true,
+        "type": "string",
+        "line": 172
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 173
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 174
+      },
+      {
+        "name": "nationalPensionEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 175
+      },
+      {
+        "name": "healthInsuranceEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 176
+      },
+      {
+        "name": "employmentInsuranceEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 177
+      },
+      {
+        "name": "industrialAccidentInsuranceEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 178
+      },
+      {
+        "name": "effectiveStartDate",
+        "optional": false,
+        "type": "string",
+        "line": 179
+      },
+      {
+        "name": "effectiveEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 180
+      }
+    ]
+  },
+  "MilitaryServiceProfile": {
+    "source": "src/domain/types.ts",
+    "line": 183,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 184
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 185
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "MilitaryServiceStatus",
+        "line": 186
+      },
+      {
+        "name": "serviceType",
+        "optional": false,
+        "type": "string",
+        "line": 187
+      },
+      {
+        "name": "branch",
+        "optional": false,
+        "type": "string",
+        "line": 188
+      },
+      {
+        "name": "rank",
+        "optional": false,
+        "type": "string",
+        "line": 189
+      },
+      {
+        "name": "serviceStartDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 190
+      },
+      {
+        "name": "serviceEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 191
+      },
+      {
+        "name": "dischargeType",
+        "optional": false,
+        "type": "string",
+        "line": 192
+      },
+      {
+        "name": "exemptionReason",
+        "optional": false,
+        "type": "string",
+        "line": 193
+      },
+      {
+        "name": "reserveForcesEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 194
+      },
+      {
+        "name": "reserveForcesEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 195
+      },
+      {
+        "name": "militaryDutyLeaveEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 196
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 197
+      }
+    ]
+  },
+  "Education": {
+    "source": "src/domain/types.ts",
+    "line": 200,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 201
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 202
+      },
+      {
+        "name": "schoolName",
+        "optional": false,
+        "type": "string",
+        "line": 203
+      },
+      {
+        "name": "major",
+        "optional": false,
+        "type": "string",
+        "line": 204
+      },
+      {
+        "name": "degree",
+        "optional": false,
+        "type": "string",
+        "line": 205
+      },
+      {
+        "name": "admissionDate",
+        "optional": false,
+        "type": "string",
+        "line": 206
+      },
+      {
+        "name": "graduationDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 207
+      },
+      {
+        "name": "graduated",
+        "optional": false,
+        "type": "boolean",
+        "line": 208
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 209
+      }
+    ]
+  },
+  "CareerHistory": {
+    "source": "src/domain/types.ts",
+    "line": 213,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 214
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 215
+      },
+      {
+        "name": "companyName",
+        "optional": false,
+        "type": "string",
+        "line": 216
+      },
+      {
+        "name": "organization",
+        "optional": false,
+        "type": "string",
+        "line": 217
+      },
+      {
+        "name": "job",
+        "optional": false,
+        "type": "string",
+        "line": 218
+      },
+      {
+        "name": "title",
+        "optional": false,
+        "type": "string",
+        "line": 219
+      },
+      {
+        "name": "startDate",
+        "optional": false,
+        "type": "string",
+        "line": 220
+      },
+      {
+        "name": "endDate",
+        "optional": false,
+        "type": "string",
+        "line": 221
+      },
+      {
+        "name": "responsibilities",
+        "optional": false,
+        "type": "string",
+        "line": 222
+      },
+      {
+        "name": "careerMonths",
+        "optional": false,
+        "type": "number",
+        "line": 223
+      }
+    ]
+  },
+  "Certification": {
+    "source": "src/domain/types.ts",
+    "line": 226,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 227
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 228
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 229
+      },
+      {
+        "name": "issuer",
+        "optional": false,
+        "type": "string",
+        "line": 230
+      },
+      {
+        "name": "certificateNumberMasked",
+        "optional": false,
+        "type": "string",
+        "line": 231
+      },
+      {
+        "name": "acquiredDate",
+        "optional": false,
+        "type": "string",
+        "line": 232
+      },
+      {
+        "name": "expiryDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 233
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "'ACTIVE' | 'EXPIRED' | 'PERMANENT'",
+        "line": 234
+      },
+      {
+        "name": "attachmentName",
+        "optional": false,
+        "type": "string | null",
+        "line": 235
+      }
+    ]
+  },
+  "EmployeeSkill": {
+    "source": "src/domain/types.ts",
+    "line": 238,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 239
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 240
+      },
+      {
+        "name": "category",
+        "optional": false,
+        "type": "SkillCategory",
+        "line": 241
+      },
+      {
+        "name": "skillName",
+        "optional": false,
+        "type": "string",
+        "line": 242
+      },
+      {
+        "name": "proficiency",
+        "optional": false,
+        "type": "string",
+        "line": 243
+      },
+      {
+        "name": "score",
+        "optional": false,
+        "type": "string | null",
+        "line": 244
+      },
+      {
+        "name": "acquiredDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 245
+      }
+    ]
+  },
+  "ResumeDocument": {
+    "source": "src/domain/types.ts",
+    "line": 248,
+    "fields": [
+      {
+        "name": "storedFile",
+        "optional": true,
+        "type": "import('./attachments').StoredFile",
+        "line": 249
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 250
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 251
+      },
+      {
+        "name": "fileName",
+        "optional": false,
+        "type": "string",
+        "line": 252
+      },
+      {
+        "name": "version",
+        "optional": false,
+        "type": "number",
+        "line": 253
+      },
+      {
+        "name": "uploadedAt",
+        "optional": false,
+        "type": "string",
+        "line": 254
+      },
+      {
+        "name": "uploadedBy",
+        "optional": false,
+        "type": "string",
+        "line": 255
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "'CURRENT' | 'ARCHIVED'",
+        "line": 256
+      }
+    ]
+  },
+  "WorkSchedule": {
+    "source": "src/domain/types.ts",
+    "line": 259,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 260
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 261
+      },
+      {
+        "name": "timezone",
+        "optional": false,
+        "type": "string",
+        "line": 262
+      },
+      {
+        "name": "workDays",
+        "optional": false,
+        "type": "string[]",
+        "line": 263
+      },
+      {
+        "name": "startTime",
+        "optional": false,
+        "type": "string",
+        "line": 264
+      },
+      {
+        "name": "endTime",
+        "optional": false,
+        "type": "string",
+        "line": 265
+      },
+      {
+        "name": "breakMinutes",
+        "optional": false,
+        "type": "number",
+        "line": 266
+      }
+    ]
+  },
+  "AttendanceSetting": {
+    "source": "src/domain/types.ts",
+    "line": 269,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 270
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 271
+      },
+      {
+        "name": "workScheduleId",
+        "optional": false,
+        "type": "string",
+        "line": 272
+      },
+      {
+        "name": "timezone",
+        "optional": false,
+        "type": "string",
+        "line": 273
+      },
+      {
+        "name": "attendancePin",
+        "optional": false,
+        "type": "string",
+        "line": 274
+      },
+      {
+        "name": "badgeId",
+        "optional": false,
+        "type": "string",
+        "line": 275
+      },
+      {
+        "name": "rfidId",
+        "optional": false,
+        "type": "string",
+        "line": 276
+      }
+    ]
+  },
+  "ManagerRelationship": {
+    "source": "src/domain/types.ts",
+    "line": 279,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 280
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 281
+      },
+      {
+        "name": "directManagerId",
+        "optional": false,
+        "type": "string | null",
+        "line": 282
+      },
+      {
+        "name": "hrManagerId",
+        "optional": false,
+        "type": "string | null",
+        "line": 283
+      },
+      {
+        "name": "leaveApproverId",
+        "optional": false,
+        "type": "string | null",
+        "line": 284
+      },
+      {
+        "name": "attendanceApproverId",
+        "optional": false,
+        "type": "string | null",
+        "line": 285
+      },
+      {
+        "name": "performanceReviewerId",
+        "optional": false,
+        "type": "string | null",
+        "line": 286
+      },
+      {
+        "name": "effectiveStartDate",
+        "optional": false,
+        "type": "string",
+        "line": 287
+      },
+      {
+        "name": "effectiveEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 288
+      }
+    ]
+  },
+  "PersonnelEvent": {
+    "source": "src/domain/types.ts",
+    "line": 291,
+    "fields": [
+      {
+        "name": "reviewReason",
+        "optional": true,
+        "type": "string",
+        "line": 292
+      },
+      {
+        "name": "sourceAssignmentId",
+        "optional": true,
+        "type": "string",
+        "line": 293
+      },
+      {
+        "name": "sourceAssignmentSnapshot",
+        "optional": true,
+        "type": "Assignment",
+        "line": 294
+      },
+      {
+        "name": "sourceEmploymentStatus",
+        "optional": true,
+        "type": "Employment['status']",
+        "line": 295
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 297
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 298
+      },
+      {
+        "name": "eventType",
+        "optional": false,
+        "type": "PersonnelEventType",
+        "line": 299
+      },
+      {
+        "name": "effectiveDate",
+        "optional": false,
+        "type": "string",
+        "line": 300
+      },
+      {
+        "name": "before",
+        "optional": false,
+        "type": "Record<string, string | number | null>",
+        "line": 301
+      },
+      {
+        "name": "after",
+        "optional": false,
+        "type": "Record<string, string | number | null>",
+        "line": 302
+      },
+      {
+        "name": "reason",
+        "optional": false,
+        "type": "string",
+        "line": 303
+      },
+      {
+        "name": "createdAt",
+        "optional": false,
+        "type": "string",
+        "line": 304
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "PersonnelEventStatus",
+        "line": 305
+      }
+    ]
+  },
+  "AuditLog": {
+    "source": "src/domain/types.ts",
+    "line": 308,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 309
+      },
+      {
+        "name": "occurredAt",
+        "optional": false,
+        "type": "string",
+        "line": 310
+      },
+      {
+        "name": "actor",
+        "optional": false,
+        "type": "string",
+        "line": 311
+      },
+      {
+        "name": "action",
+        "optional": false,
+        "type": "string",
+        "line": 312
+      },
+      {
+        "name": "entityType",
+        "optional": false,
+        "type": "string",
+        "line": 313
+      },
+      {
+        "name": "entityId",
+        "optional": false,
+        "type": "string",
+        "line": 314
+      },
+      {
+        "name": "detail",
+        "optional": false,
+        "type": "string",
+        "line": 315
+      }
+    ]
+  },
+  "AttendanceMonthlySummary": {
+    "source": "src/domain/types.ts",
+    "line": 318,
+    "fields": [
+      {
+        "name": "paidCreditHours",
+        "optional": true,
+        "type": "number",
+        "line": 319
+      },
+      {
+        "name": "issueNote",
+        "optional": true,
+        "type": "string",
+        "line": 320
+      },
+      {
+        "name": "unpaidHours",
+        "optional": true,
+        "type": "number",
+        "line": 321
+      },
+      {
+        "name": "sickPaidHours",
+        "optional": true,
+        "type": "number",
+        "line": 322
+      },
+      {
+        "name": "sickUnpaidHours",
+        "optional": true,
+        "type": "number",
+        "line": 323
+      },
+      {
+        "name": "confirmedAt",
+        "optional": true,
+        "type": "string",
+        "line": 324
+      },
+      {
+        "name": "confirmedBy",
+        "optional": true,
+        "type": "string",
+        "line": 325
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 326
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 327
+      },
+      {
+        "name": "period",
+        "optional": false,
+        "type": "string",
+        "line": 328
+      },
+      {
+        "name": "organizationNameSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 329
+      },
+      {
+        "name": "gradeSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 330
+      },
+      {
+        "name": "jobSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 331
+      },
+      {
+        "name": "scheduledHours",
+        "optional": false,
+        "type": "number",
+        "line": 332
+      },
+      {
+        "name": "workedHours",
+        "optional": false,
+        "type": "number",
+        "line": 333
+      },
+      {
+        "name": "overtimeHours",
+        "optional": false,
+        "type": "number",
+        "line": 334
+      },
+      {
+        "name": "nightHours",
+        "optional": false,
+        "type": "number",
+        "line": 335
+      },
+      {
+        "name": "holidayHours",
+        "optional": false,
+        "type": "number",
+        "line": 336
+      },
+      {
+        "name": "leaveDays",
+        "optional": false,
+        "type": "number",
+        "line": 337
+      },
+      {
+        "name": "absenceHours",
+        "optional": false,
+        "type": "number",
+        "line": 338
+      },
+      {
+        "name": "lateMinutes",
+        "optional": false,
+        "type": "number",
+        "line": 339
+      },
+      {
+        "name": "earlyLeaveMinutes",
+        "optional": false,
+        "type": "number",
+        "line": 340
+      },
+      {
+        "name": "manualEdited",
+        "optional": true,
+        "type": "boolean",
+        "line": 341
+      },
+      {
+        "name": "updatedAt",
+        "optional": true,
+        "type": "string",
+        "line": 342
+      },
+      {
+        "name": "updatedBy",
+        "optional": true,
+        "type": "string",
+        "line": 343
+      },
+      {
+        "name": "editReason",
+        "optional": true,
+        "type": "string",
+        "line": 344
+      },
+      {
+        "name": "revision",
+        "optional": true,
+        "type": "number",
+        "line": 345
+      }
+    ]
+  },
+  "AnnualLeaveLedger": {
+    "source": "src/domain/types.ts",
+    "line": 348,
+    "fields": [
+      {
+        "name": "confirmedAt",
+        "optional": true,
+        "type": "string",
+        "line": 349
+      },
+      {
+        "name": "confirmedBy",
+        "optional": true,
+        "type": "string",
+        "line": 350
+      },
+      {
+        "name": "updatedAt",
+        "optional": true,
+        "type": "string",
+        "line": 351
+      },
+      {
+        "name": "updatedBy",
+        "optional": true,
+        "type": "string",
+        "line": 352
+      },
+      {
+        "name": "editReason",
+        "optional": true,
+        "type": "string",
+        "line": 353
+      },
+      {
+        "name": "manualEdited",
+        "optional": true,
+        "type": "boolean",
+        "line": 354
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 355
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 356
+      },
+      {
+        "name": "year",
+        "optional": false,
+        "type": "number",
+        "line": 357
+      },
+      {
+        "name": "grantedDays",
+        "optional": false,
+        "type": "number",
+        "line": 358
+      },
+      {
+        "name": "carriedDays",
+        "optional": false,
+        "type": "number",
+        "line": 359
+      },
+      {
+        "name": "adjustedDays",
+        "optional": false,
+        "type": "number",
+        "line": 360
+      },
+      {
+        "name": "usedDays",
+        "optional": false,
+        "type": "number",
+        "line": 361
+      },
+      {
+        "name": "remainingDays",
+        "optional": false,
+        "type": "number",
+        "line": 362
+      },
+      {
+        "name": "ruleVersion",
+        "optional": false,
+        "type": "string",
+        "line": 363
+      }
+    ]
+  },
+  "DailyWorker": {
+    "source": "src/domain/types.ts",
+    "line": 366,
+    "fields": [
+      {
+        "name": "occupationCode",
+        "optional": true,
+        "type": "string",
+        "line": 367
+      },
+      {
+        "name": "occupationCodeManual",
+        "optional": true,
+        "type": "boolean",
+        "line": 368
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 369
+      },
+      {
+        "name": "personId",
+        "optional": false,
+        "type": "string",
+        "line": 370
+      },
+      {
+        "name": "workerNumber",
+        "optional": false,
+        "type": "string",
+        "line": 371
+      },
+      {
+        "name": "workerNameSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 372
+      },
+      {
+        "name": "organizationId",
+        "optional": false,
+        "type": "string",
+        "line": 373
+      },
+      {
+        "name": "job",
+        "optional": false,
+        "type": "string",
+        "line": 374
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "DailyWorkerStatus",
+        "line": 375
+      },
+      {
+        "name": "startDate",
+        "optional": false,
+        "type": "string",
+        "line": 376
+      },
+      {
+        "name": "endDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 377
+      },
+      {
+        "name": "dailyRate",
+        "optional": false,
+        "type": "number",
+        "line": 378
+      },
+      {
+        "name": "bankName",
+        "optional": false,
+        "type": "string",
+        "line": 379
+      },
+      {
+        "name": "accountNumberMasked",
+        "optional": false,
+        "type": "string",
+        "line": 380
+      }
+    ]
+  },
+  "DailyWorkerInput": {
+    "source": "src/domain/types.ts",
+    "line": 383,
+    "fields": [
+      {
+        "name": "id",
+        "optional": true,
+        "type": "string",
+        "line": 384
+      },
+      {
+        "name": "personId",
+        "optional": true,
+        "type": "string",
+        "line": 385
+      },
+      {
+        "name": "workerNumber",
+        "optional": true,
+        "type": "string",
+        "line": 386
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 387
+      },
+      {
+        "name": "birthDate",
+        "optional": false,
+        "type": "string",
+        "line": 388
+      },
+      {
+        "name": "mobile",
+        "optional": false,
+        "type": "string",
+        "line": 389
+      },
+      {
+        "name": "organizationId",
+        "optional": false,
+        "type": "string",
+        "line": 390
+      },
+      {
+        "name": "job",
+        "optional": false,
+        "type": "string",
+        "line": 391
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "DailyWorkerStatus",
+        "line": 392
+      },
+      {
+        "name": "startDate",
+        "optional": false,
+        "type": "string",
+        "line": 393
+      },
+      {
+        "name": "endDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 394
+      },
+      {
+        "name": "dailyRate",
+        "optional": false,
+        "type": "number",
+        "line": 395
+      },
+      {
+        "name": "bankName",
+        "optional": false,
+        "type": "string",
+        "line": 396
+      },
+      {
+        "name": "accountNumberMasked",
+        "optional": false,
+        "type": "string",
+        "line": 397
+      }
+    ]
+  },
+  "DailyWorkRecord": {
+    "source": "src/domain/types.ts",
+    "line": 400,
+    "fields": [
+      {
+        "name": "occupationCodeSnapshot",
+        "optional": true,
+        "type": "string",
+        "line": 401
+      },
+      {
+        "name": "manualEdited",
+        "optional": true,
+        "type": "boolean",
+        "line": 402
+      },
+      {
+        "name": "source",
+        "optional": true,
+        "type": "string",
+        "line": 403
+      },
+      {
+        "name": "exceptionWork",
+        "optional": true,
+        "type": "boolean",
+        "line": 404
+      },
+      {
+        "name": "confirmedAt",
+        "optional": true,
+        "type": "string",
+        "line": 405
+      },
+      {
+        "name": "confirmedBy",
+        "optional": true,
+        "type": "string",
+        "line": 406
+      },
+      {
+        "name": "overtimeAllowance",
+        "optional": true,
+        "type": "number",
+        "line": 407
+      },
+      {
+        "name": "nightAllowance",
+        "optional": true,
+        "type": "number",
+        "line": 408
+      },
+      {
+        "name": "holidayAllowance",
+        "optional": true,
+        "type": "number",
+        "line": 409
+      },
+      {
+        "name": "otherAllowance",
+        "optional": true,
+        "type": "number",
+        "line": 410
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 411
+      },
+      {
+        "name": "dailyWorkerId",
+        "optional": false,
+        "type": "string",
+        "line": 412
+      },
+      {
+        "name": "workDate",
+        "optional": false,
+        "type": "string",
+        "line": 413
+      },
+      {
+        "name": "hours",
+        "optional": false,
+        "type": "number",
+        "line": 414
+      },
+      {
+        "name": "startTime",
+        "optional": true,
+        "type": "string",
+        "line": 415
+      },
+      {
+        "name": "endTime",
+        "optional": true,
+        "type": "string",
+        "line": 416
+      },
+      {
+        "name": "endNextDay",
+        "optional": true,
+        "type": "boolean",
+        "line": 417
+      },
+      {
+        "name": "breakStart",
+        "optional": true,
+        "type": "string",
+        "line": 418
+      },
+      {
+        "name": "breakMinutes",
+        "optional": true,
+        "type": "number",
+        "line": 419
+      },
+      {
+        "name": "grossPay",
+        "optional": false,
+        "type": "number",
+        "line": 420
+      },
+      {
+        "name": "nonTaxablePay",
+        "optional": false,
+        "type": "number",
+        "line": 421
+      },
+      {
+        "name": "incomeTax",
+        "optional": false,
+        "type": "number",
+        "line": 422
+      },
+      {
+        "name": "localIncomeTax",
+        "optional": false,
+        "type": "number",
+        "line": 423
+      },
+      {
+        "name": "employmentInsurance",
+        "optional": false,
+        "type": "number",
+        "line": 424
+      },
+      {
+        "name": "netPay",
+        "optional": false,
+        "type": "number",
+        "line": 425
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 426
+      }
+    ]
+  },
+  "RetirementSettlement": {
+    "source": "src/domain/types.ts",
+    "line": 429,
+    "fields": [
+      {
+        "name": "planType",
+        "optional": true,
+        "type": "'DB'|'DC'",
+        "line": 430
+      },
+      {
+        "name": "dcSourceAnnualWages",
+        "optional": true,
+        "type": "number",
+        "line": 431
+      },
+      {
+        "name": "dcAnnualWages",
+        "optional": true,
+        "type": "number|null",
+        "line": 432
+      },
+      {
+        "name": "dcAdditionalWages",
+        "optional": true,
+        "type": "number",
+        "line": 433
+      },
+      {
+        "name": "dcPaidContribution",
+        "optional": true,
+        "type": "number|null",
+        "line": 434
+      },
+      {
+        "name": "dcAccountBalance",
+        "optional": true,
+        "type": "number|null",
+        "line": 435
+      },
+      {
+        "name": "dcRequiredContribution",
+        "optional": true,
+        "type": "number",
+        "line": 436
+      },
+      {
+        "name": "dcUnpaidContribution",
+        "optional": true,
+        "type": "number",
+        "line": 437
+      },
+      {
+        "name": "dcExcludedMonths",
+        "optional": true,
+        "type": "number",
+        "line": 438
+      },
+      {
+        "name": "dcExcludedWages",
+        "optional": true,
+        "type": "number",
+        "line": 439
+      },
+      {
+        "name": "dcPriorAnnualContribution",
+        "optional": true,
+        "type": "number|null",
+        "line": 440
+      },
+      {
+        "name": "weeklyContractHours",
+        "optional": true,
+        "type": "number",
+        "line": 441
+      },
+      {
+        "name": "demoSource",
+        "optional": true,
+        "type": "boolean",
+        "line": 442
+      },
+      {
+        "name": "annualBonus",
+        "optional": true,
+        "type": "number|null",
+        "line": 444
+      },
+      {
+        "name": "annualLeaveAllowance",
+        "optional": true,
+        "type": "number|null",
+        "line": 445
+      },
+      {
+        "name": "excludedDays",
+        "optional": true,
+        "type": "number",
+        "line": 446
+      },
+      {
+        "name": "excludedWages",
+        "optional": true,
+        "type": "number",
+        "line": 447
+      },
+      {
+        "name": "interimSettlementDate",
+        "optional": true,
+        "type": "string|null",
+        "line": 448
+      },
+      {
+        "name": "calculationWindowStart",
+        "optional": true,
+        "type": "string",
+        "line": 449
+      },
+      {
+        "name": "calculationWindowEnd",
+        "optional": true,
+        "type": "string",
+        "line": 450
+      },
+      {
+        "name": "calendarDays",
+        "optional": true,
+        "type": "number",
+        "line": 451
+      },
+      {
+        "name": "sourcePayrollIds",
+        "optional": true,
+        "type": "string[]",
+        "line": 452
+      },
+      {
+        "name": "reviewRequired",
+        "optional": true,
+        "type": "boolean",
+        "line": 453
+      },
+      {
+        "name": "manualEdited",
+        "optional": true,
+        "type": "boolean",
+        "line": 454
+      },
+      {
+        "name": "editReason",
+        "optional": true,
+        "type": "string",
+        "line": 455
+      },
+      {
+        "name": "updatedAt",
+        "optional": true,
+        "type": "string",
+        "line": 456
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 457
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 458
+      },
+      {
+        "name": "calculationDate",
+        "optional": false,
+        "type": "string",
+        "line": 459
+      },
+      {
+        "name": "terminationDate",
+        "optional": false,
+        "type": "string",
+        "line": 460
+      },
+      {
+        "name": "serviceDays",
+        "optional": false,
+        "type": "number",
+        "line": 461
+      },
+      {
+        "name": "averageDailyWage",
+        "optional": false,
+        "type": "number",
+        "line": 462
+      },
+      {
+        "name": "ordinaryDailyWage",
+        "optional": false,
+        "type": "number",
+        "line": 463
+      },
+      {
+        "name": "appliedDailyWage",
+        "optional": false,
+        "type": "number",
+        "line": 464
+      },
+      {
+        "name": "retirementPay",
+        "optional": false,
+        "type": "number",
+        "line": 465
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "'DRAFT' | 'CALCULATED' | 'CONFIRMED'",
+        "line": 466
+      },
+      {
+        "name": "ruleVersion",
+        "optional": false,
+        "type": "string",
+        "line": 467
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 468
+      }
+    ]
+  },
+  "YearEndTaxCase": {
+    "source": "src/domain/types.ts",
+    "line": 471,
+    "fields": [
+      {
+        "name": "documentReview",
+        "optional": true,
+        "type": "import('../modules/payroll/yearEndDocuments').YearEndDocumentCheck[]",
+        "line": 472
+      },
+      {
+        "name": "manualEdited",
+        "optional": true,
+        "type": "boolean",
+        "line": 473
+      },
+      {
+        "name": "editReason",
+        "optional": true,
+        "type": "string",
+        "line": 474
+      },
+      {
+        "name": "updatedAt",
+        "optional": true,
+        "type": "string",
+        "line": 475
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 476
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 477
+      },
+      {
+        "name": "taxYear",
+        "optional": false,
+        "type": "number",
+        "line": 478
+      },
+      {
+        "name": "grossPay",
+        "optional": false,
+        "type": "number",
+        "line": 479
+      },
+      {
+        "name": "incomeTaxWithheld",
+        "optional": false,
+        "type": "number",
+        "line": 480
+      },
+      {
+        "name": "localTaxWithheld",
+        "optional": false,
+        "type": "number",
+        "line": 481
+      },
+      {
+        "name": "basicDeductionCount",
+        "optional": false,
+        "type": "number",
+        "line": 482
+      },
+      {
+        "name": "childCount",
+        "optional": false,
+        "type": "number",
+        "line": 483
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "'DRAFT' | 'REVIEW' | 'CONFIRMED'",
+        "line": 484
+      },
+      {
+        "name": "estimatedFinalTax",
+        "optional": false,
+        "type": "number | null",
+        "line": 485
+      },
+      {
+        "name": "settlementAmount",
+        "optional": false,
+        "type": "number | null",
+        "line": 486
+      },
+      {
+        "name": "ruleVersion",
+        "optional": false,
+        "type": "string",
+        "line": 487
+      }
+    ]
+  },
+  "PayrollItemMaster": {
+    "source": "src/domain/types.ts",
+    "line": 490,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 491
+      },
+      {
+        "name": "code",
+        "optional": false,
+        "type": "string",
+        "line": 492
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 493
+      },
+      {
+        "name": "category",
+        "optional": false,
+        "type": "PayrollItemCategory",
+        "line": 494
+      },
+      {
+        "name": "calculationMode",
+        "optional": true,
+        "type": "'DEFAULT' | 'FORMULA' | 'MANUAL'",
+        "line": 495
+      },
+      {
+        "name": "formula",
+        "optional": true,
+        "type": "string",
+        "line": 496
+      },
+      {
+        "name": "manualAmount",
+        "optional": true,
+        "type": "number",
+        "line": 497
+      },
+      {
+        "name": "workMultiplier",
+        "optional": true,
+        "type": "number",
+        "line": 498
+      },
+      {
+        "name": "holidayExtraMultiplier",
+        "optional": true,
+        "type": "number",
+        "line": 499
+      },
+      {
+        "name": "calculationMethod",
+        "optional": false,
+        "type": "PayrollCalculationMethod",
+        "line": 500
+      },
+      {
+        "name": "taxable",
+        "optional": false,
+        "type": "boolean",
+        "line": 501
+      },
+      {
+        "name": "active",
+        "optional": false,
+        "type": "boolean",
+        "line": 502
+      },
+      {
+        "name": "sortOrder",
+        "optional": false,
+        "type": "number",
+        "line": 503
+      },
+      {
+        "name": "updatedAt",
+        "optional": true,
+        "type": "string",
+        "line": 504
+      },
+      {
+        "name": "ordinaryWage",
+        "optional": true,
+        "type": "boolean",
+        "line": 505
+      },
+      {
+        "name": "minimumWage",
+        "optional": true,
+        "type": "boolean",
+        "line": 506
+      },
+      {
+        "name": "pensionIncluded",
+        "optional": true,
+        "type": "boolean",
+        "line": 507
+      },
+      {
+        "name": "healthIncluded",
+        "optional": true,
+        "type": "boolean",
+        "line": 508
+      },
+      {
+        "name": "employmentIncluded",
+        "optional": true,
+        "type": "boolean",
+        "line": 509
+      }
+    ]
+  },
+  "EmployeeView": {
+    "source": "src/domain/types.ts",
+    "line": 512,
+    "fields": [
+      {
+        "name": "departureReasonCode",
+        "optional": true,
+        "type": "string",
+        "line": 513
+      },
+      {
+        "name": "departureReason",
+        "optional": true,
+        "type": "string",
+        "line": 514
+      },
+      {
+        "name": "occupationCode",
+        "optional": true,
+        "type": "string",
+        "line": 515
+      },
+      {
+        "name": "occupationCodeManual",
+        "optional": true,
+        "type": "boolean",
+        "line": 516
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 517
+      },
+      {
+        "name": "personId",
+        "optional": false,
+        "type": "string",
+        "line": 518
+      },
+      {
+        "name": "employeeNumber",
+        "optional": false,
+        "type": "string",
+        "line": 519
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 520
+      },
+      {
+        "name": "englishName",
+        "optional": false,
+        "type": "string",
+        "line": 521
+      },
+      {
+        "name": "birthDate",
+        "optional": false,
+        "type": "string",
+        "line": 522
+      },
+      {
+        "name": "gender",
+        "optional": false,
+        "type": "Gender",
+        "line": 523
+      },
+      {
+        "name": "domesticForeignType",
+        "optional": false,
+        "type": "DomesticForeignType",
+        "line": 524
+      },
+      {
+        "name": "nationality",
+        "optional": false,
+        "type": "string",
+        "line": 525
+      },
+      {
+        "name": "mobile",
+        "optional": false,
+        "type": "string",
+        "line": 526
+      },
+      {
+        "name": "email",
+        "optional": false,
+        "type": "string",
+        "line": 527
+      },
+      {
+        "name": "address",
+        "optional": false,
+        "type": "string",
+        "line": 528
+      },
+      {
+        "name": "syntheticIdentifier",
+        "optional": false,
+        "type": "string",
+        "line": 529
+      },
+      {
+        "name": "bankName",
+        "optional": false,
+        "type": "string",
+        "line": 530
+      },
+      {
+        "name": "bankAccount",
+        "optional": false,
+        "type": "string",
+        "line": 531
+      },
+      {
+        "name": "hireDate",
+        "optional": false,
+        "type": "string",
+        "line": 532
+      },
+      {
+        "name": "terminationDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 533
+      },
+      {
+        "name": "employmentType",
+        "optional": false,
+        "type": "EmploymentType",
+        "line": 534
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "EmploymentStatus",
+        "line": 535
+      },
+      {
+        "name": "organizationId",
+        "optional": false,
+        "type": "string",
+        "line": 536
+      },
+      {
+        "name": "organizationName",
+        "optional": false,
+        "type": "string",
+        "line": 537
+      },
+      {
+        "name": "grade",
+        "optional": false,
+        "type": "string",
+        "line": 538
+      },
+      {
+        "name": "title",
+        "optional": false,
+        "type": "string",
+        "line": 539
+      },
+      {
+        "name": "job",
+        "optional": false,
+        "type": "string",
+        "line": 540
+      },
+      {
+        "name": "workLocation",
+        "optional": false,
+        "type": "string",
+        "line": 541
+      },
+      {
+        "name": "annualSalary",
+        "optional": false,
+        "type": "number",
+        "line": 542
+      }
+    ]
+  },
+  "EmployeeMasterDetail": {
+    "source": "src/domain/types.ts",
+    "line": 545,
+    "fields": [
+      {
+        "name": "employee",
+        "optional": false,
+        "type": "EmployeeView",
+        "line": 546
+      },
+      {
+        "name": "person",
+        "optional": false,
+        "type": "Person",
+        "line": 547
+      },
+      {
+        "name": "address",
+        "optional": false,
+        "type": "Address | null",
+        "line": 548
+      },
+      {
+        "name": "dependents",
+        "optional": false,
+        "type": "Dependent[]",
+        "line": 549
+      },
+      {
+        "name": "visas",
+        "optional": false,
+        "type": "Visa[]",
+        "line": 550
+      },
+      {
+        "name": "bankAccounts",
+        "optional": false,
+        "type": "BankAccount[]",
+        "line": 551
+      },
+      {
+        "name": "taxProfile",
+        "optional": false,
+        "type": "TaxProfile | null",
+        "line": 552
+      },
+      {
+        "name": "socialInsuranceProfile",
+        "optional": false,
+        "type": "SocialInsuranceProfile | null",
+        "line": 553
+      },
+      {
+        "name": "militaryServiceProfile",
+        "optional": false,
+        "type": "MilitaryServiceProfile | null",
+        "line": 554
+      },
+      {
+        "name": "educations",
+        "optional": false,
+        "type": "Education[]",
+        "line": 555
+      },
+      {
+        "name": "careers",
+        "optional": false,
+        "type": "CareerHistory[]",
+        "line": 556
+      },
+      {
+        "name": "certifications",
+        "optional": false,
+        "type": "Certification[]",
+        "line": 557
+      },
+      {
+        "name": "skills",
+        "optional": false,
+        "type": "EmployeeSkill[]",
+        "line": 558
+      },
+      {
+        "name": "resumes",
+        "optional": false,
+        "type": "ResumeDocument[]",
+        "line": 559
+      },
+      {
+        "name": "attendanceSetting",
+        "optional": false,
+        "type": "AttendanceSetting | null",
+        "line": 560
+      },
+      {
+        "name": "workSchedule",
+        "optional": false,
+        "type": "WorkSchedule | null",
+        "line": 561
+      },
+      {
+        "name": "managerRelationship",
+        "optional": false,
+        "type": "ManagerRelationship | null",
+        "line": 562
+      },
+      {
+        "name": "assignmentHistory",
+        "optional": false,
+        "type": "Assignment[]",
+        "line": 563
+      },
+      {
+        "name": "compensationHistory",
+        "optional": false,
+        "type": "CompensationSnapshot[]",
+        "line": 564
+      },
+      {
+        "name": "personnelEvents",
+        "optional": false,
+        "type": "PersonnelEvent[]",
+        "line": 565
+      }
+    ]
+  },
+  "PayrollDependentInfo": {
+    "source": "src/domain/types.ts",
+    "line": 568,
+    "fields": [
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 569
+      },
+      {
+        "name": "asOfDate",
+        "optional": false,
+        "type": "string",
+        "line": 570
+      },
+      {
+        "name": "dependents",
+        "optional": false,
+        "type": "Dependent[]",
+        "line": 571
+      },
+      {
+        "name": "basicDeductionCount",
+        "optional": false,
+        "type": "number",
+        "line": 572
+      },
+      {
+        "name": "childDeductionCount",
+        "optional": false,
+        "type": "number",
+        "line": 573
+      }
+    ]
+  },
+  "SeedBundle": {
+    "source": "src/domain/types.ts",
+    "line": 576,
+    "fields": [
+      {
+        "name": "company",
+        "optional": false,
+        "type": "Company",
+        "line": 577
+      },
+      {
+        "name": "organizations",
+        "optional": false,
+        "type": "Organization[]",
+        "line": 578
+      },
+      {
+        "name": "persons",
+        "optional": false,
+        "type": "Person[]",
+        "line": 579
+      },
+      {
+        "name": "addresses",
+        "optional": false,
+        "type": "Address[]",
+        "line": 580
+      },
+      {
+        "name": "dependents",
+        "optional": false,
+        "type": "Dependent[]",
+        "line": 581
+      },
+      {
+        "name": "visas",
+        "optional": false,
+        "type": "Visa[]",
+        "line": 582
+      },
+      {
+        "name": "bankAccounts",
+        "optional": false,
+        "type": "BankAccount[]",
+        "line": 583
+      },
+      {
+        "name": "employments",
+        "optional": false,
+        "type": "Employment[]",
+        "line": 584
+      },
+      {
+        "name": "assignments",
+        "optional": false,
+        "type": "Assignment[]",
+        "line": 585
+      },
+      {
+        "name": "compensations",
+        "optional": false,
+        "type": "CompensationSnapshot[]",
+        "line": 586
+      },
+      {
+        "name": "taxProfiles",
+        "optional": false,
+        "type": "TaxProfile[]",
+        "line": 587
+      },
+      {
+        "name": "socialInsuranceProfiles",
+        "optional": false,
+        "type": "SocialInsuranceProfile[]",
+        "line": 588
+      },
+      {
+        "name": "militaryServiceProfiles",
+        "optional": false,
+        "type": "MilitaryServiceProfile[]",
+        "line": 589
+      },
+      {
+        "name": "educations",
+        "optional": false,
+        "type": "Education[]",
+        "line": 590
+      },
+      {
+        "name": "careers",
+        "optional": false,
+        "type": "CareerHistory[]",
+        "line": 591
+      },
+      {
+        "name": "certifications",
+        "optional": false,
+        "type": "Certification[]",
+        "line": 592
+      },
+      {
+        "name": "skills",
+        "optional": false,
+        "type": "EmployeeSkill[]",
+        "line": 593
+      },
+      {
+        "name": "resumes",
+        "optional": false,
+        "type": "ResumeDocument[]",
+        "line": 594
+      },
+      {
+        "name": "workSchedules",
+        "optional": false,
+        "type": "WorkSchedule[]",
+        "line": 595
+      },
+      {
+        "name": "attendanceSettings",
+        "optional": false,
+        "type": "AttendanceSetting[]",
+        "line": 596
+      },
+      {
+        "name": "managerRelationships",
+        "optional": false,
+        "type": "ManagerRelationship[]",
+        "line": 597
+      },
+      {
+        "name": "personnelEvents",
+        "optional": false,
+        "type": "PersonnelEvent[]",
+        "line": 598
+      },
+      {
+        "name": "auditLogs",
+        "optional": false,
+        "type": "AuditLog[]",
+        "line": 599
+      },
+      {
+        "name": "payrollRuns",
+        "optional": false,
+        "type": "PayrollRun[]",
+        "line": 600
+      },
+      {
+        "name": "payrollEntries",
+        "optional": false,
+        "type": "PayrollEntry[]",
+        "line": 601
+      },
+      {
+        "name": "payrollResults",
+        "optional": false,
+        "type": "PayrollResult[]",
+        "line": 602
+      },
+      {
+        "name": "attendanceMonthlySummaries",
+        "optional": false,
+        "type": "AttendanceMonthlySummary[]",
+        "line": 603
+      },
+      {
+        "name": "annualLeaveLedgers",
+        "optional": false,
+        "type": "AnnualLeaveLedger[]",
+        "line": 604
+      },
+      {
+        "name": "dailyWorkers",
+        "optional": false,
+        "type": "DailyWorker[]",
+        "line": 605
+      },
+      {
+        "name": "dailyWorkRecords",
+        "optional": false,
+        "type": "DailyWorkRecord[]",
+        "line": 606
+      },
+      {
+        "name": "retirementSettlements",
+        "optional": false,
+        "type": "RetirementSettlement[]",
+        "line": 607
+      },
+      {
+        "name": "yearEndTaxCases",
+        "optional": false,
+        "type": "YearEndTaxCase[]",
+        "line": 608
+      },
+      {
+        "name": "payrollItemMasters",
+        "optional": false,
+        "type": "PayrollItemMaster[]",
+        "line": 609
+      },
+      {
+        "name": "attendanceDailyRecords",
+        "optional": true,
+        "type": "AttendanceDailyRecord[]",
+        "line": 610
+      },
+      {
+        "name": "leaveCases",
+        "optional": true,
+        "type": "LeaveCase[]",
+        "line": 611
+      },
+      {
+        "name": "payrollSettingsHistory",
+        "optional": true,
+        "type": "{id:string; items:PayrollItemMaster[]}[]",
+        "line": 612
+      }
+    ]
+  },
+  "PersonnelActionInput": {
+    "source": "src/domain/types.ts",
+    "line": 615,
+    "fields": [
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 616
+      },
+      {
+        "name": "eventType",
+        "optional": false,
+        "type": "PersonnelEventType",
+        "line": 617
+      },
+      {
+        "name": "effectiveDate",
+        "optional": false,
+        "type": "string",
+        "line": 618
+      },
+      {
+        "name": "value",
+        "optional": false,
+        "type": "string",
+        "line": 619
+      },
+      {
+        "name": "reason",
+        "optional": false,
+        "type": "string",
+        "line": 620
+      }
+    ]
+  },
+  "DependentInput": {
+    "source": "src/domain/types.ts",
+    "line": 623,
+    "fields": [
+      {
+        "name": "id",
+        "optional": true,
+        "type": "string",
+        "line": 624
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 625
+      },
+      {
+        "name": "relation",
+        "optional": false,
+        "type": "Dependent['relation']",
+        "line": 626
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 627
+      },
+      {
+        "name": "birthDate",
+        "optional": false,
+        "type": "string",
+        "line": 628
+      },
+      {
+        "name": "cohabitation",
+        "optional": false,
+        "type": "boolean",
+        "line": 629
+      },
+      {
+        "name": "disabilityStatus",
+        "optional": false,
+        "type": "boolean",
+        "line": 630
+      },
+      {
+        "name": "basicDeductionEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 631
+      },
+      {
+        "name": "childDeductionEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 632
+      },
+      {
+        "name": "effectiveStartDate",
+        "optional": false,
+        "type": "string",
+        "line": 633
+      },
+      {
+        "name": "effectiveEndDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 634
+      }
+    ]
+  },
+  "ManagerRelationshipInput": {
+    "source": "src/domain/types.ts",
+    "line": 637,
+    "fields": [
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 638
+      },
+      {
+        "name": "directManagerId",
+        "optional": false,
+        "type": "string | null",
+        "line": 639
+      },
+      {
+        "name": "hrManagerId",
+        "optional": false,
+        "type": "string | null",
+        "line": 640
+      },
+      {
+        "name": "leaveApproverId",
+        "optional": false,
+        "type": "string | null",
+        "line": 641
+      },
+      {
+        "name": "attendanceApproverId",
+        "optional": false,
+        "type": "string | null",
+        "line": 642
+      },
+      {
+        "name": "performanceReviewerId",
+        "optional": false,
+        "type": "string | null",
+        "line": 643
+      }
+    ]
+  },
+  "DatabaseExport": {
+    "source": "src/domain/types.ts",
+    "line": 646,
+    "fields": [
+      {
+        "name": "exportedAt",
+        "optional": false,
+        "type": "string",
+        "line": 647
+      },
+      {
+        "name": "schemaVersion",
+        "optional": false,
+        "type": "number",
+        "line": 648
+      },
+      {
+        "name": "data",
+        "optional": false,
+        "type": "SeedBundle",
+        "line": 649
+      }
+    ]
+  },
+  "FilingFormValues": {
+    "source": "src/domain/types.ts",
+    "line": 658,
+    "fields": [
+      {
+        "name": "incomeName",
+        "optional": false,
+        "type": "string",
+        "line": 658
+      },
+      {
+        "name": "incomeCode",
+        "optional": false,
+        "type": "string",
+        "line": 658
+      },
+      {
+        "name": "headcount",
+        "optional": false,
+        "type": "number",
+        "line": 658
+      },
+      {
+        "name": "grossPay",
+        "optional": false,
+        "type": "number",
+        "line": 658
+      },
+      {
+        "name": "incomeTax",
+        "optional": false,
+        "type": "number",
+        "line": 658
+      },
+      {
+        "name": "localIncomeTax",
+        "optional": false,
+        "type": "number",
+        "line": 658
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 658
+      },
+      {
+        "name": "updatedAt",
+        "optional": true,
+        "type": "string",
+        "line": 658
+      },
+      {
+        "name": "editReason",
+        "optional": true,
+        "type": "string",
+        "line": 658
+      }
+    ]
+  },
+  "PayrollRun": {
+    "source": "src/domain/types.ts",
+    "line": 659,
+    "fields": [
+      {
+        "name": "filingFormOverrides",
+        "optional": true,
+        "type": "FilingFormValues",
+        "line": 660
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 661
+      },
+      {
+        "name": "companyId",
+        "optional": false,
+        "type": "string",
+        "line": 662
+      },
+      {
+        "name": "period",
+        "optional": false,
+        "type": "string",
+        "line": 663
+      },
+      {
+        "name": "payDate",
+        "optional": false,
+        "type": "string",
+        "line": 664
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "PayrollRunStatus",
+        "line": 665
+      },
+      {
+        "name": "ruleVersion",
+        "optional": false,
+        "type": "string",
+        "line": 666
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 667
+      },
+      {
+        "name": "createdAt",
+        "optional": false,
+        "type": "string",
+        "line": 668
+      },
+      {
+        "name": "calculatedAt",
+        "optional": false,
+        "type": "string | null",
+        "line": 669
+      },
+      {
+        "name": "validatedAt",
+        "optional": false,
+        "type": "string | null",
+        "line": 670
+      },
+      {
+        "name": "confirmedAt",
+        "optional": false,
+        "type": "string | null",
+        "line": 671
+      },
+      {
+        "name": "paidAt",
+        "optional": true,
+        "type": "string | null",
+        "line": 672
+      },
+      {
+        "name": "closedAt",
+        "optional": false,
+        "type": "string | null",
+        "line": 673
+      },
+      {
+        "name": "itemOverrides",
+        "optional": true,
+        "type": "Record<string, boolean>",
+        "line": 674
+      },
+      {
+        "name": "itemSnapshot",
+        "optional": true,
+        "type": "PayrollItemMaster[]",
+        "line": 675
+      },
+      {
+        "name": "attendanceStale",
+        "optional": true,
+        "type": "boolean",
+        "line": 676
+      }
+    ]
+  },
+  "PayrollEntry": {
+    "source": "src/domain/types.ts",
+    "line": 680,
+    "fields": [
+      {
+        "name": "calculationInputs",
+        "optional": true,
+        "type": "{ordinaryMonthlyHours:number;overtimeHours:number;nightHours:number;holidayHours:number;holidayOvertimeHours:number}|null",
+        "line": 681
+      },
+      {
+        "name": "deriveEmploymentBase",
+        "optional": true,
+        "type": "boolean",
+        "line": 682
+      },
+      {
+        "name": "nonTaxEligibility",
+        "optional": true,
+        "type": "import('../modules/payroll/nonTaxRules').NonTaxEligibility",
+        "line": 683
+      },
+      {
+        "name": "insuranceOverrides",
+        "optional": true,
+        "type": "InsuranceOverrides",
+        "line": 685
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 686
+      },
+      {
+        "name": "runId",
+        "optional": false,
+        "type": "string",
+        "line": 687
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 688
+      },
+      {
+        "name": "employeeNumberSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 689
+      },
+      {
+        "name": "employeeNameSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 690
+      },
+      {
+        "name": "organizationNameSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 691
+      },
+      {
+        "name": "gradeSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 692
+      },
+      {
+        "name": "titleSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 693
+      },
+      {
+        "name": "jobSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 694
+      },
+      {
+        "name": "hireDateSnapshot",
+        "optional": false,
+        "type": "string",
+        "line": 695
+      },
+      {
+        "name": "terminationDateSnapshot",
+        "optional": false,
+        "type": "string | null",
+        "line": 696
+      },
+      {
+        "name": "annualSalarySnapshot",
+        "optional": false,
+        "type": "number",
+        "line": 697
+      },
+      {
+        "name": "monthlyBasePay",
+        "optional": false,
+        "type": "number",
+        "line": 698
+      },
+      {
+        "name": "prorationRate",
+        "optional": false,
+        "type": "number",
+        "line": 699
+      },
+      {
+        "name": "taxableAllowance",
+        "optional": false,
+        "type": "number",
+        "line": 700
+      },
+      {
+        "name": "nonTaxableAllowance",
+        "optional": false,
+        "type": "number",
+        "line": 701
+      },
+      {
+        "name": "overtimePay",
+        "optional": false,
+        "type": "number",
+        "line": 702
+      },
+      {
+        "name": "bonus",
+        "optional": false,
+        "type": "number",
+        "line": 703
+      },
+      {
+        "name": "retroPay",
+        "optional": false,
+        "type": "number",
+        "line": 704
+      },
+      {
+        "name": "otherEarnings",
+        "optional": false,
+        "type": "number",
+        "line": 705
+      },
+      {
+        "name": "unpaidDeduction",
+        "optional": false,
+        "type": "number",
+        "line": 706
+      },
+      {
+        "name": "otherDeductions",
+        "optional": false,
+        "type": "number",
+        "line": 707
+      },
+      {
+        "name": "pensionBaseMonthly",
+        "optional": false,
+        "type": "number",
+        "line": 708
+      },
+      {
+        "name": "healthBaseMonthly",
+        "optional": false,
+        "type": "number",
+        "line": 709
+      },
+      {
+        "name": "employmentInsuranceBaseMonthly",
+        "optional": false,
+        "type": "number",
+        "line": 710
+      },
+      {
+        "name": "nationalPensionEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 711
+      },
+      {
+        "name": "healthInsuranceEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 712
+      },
+      {
+        "name": "employmentInsuranceEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 713
+      },
+      {
+        "name": "industrialAccidentInsuranceEligible",
+        "optional": false,
+        "type": "boolean",
+        "line": 714
+      },
+      {
+        "name": "basicDeductionCount",
+        "optional": false,
+        "type": "number",
+        "line": 715
+      },
+      {
+        "name": "childDeductionCount",
+        "optional": false,
+        "type": "number",
+        "line": 716
+      },
+      {
+        "name": "incomeTaxManual",
+        "optional": false,
+        "type": "number",
+        "line": 717
+      },
+      {
+        "name": "itemAmounts",
+        "optional": true,
+        "type": "Record<string, number>",
+        "line": 718
+      },
+      {
+        "name": "attendanceRevision",
+        "optional": true,
+        "type": "number",
+        "line": 719
+      },
+      {
+        "name": "memo",
+        "optional": false,
+        "type": "string",
+        "line": 720
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "PayrollEntryStatus",
+        "line": 721
+      },
+      {
+        "name": "updatedAt",
+        "optional": false,
+        "type": "string",
+        "line": 722
+      }
+    ]
+  },
+  "PayrollResult": {
+    "source": "src/domain/types.ts",
+    "line": 725,
+    "fields": [
+      {
+        "name": "insuranceBaseCheck",
+        "optional": true,
+        "type": "{pension:number;health:number;employment:number;employmentApplied:number}",
+        "line": 726
+      },
+      {
+        "name": "appliedItemAmounts",
+        "optional": true,
+        "type": "Record<string,number>",
+        "line": 727
+      },
+      {
+        "name": "payrollRuleVersion",
+        "optional": true,
+        "type": "string",
+        "line": 728
+      },
+      {
+        "name": "insuranceRuleVersion",
+        "optional": true,
+        "type": "string",
+        "line": 729
+      },
+      {
+        "name": "taxTableVersion",
+        "optional": true,
+        "type": "string",
+        "line": 730
+      },
+      {
+        "name": "relevantRates",
+        "optional": true,
+        "type": "Record<string,number|string>",
+        "line": 731
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 732
+      },
+      {
+        "name": "runId",
+        "optional": false,
+        "type": "string",
+        "line": 733
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 734
+      },
+      {
+        "name": "basePay",
+        "optional": false,
+        "type": "number",
+        "line": 735
+      },
+      {
+        "name": "taxableEarnings",
+        "optional": false,
+        "type": "number",
+        "line": 736
+      },
+      {
+        "name": "nonTaxableEarnings",
+        "optional": false,
+        "type": "number",
+        "line": 737
+      },
+      {
+        "name": "grossPay",
+        "optional": false,
+        "type": "number",
+        "line": 738
+      },
+      {
+        "name": "nationalPension",
+        "optional": false,
+        "type": "number",
+        "line": 739
+      },
+      {
+        "name": "healthInsurance",
+        "optional": false,
+        "type": "number",
+        "line": 740
+      },
+      {
+        "name": "longTermCareInsurance",
+        "optional": false,
+        "type": "number",
+        "line": 741
+      },
+      {
+        "name": "employmentInsurance",
+        "optional": false,
+        "type": "number",
+        "line": 742
+      },
+      {
+        "name": "incomeTax",
+        "optional": false,
+        "type": "number",
+        "line": 743
+      },
+      {
+        "name": "localIncomeTax",
+        "optional": false,
+        "type": "number",
+        "line": 744
+      },
+      {
+        "name": "otherDeductions",
+        "optional": false,
+        "type": "number",
+        "line": 745
+      },
+      {
+        "name": "totalDeductions",
+        "optional": false,
+        "type": "number",
+        "line": 746
+      },
+      {
+        "name": "netPay",
+        "optional": false,
+        "type": "number",
+        "line": 747
+      },
+      {
+        "name": "calculatedAt",
+        "optional": false,
+        "type": "string",
+        "line": 748
+      },
+      {
+        "name": "ruleVersion",
+        "optional": false,
+        "type": "string",
+        "line": 749
+      },
+      {
+        "name": "warnings",
+        "optional": false,
+        "type": "string[]",
+        "line": 750
+      },
+      {
+        "name": "errors",
+        "optional": false,
+        "type": "string[]",
+        "line": 751
+      }
+    ]
+  },
+  "PayrollEntryInput": {
+    "source": "src/domain/types.ts",
+    "line": 755,
+    "fields": [
+      {
+        "name": "calculationInputs",
+        "optional": true,
+        "type": "{ordinaryMonthlyHours:number;overtimeHours:number;nightHours:number;holidayHours:number;holidayOvertimeHours:number}|null",
+        "line": 756
+      },
+      {
+        "name": "deriveEmploymentBase",
+        "optional": true,
+        "type": "boolean",
+        "line": 757
+      },
+      {
+        "name": "nonTaxEligibility",
+        "optional": true,
+        "type": "import('../modules/payroll/nonTaxRules').NonTaxEligibility",
+        "line": 758
+      },
+      {
+        "name": "monthlyBasePay",
+        "optional": true,
+        "type": "number",
+        "line": 760
+      },
+      {
+        "name": "insuranceOverrides",
+        "optional": true,
+        "type": "InsuranceOverrides",
+        "line": 761
+      },
+      {
+        "name": "id",
+        "optional": true,
+        "type": "string",
+        "line": 762
+      },
+      {
+        "name": "runId",
+        "optional": false,
+        "type": "string",
+        "line": 763
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 764
+      },
+      {
+        "name": "prorationRate",
+        "optional": false,
+        "type": "number",
+        "line": 765
+      },
+      {
+        "name": "taxableAllowance",
+        "optional": false,
+        "type": "number",
+        "line": 766
+      },
+      {
+        "name": "nonTaxableAllowance",
+        "optional": false,
+        "type": "number",
+        "line": 767
+      },
+      {
+        "name": "overtimePay",
+        "optional": false,
+        "type": "number",
+        "line": 768
+      },
+      {
+        "name": "bonus",
+        "optional": false,
+        "type": "number",
+        "line": 769
+      },
+      {
+        "name": "retroPay",
+        "optional": false,
+        "type": "number",
+        "line": 770
+      },
+      {
+        "name": "otherEarnings",
+        "optional": false,
+        "type": "number",
+        "line": 771
+      },
+      {
+        "name": "unpaidDeduction",
+        "optional": false,
+        "type": "number",
+        "line": 772
+      },
+      {
+        "name": "otherDeductions",
+        "optional": false,
+        "type": "number",
+        "line": 773
+      },
+      {
+        "name": "pensionBaseMonthly",
+        "optional": false,
+        "type": "number",
+        "line": 774
+      },
+      {
+        "name": "healthBaseMonthly",
+        "optional": false,
+        "type": "number",
+        "line": 775
+      },
+      {
+        "name": "employmentInsuranceBaseMonthly",
+        "optional": false,
+        "type": "number",
+        "line": 776
+      },
+      {
+        "name": "incomeTaxManual",
+        "optional": false,
+        "type": "number",
+        "line": 777
+      },
+      {
+        "name": "itemAmounts",
+        "optional": true,
+        "type": "Record<string, number>",
+        "line": 778
+      },
+      {
+        "name": "attendanceRevision",
+        "optional": true,
+        "type": "number",
+        "line": 779
+      },
+      {
+        "name": "memo",
+        "optional": false,
+        "type": "string",
+        "line": 780
+      }
+    ]
+  },
+  "PayrollRunInput": {
+    "source": "src/domain/types.ts",
+    "line": 783,
+    "fields": [
+      {
+        "name": "period",
+        "optional": false,
+        "type": "string",
+        "line": 784
+      },
+      {
+        "name": "payDate",
+        "optional": false,
+        "type": "string",
+        "line": 785
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 786
+      }
+    ]
+  },
+  "PayrollRunSummary": {
+    "source": "src/domain/types.ts",
+    "line": 789,
+    "fields": [
+      {
+        "name": "run",
+        "optional": false,
+        "type": "PayrollRun",
+        "line": 790
+      },
+      {
+        "name": "employeeCount",
+        "optional": false,
+        "type": "number",
+        "line": 791
+      },
+      {
+        "name": "grossPay",
+        "optional": false,
+        "type": "number",
+        "line": 792
+      },
+      {
+        "name": "deductions",
+        "optional": false,
+        "type": "number",
+        "line": 793
+      },
+      {
+        "name": "netPay",
+        "optional": false,
+        "type": "number",
+        "line": 794
+      },
+      {
+        "name": "warningCount",
+        "optional": false,
+        "type": "number",
+        "line": 795
+      },
+      {
+        "name": "errorCount",
+        "optional": false,
+        "type": "number",
+        "line": 796
+      }
+    ]
+  },
+  "AttendanceDailyRecord": {
+    "source": "src/domain/types.ts",
+    "line": 800,
+    "fields": [
+      {
+        "name": "confirmedAt",
+        "optional": true,
+        "type": "string",
+        "line": 801
+      },
+      {
+        "name": "manualEdited",
+        "optional": true,
+        "type": "boolean",
+        "line": 802
+      },
+      {
+        "name": "source",
+        "optional": true,
+        "type": "string",
+        "line": 803
+      },
+      {
+        "name": "exceptionWork",
+        "optional": true,
+        "type": "boolean",
+        "line": 804
+      },
+      {
+        "name": "payTreatment",
+        "optional": true,
+        "type": "'PAID'|'UNPAID'|'BENEFIT'",
+        "line": 805
+      },
+      {
+        "name": "offKind",
+        "optional": true,
+        "type": "'PERSONAL'|'WEEKEND'|'STATUTORY'|'COMPANY'",
+        "line": 806
+      },
+      {
+        "name": "note",
+        "optional": true,
+        "type": "string",
+        "line": 807
+      },
+      {
+        "name": "paidCreditHours",
+        "optional": true,
+        "type": "number",
+        "line": 808
+      },
+      {
+        "name": "attachments",
+        "optional": true,
+        "type": "import(\"./attachments\").StoredFile[]",
+        "line": 809
+      },
+      {
+        "name": "activity",
+        "optional": true,
+        "type": "AttendanceActivity",
+        "line": 810
+      },
+      {
+        "name": "nonWorkKind",
+        "optional": true,
+        "type": "'ANNUAL_LEAVE'|'OFF'|'SICK'",
+        "line": 811
+      },
+      {
+        "name": "nonWorkStartTime",
+        "optional": true,
+        "type": "string",
+        "line": 812
+      },
+      {
+        "name": "nonWorkEndTime",
+        "optional": true,
+        "type": "string",
+        "line": 813
+      },
+      {
+        "name": "nonWorkNextDay",
+        "optional": true,
+        "type": "boolean",
+        "line": 814
+      },
+      {
+        "name": "leaveHours",
+        "optional": true,
+        "type": "number",
+        "line": 815
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 816
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 817
+      },
+      {
+        "name": "workDate",
+        "optional": false,
+        "type": "string",
+        "line": 818
+      },
+      {
+        "name": "startTime",
+        "optional": false,
+        "type": "string",
+        "line": 819
+      },
+      {
+        "name": "endTime",
+        "optional": false,
+        "type": "string",
+        "line": 820
+      },
+      {
+        "name": "endNextDay",
+        "optional": false,
+        "type": "boolean",
+        "line": 821
+      },
+      {
+        "name": "breakStart",
+        "optional": false,
+        "type": "string",
+        "line": 822
+      },
+      {
+        "name": "breakMinutes",
+        "optional": false,
+        "type": "number",
+        "line": 823
+      },
+      {
+        "name": "holiday",
+        "optional": false,
+        "type": "boolean",
+        "line": 824
+      },
+      {
+        "name": "absence",
+        "optional": false,
+        "type": "boolean",
+        "line": 825
+      },
+      {
+        "name": "workedHours",
+        "optional": false,
+        "type": "number",
+        "line": 826
+      },
+      {
+        "name": "overtimeHours",
+        "optional": false,
+        "type": "number",
+        "line": 827
+      },
+      {
+        "name": "nightHours",
+        "optional": false,
+        "type": "number",
+        "line": 828
+      },
+      {
+        "name": "holidayHours",
+        "optional": false,
+        "type": "number",
+        "line": 829
+      },
+      {
+        "name": "holidayOvertimeHours",
+        "optional": false,
+        "type": "number",
+        "line": 830
+      },
+      {
+        "name": "updatedAt",
+        "optional": false,
+        "type": "string",
+        "line": 831
+      },
+      {
+        "name": "updatedBy",
+        "optional": false,
+        "type": "string",
+        "line": 832
+      },
+      {
+        "name": "editReason",
+        "optional": false,
+        "type": "string",
+        "line": 833
+      }
+    ]
+  },
+  "LeaveCase": {
+    "source": "src/domain/types.ts",
+    "line": 836,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 837
+      },
+      {
+        "name": "employmentId",
+        "optional": false,
+        "type": "string",
+        "line": 838
+      },
+      {
+        "name": "kind",
+        "optional": false,
+        "type": "LeaveKind",
+        "line": 839
+      },
+      {
+        "name": "startDate",
+        "optional": false,
+        "type": "string",
+        "line": 840
+      },
+      {
+        "name": "endDate",
+        "optional": false,
+        "type": "string | null",
+        "line": 841
+      },
+      {
+        "name": "companyPayRate",
+        "optional": false,
+        "type": "number",
+        "line": 842
+      },
+      {
+        "name": "pensionExceptionApproved",
+        "optional": false,
+        "type": "boolean",
+        "line": 843
+      },
+      {
+        "name": "healthDeferred",
+        "optional": false,
+        "type": "boolean",
+        "line": 844
+      },
+      {
+        "name": "healthPremiumOverride",
+        "optional": false,
+        "type": "number | null",
+        "line": 845
+      },
+      {
+        "name": "employmentBaseOverride",
+        "optional": false,
+        "type": "number | null",
+        "line": 846
+      },
+      {
+        "name": "benefitAmount",
+        "optional": false,
+        "type": "number",
+        "line": 847
+      },
+      {
+        "name": "averageWageExcluded",
+        "optional": false,
+        "type": "boolean",
+        "line": 848
+      },
+      {
+        "name": "yearEndNote",
+        "optional": false,
+        "type": "string",
+        "line": 849
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 850
+      },
+      {
+        "name": "updatedAt",
+        "optional": false,
+        "type": "string",
+        "line": 851
+      }
+    ]
+  },
+  "CalendarEvent": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 4,
+    "fields": [
+      {
+        "name": "important",
+        "optional": true,
+        "type": "boolean",
+        "line": 4
+      },
+      {
+        "name": "work",
+        "optional": true,
+        "type": "import('./workSchedule').WorkTask",
+        "line": 4
+      },
+      {
+        "name": "supersededBy",
+        "optional": true,
+        "type": "string",
+        "line": 4
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 4
+      },
+      {
+        "name": "scope",
+        "optional": false,
+        "type": "'COMPANY'|'HR'",
+        "line": 4
+      },
+      {
+        "name": "title",
+        "optional": false,
+        "type": "string",
+        "line": 4
+      },
+      {
+        "name": "eventType",
+        "optional": false,
+        "type": "'STATUTORY'|'COMPANY_OFF'|'TRAINING'|'PAYDAY'|'EVALUATION'|'RECRUITING'|'EVENT'",
+        "line": 4
+      },
+      {
+        "name": "startDate",
+        "optional": false,
+        "type": "string",
+        "line": 4
+      },
+      {
+        "name": "endDate",
+        "optional": false,
+        "type": "string",
+        "line": 4
+      },
+      {
+        "name": "organizationId",
+        "optional": true,
+        "type": "string",
+        "line": 4
+      },
+      {
+        "name": "appliesTo",
+        "optional": false,
+        "type": "'ALL'|'ORGANIZATION'|'EMPLOYEE'",
+        "line": 4
+      },
+      {
+        "name": "employmentIds",
+        "optional": true,
+        "type": "string[]",
+        "line": 4
+      },
+      {
+        "name": "affectsAttendance",
+        "optional": false,
+        "type": "boolean",
+        "line": 4
+      },
+      {
+        "name": "affectsPayroll",
+        "optional": false,
+        "type": "boolean",
+        "line": 4
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 4
+      },
+      {
+        "name": "source",
+        "optional": false,
+        "type": "string",
+        "line": 4
+      },
+      {
+        "name": "createdAt",
+        "optional": false,
+        "type": "string",
+        "line": 4
+      },
+      {
+        "name": "updatedAt",
+        "optional": false,
+        "type": "string",
+        "line": 4
+      }
+    ]
+  },
+  "Issue": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 5,
+    "fields": [
+      {
+        "name": "linkedLeaveIds",
+        "optional": true,
+        "type": "string[]",
+        "line": 5
+      },
+      {
+        "name": "progress",
+        "optional": true,
+        "type": "import('../../app/issueProgress').IssueProgressStep[]",
+        "line": 5
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 5
+      },
+      {
+        "name": "occurredDate",
+        "optional": false,
+        "type": "string",
+        "line": 5
+      },
+      {
+        "name": "organizationId",
+        "optional": true,
+        "type": "string",
+        "line": 5
+      },
+      {
+        "name": "employmentId",
+        "optional": true,
+        "type": "string",
+        "line": 5
+      },
+      {
+        "name": "category",
+        "optional": false,
+        "type": "string",
+        "line": 5
+      },
+      {
+        "name": "severity",
+        "optional": false,
+        "type": "'LOW'|'MEDIUM'|'HIGH'",
+        "line": 5
+      },
+      {
+        "name": "title",
+        "optional": false,
+        "type": "string",
+        "line": 5
+      },
+      {
+        "name": "description",
+        "optional": false,
+        "type": "string",
+        "line": 5
+      },
+      {
+        "name": "sourceType",
+        "optional": false,
+        "type": "string",
+        "line": 5
+      },
+      {
+        "name": "sourceId",
+        "optional": false,
+        "type": "string",
+        "line": 5
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "'OPEN'|'CLOSED'",
+        "line": 5
+      },
+      {
+        "name": "manual",
+        "optional": false,
+        "type": "boolean",
+        "line": 5
+      },
+      {
+        "name": "createdAt",
+        "optional": false,
+        "type": "string",
+        "line": 5
+      }
+    ]
+  },
+  "ComplianceSetting": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 6,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 6
+      },
+      {
+        "name": "ruleId",
+        "optional": false,
+        "type": "string",
+        "line": 6
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 6
+      },
+      {
+        "name": "autoApplicable",
+        "optional": false,
+        "type": "boolean",
+        "line": 6
+      },
+      {
+        "name": "calculatedApplicable",
+        "optional": false,
+        "type": "boolean",
+        "line": 6
+      },
+      {
+        "name": "manualOverride",
+        "optional": false,
+        "type": "'AUTO'|'APPLY'|'NOT_APPLY'",
+        "line": 6
+      },
+      {
+        "name": "overrideReason",
+        "optional": false,
+        "type": "string",
+        "line": 6
+      },
+      {
+        "name": "effectiveFrom",
+        "optional": false,
+        "type": "string",
+        "line": 6
+      },
+      {
+        "name": "effectiveTo",
+        "optional": false,
+        "type": "string|null",
+        "line": 6
+      },
+      {
+        "name": "sourceAgency",
+        "optional": false,
+        "type": "string",
+        "line": 6
+      },
+      {
+        "name": "sourceName",
+        "optional": false,
+        "type": "string",
+        "line": 6
+      },
+      {
+        "name": "ruleDescription",
+        "optional": false,
+        "type": "string",
+        "line": 6
+      }
+    ]
+  },
+  "PolicyAttachment": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 7,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 7
+      },
+      {
+        "name": "name",
+        "optional": false,
+        "type": "string",
+        "line": 7
+      },
+      {
+        "name": "size",
+        "optional": false,
+        "type": "number",
+        "line": 7
+      },
+      {
+        "name": "mimeType",
+        "optional": false,
+        "type": "string",
+        "line": 7
+      },
+      {
+        "name": "dataUrl",
+        "optional": false,
+        "type": "string",
+        "line": 7
+      },
+      {
+        "name": "uploadedAt",
+        "optional": false,
+        "type": "string",
+        "line": 7
+      },
+      {
+        "name": "variant",
+        "optional": true,
+        "type": "string",
+        "line": 7
+      },
+      {
+        "name": "sha256",
+        "optional": true,
+        "type": "string",
+        "line": 7
+      }
+    ]
+  },
+  "PolicyStep": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 8,
+    "fields": [
+      {
+        "name": "checks",
+        "optional": true,
+        "type": "{id:string;label:string;required:boolean;done:boolean}[]",
+        "line": 8
+      },
+      {
+        "name": "startDate",
+        "optional": true,
+        "type": "string",
+        "line": 8
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "number",
+        "line": 8
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "\"대기\"|\"진행중\"|\"완료\"|\"보류\"",
+        "line": 8
+      },
+      {
+        "name": "owner",
+        "optional": false,
+        "type": "string",
+        "line": 8
+      },
+      {
+        "name": "dueDate",
+        "optional": false,
+        "type": "string",
+        "line": 8
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 8
+      },
+      {
+        "name": "completedAt",
+        "optional": true,
+        "type": "string",
+        "line": 8
+      }
+    ]
+  },
+  "PolicyDocument": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 9,
+    "fields": [
+      {
+        "name": "effectiveTo",
+        "optional": true,
+        "type": "string",
+        "line": 9
+      },
+      {
+        "name": "standards",
+        "optional": true,
+        "type": "{key:string;value:string;from:string;to:string;condition:string}[]",
+        "line": 9
+      },
+      {
+        "name": "attachmentReads",
+        "optional": true,
+        "type": "{fileId:string;hash:string;readAt:string;status:string;warnings?:string[]}[]",
+        "line": 9
+      },
+      {
+        "name": "versions",
+        "optional": true,
+        "type": "{version:number;document:PolicyDocument}[]",
+        "line": 9
+      },
+      {
+        "name": "workflowRevision",
+        "optional": true,
+        "type": "number",
+        "line": 9
+      },
+      {
+        "name": "purpose",
+        "optional": true,
+        "type": "\"WORK_RULES\"|\"NOTICE\"",
+        "line": 9
+      },
+      {
+        "name": "attachments",
+        "optional": true,
+        "type": "PolicyAttachment[]",
+        "line": 9
+      },
+      {
+        "name": "workflow",
+        "optional": true,
+        "type": "PolicyStep[]",
+        "line": 9
+      },
+      {
+        "name": "notice",
+        "optional": true,
+        "type": "{state:\"임시저장\"|\"게시\"|\"보관\";postedAt:string;author:string;linkedPolicyId?:string}",
+        "line": 9
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 9
+      },
+      {
+        "name": "category",
+        "optional": false,
+        "type": "'MOEL_STANDARD'|'COMPANY_OPERATION'|'TECH_OPERATION'|'BYLAW'",
+        "line": 9
+      },
+      {
+        "name": "title",
+        "optional": false,
+        "type": "string",
+        "line": 9
+      },
+      {
+        "name": "version",
+        "optional": false,
+        "type": "number",
+        "line": 9
+      },
+      {
+        "name": "effectiveDate",
+        "optional": false,
+        "type": "string",
+        "line": 9
+      },
+      {
+        "name": "source",
+        "optional": false,
+        "type": "string",
+        "line": 9
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "'Draft'|'검토중'|'적용'|'폐기'",
+        "line": 9
+      },
+      {
+        "name": "contents",
+        "optional": false,
+        "type": "string",
+        "line": 9
+      },
+      {
+        "name": "reviewRequired",
+        "optional": false,
+        "type": "boolean",
+        "line": 9
+      },
+      {
+        "name": "history",
+        "optional": false,
+        "type": "{at:string;version:number;contents:string;reason:string}[]",
+        "line": 9
+      }
+    ]
+  },
+  "WelfareCase": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 10,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 10
+      },
+      {
+        "name": "employeeId",
+        "optional": false,
+        "type": "string",
+        "line": 10
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "'APPLIED'|'EVALUATING'|'SELECTED'|'WAITLIST'|'REJECTED'|'USING'|'ENDED'",
+        "line": 10
+      },
+      {
+        "name": "evaluationCriteria",
+        "optional": false,
+        "type": "{name:string;weight:number;score:number}[]",
+        "line": 10
+      },
+      {
+        "name": "score",
+        "optional": false,
+        "type": "number|null",
+        "line": 10
+      },
+      {
+        "name": "result",
+        "optional": false,
+        "type": "string",
+        "line": 10
+      },
+      {
+        "name": "reviewer",
+        "optional": false,
+        "type": "string",
+        "line": 10
+      },
+      {
+        "name": "reason",
+        "optional": false,
+        "type": "string",
+        "line": 10
+      },
+      {
+        "name": "history",
+        "optional": false,
+        "type": "{at:string;status:string;reviewer:string;reason:string}[]",
+        "line": 10
+      }
+    ]
+  },
+  "OccupationMapping": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 11,
+    "fields": [
+      {
+        "name": "dictionaryVersion",
+        "optional": true,
+        "type": "string",
+        "line": 11
+      },
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 11
+      },
+      {
+        "name": "organizationId",
+        "optional": true,
+        "type": "string",
+        "line": 11
+      },
+      {
+        "name": "job",
+        "optional": true,
+        "type": "string",
+        "line": 11
+      },
+      {
+        "name": "defaultOccupationCode",
+        "optional": false,
+        "type": "string",
+        "line": 11
+      },
+      {
+        "name": "effectiveFrom",
+        "optional": false,
+        "type": "string",
+        "line": 11
+      },
+      {
+        "name": "effectiveTo",
+        "optional": false,
+        "type": "string|null",
+        "line": 11
+      },
+      {
+        "name": "source",
+        "optional": false,
+        "type": "string",
+        "line": 11
+      },
+      {
+        "name": "manualOverride",
+        "optional": false,
+        "type": "boolean",
+        "line": 11
+      }
+    ]
+  },
+  "FilingDraft": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 12,
+    "fields": [
+      {
+        "name": "id",
+        "optional": false,
+        "type": "string",
+        "line": 12
+      },
+      {
+        "name": "kind",
+        "optional": false,
+        "type": "'ACQUISITION'|'LOSS'|'REMUNERATION'|'SEPARATION'",
+        "line": 12
+      },
+      {
+        "name": "period",
+        "optional": false,
+        "type": "string",
+        "line": 12
+      },
+      {
+        "name": "createdAt",
+        "optional": false,
+        "type": "string",
+        "line": 12
+      },
+      {
+        "name": "ruleVersion",
+        "optional": false,
+        "type": "string",
+        "line": 12
+      },
+      {
+        "name": "sourceEmployees",
+        "optional": false,
+        "type": "string[]",
+        "line": 12
+      },
+      {
+        "name": "sourcePayroll",
+        "optional": false,
+        "type": "string[]",
+        "line": 12
+      },
+      {
+        "name": "rows",
+        "optional": false,
+        "type": "Record<string,string|number|null>[]",
+        "line": 12
+      },
+      {
+        "name": "status",
+        "optional": false,
+        "type": "'DRAFT'",
+        "line": 12
+      },
+      {
+        "name": "note",
+        "optional": false,
+        "type": "string",
+        "line": 12
+      }
+    ]
+  },
+  "OperationsData": {
+    "source": "src/modules/operations/operations.ts",
+    "line": 13,
+    "fields": [
+      {
+        "name": "calendarEvents",
+        "optional": false,
+        "type": "CalendarEvent[]",
+        "line": 13
+      },
+      {
+        "name": "issues",
+        "optional": false,
+        "type": "Issue[]",
+        "line": 13
+      },
+      {
+        "name": "complianceSettings",
+        "optional": false,
+        "type": "ComplianceSetting[]",
+        "line": 13
+      },
+      {
+        "name": "policyDocuments",
+        "optional": false,
+        "type": "PolicyDocument[]",
+        "line": 13
+      },
+      {
+        "name": "welfareCases",
+        "optional": false,
+        "type": "WelfareCase[]",
+        "line": 13
+      },
+      {
+        "name": "occupationCodeMappings",
+        "optional": false,
+        "type": "OccupationMapping[]",
+        "line": 13
+      },
+      {
+        "name": "filingDrafts",
+        "optional": false,
+        "type": "FilingDraft[]",
+        "line": 13
+      }
+    ]
+  }
+}
