@@ -17,6 +17,18 @@
     {
       "file": "src/fixtures/scenarios.ts",
       "sha256": "d0ff7c16915171f07668bd6ce8650a2e77962f4a658536a4af86935e323d3c8f"
+    },
+    {
+      "file": "src/fixtures/seed.ts",
+      "sha256": "6b86bc701be9eba4638cedcce0ee61ef662df01291d2740a0da36dd052371e94"
+    },
+    {
+      "file": "src/infrastructure/db/operationsUpgrade.ts",
+      "sha256": "2d05c048c8090ae2e42c2b700346916800f38f08f091383f9ebe014720a2dfae"
+    },
+    {
+      "file": "src/modules/payroll/payrollRules.ts",
+      "sha256": "48535b03a8f8a5c53d808996b1de1c085b2696dc48ff62878b89bffb54ed1579"
     }
   ],
   "workflow": [

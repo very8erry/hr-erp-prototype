@@ -34,3 +34,6 @@ const {readFileSync}=await import('node:fs');const {createHash}=await import('no
 const reference=JSON.parse(readFileSync('public/hris-policy-reference.json','utf8'));
 for(const source of reference.sources)assert.equal(createHash('sha256').update(readFileSync(source.file)).digest('hex'),source.sha256,source.file+' reference is stale; run python3 scripts/build-policy-reference.py');
 console.log('PASS accessible policy reference matches its source files')
+
+assert.equal(summaryFromDaily({...normal,lateMinutes:27,earlyLeaveMinutes:11},pregnancy).lateMinutes,0);assert.equal(summaryFromDaily({...normal,lateMinutes:27,earlyLeaveMinutes:11},pregnancy).earlyLeaveMinutes,0);
+console.log('PASS generated on-time days clear unrelated random lateness and early-leave totals')

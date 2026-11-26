@@ -1,7 +1,7 @@
 from pathlib import Path
 import json,hashlib
 root=Path(__file__).resolve().parent.parent
-paths=['src/fixtures/workRulesAttachments.json','src/fixtures/staffNotices.json','src/modules/core-hr/registrationPolicy.ts','src/fixtures/scenarios.ts']
+paths=['src/fixtures/workRulesAttachments.json','src/fixtures/staffNotices.json','src/modules/core-hr/registrationPolicy.ts','src/fixtures/scenarios.ts','src/fixtures/seed.ts','src/infrastructure/db/operationsUpgrade.ts','src/modules/payroll/payrollRules.ts']
 rules=json.loads((root/paths[0]).read_text());notices=json.loads((root/paths[1]).read_text())
 data={'version':'2026-11-26.1','scope':'공지 첨부를 기반으로 한 HR 실습 기준. 기존 문서는 검토안이며 법정 신고·승인 완료로 바꾸지 않음.','sources':[{'file':p,'sha256':hashlib.sha256((root/p).read_bytes()).hexdigest()} for p in paths],
 'workflow':['공지·취업규칙 확인','인사등록 및 계약 근로시간 검토','일별 근태와 휴가·단축 사유 기록','근태 합산 및 급여 수당 반영','검증·확정·마감·지급'],
