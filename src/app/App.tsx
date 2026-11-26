@@ -103,7 +103,7 @@ export default function App() {
       {view==='issues'&&<EmployeeIssueBoard employees={employees} leaves={leaveCases} today={seoulDate()} service={payrollService}/>}
       {view==='workSchedule'&&<WorkSchedulePage key={dataRevision} service={payrollService}/>}
       {view==='employees'&&!selected&&<EmployeeList onRegister={()=>setShowRegister(true)} leaveCases={leaveCases} employees={employees} onSelect={setSelectedId}/>} 
-      {showRegister&&<EmployeeRegistrationModal organizations={organizations} onClose={()=>setShowRegister(false)} onSave={async data=>{await service.registerEmployee(data);setShowRegister(false);await refresh()}}/>}
+      {showRegister&&<EmployeeRegistrationModal loadPolicies={async()=>(await payrollService.operations()).policyDocuments} organizations={organizations} onClose={()=>setShowRegister(false)} onSave={async data=>{await service.registerEmployee(data);setShowRegister(false);await refresh()}}/>}
       {view==='employees'&&selected&&<EmployeeDetail service={service} employee={selected} employees={employees} organizations={organizations} onBack={()=>setSelectedId(null)} onChanged={async(message)=>{await refresh();setNotice(message)}}/>} 
       {view==='attendance'&&<AttendancePage key={dataRevision} service={payrollService} employees={employees}/>} 
       {view==='payroll'&&<PayrollPage key={dataRevision} service={payrollService} onNotice={setNotice} employees={employees} organizations={organizations}/>} 

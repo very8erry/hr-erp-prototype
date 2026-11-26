@@ -92,3 +92,5 @@ const workflowLinks=spawnSync(process.execPath,['--import','tsx',path.join(root,
 const dashboardPayments=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-dashboard-payroll.ts')],{cwd:root,stdio:'inherit'});if(dashboardPayments.status!==0)process.exit(1)
 
 const withholdingAtomic=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-withholding-atomic.ts')],{cwd:root,stdio:'inherit'});if(withholdingAtomic.status!==0)process.exit(1)
+
+for(const script of ['test-policy-alignment.ts','test-policy-registration.ts','test-policy-preservation.ts']){const check=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts',script)],{cwd:root,stdio:'inherit'});if(check.status!==0)process.exit(1)}

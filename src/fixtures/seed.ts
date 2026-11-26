@@ -303,7 +303,8 @@ export function createSeedBundle(): SeedBundle {
     for (let month=1; month<=9; month += 1) {
       const period=`2026-${pad(month,2)}`
       if (hireDate > `${period}-28` || (terminationDate && terminationDate < `${period}-01`)) continue
-      const scheduled=160 + Math.floor(rand()*16)
+      rand() // Keep the existing deterministic employee/issue identities.
+      const scheduled=Array.from({length:new Date(2026,month,0).getDate()},(_,d)=>new Date(Date.UTC(2026,month-1,d+1))).filter(d=>![0,6].includes(d.getUTCDay())).length*8
       const leaveDays=Math.round(rand()*3*2)/2
       const overtime=Math.round(rand()*22*10)/10
       const absence=status==='LEAVE' && period>='2026-07' ? scheduled : (rand()>.97 ? 8 : 0)
@@ -392,8 +393,9 @@ export function createSeedBundle(): SeedBundle {
       uploadedAt:'2026-05-01T09:00:00.000Z', uploadedBy:'HR_ADMIN', status:'CURRENT',
     })
 
+    pick(workSchedules) // Preserve the seed random sequence while using the notice baseline.
     attendanceSettings.push({
-      id:`ATTSET-${pad(i,5)}-001`, employmentId, workScheduleId:pick(workSchedules).id, timezone:'Asia/Seoul',
+      id:`ATTSET-${pad(i,5)}-001`, employmentId, workScheduleId:'WS-STD-0900',ordinaryMonthlyHours:209, timezone:'Asia/Seoul',
       attendancePin:`${100000 + i}`, badgeId:`BADGE-${pad(i,6)}`, rfidId:`RFID-${pad(i,8)}`,
     })
 
