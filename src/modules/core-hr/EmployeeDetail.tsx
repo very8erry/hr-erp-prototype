@@ -168,7 +168,7 @@ function CapabilityTab({detail}:{detail:EmployeeMasterDetail}) {
 
 function AttendanceTab({detail}:{detail:EmployeeMasterDetail;managerName:(id:string|null|undefined)=>string;onEditManagers:()=>void}) {
   const a=detail.attendanceSetting; const w=detail.workSchedule;   return <div className="detailGrid">
-    <Section title="Work Schedule"><Info label="근무제" value={w?.name??'-'}/><Info label="근무시간" value={w?`${w.startTime} ~ ${w.endTime}`:'-'}/><Info label="휴게" value={w?`${w.breakMinutes}분`:'-'}/><Info label="Timezone" value={a?.timezone??'Asia/Seoul'}/></Section>
+    <Section title="Work Schedule"><Info label="근무제" value={w?.name??'-'}/><Info label="근무시간" value={w?`${w.startTime} ~ ${w.endTime}`:'-'}/><Info label="휴게" value={w?`${w.breakMinutes}분`:'-'}/><Info label="월 급여 환산시간(주휴 포함)" value={String(a?.ordinaryMonthlyHours??209)}/>{a?.policyReview&&<Info label="공지 기준 검토" value={a.policyReview.reason||a.policyReview.sources.join(" / ")}/>}<Info label="Timezone" value={a?.timezone??'Asia/Seoul'}/></Section>
     <Section title="근태 식별정보"><Info label="PIN" value={a?.attendancePin??'-'}/><Info label="Badge ID" value={a?.badgeId??'-'}/><Info label="RFID" value={a?.rfidId??'-'}/><p className="sectionNote">모든 값은 출퇴근 연동 실습을 위한 Dummy Value입니다.</p></Section>
 
   </div>

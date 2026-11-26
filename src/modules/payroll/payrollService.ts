@@ -93,7 +93,7 @@ export class PayrollService {
     for(const e of entries){
       const a=summaries.find(r=>r.employmentId===e.employmentId&&r.period===run.period);if(!a)continue
       const over8=daily.filter(r=>r.employmentId===e.employmentId&&r.workDate.startsWith(run.period)).reduce((sum,r)=>sum+r.holidayOvertimeHours,0)
-      const next={...e,calculationInputs:{ordinaryMonthlyHours:e.calculationInputs?.ordinaryMonthlyHours??209,overtimeHours:a.overtimeHours,nightHours:a.nightHours,holidayHours:a.holidayHours,holidayOvertimeHours:over8}}
+      const next={...e,calculationInputs:{ordinaryMonthlyHours:e.calculationInputs?.ordinaryMonthlyHours??e.ordinaryMonthlyHoursSnapshot??209,overtimeHours:a.overtimeHours,nightHours:a.nightHours,holidayHours:a.holidayHours,holidayOvertimeHours:over8}}
       const calculated=calculatePayrollEntry(next,run.period,items,run.itemOverrides,leaves,run.payDate)
       await this.saveEntry({...next,overtimePay:calculated.appliedItemAmounts?.P120??0,itemAmounts:{...e.itemAmounts,P121:calculated.appliedItemAmounts?.P121??0,P122:calculated.appliedItemAmounts?.P122??0},memo:`${e.memo} / 근태 ${a.revision??0}차: 연장 ${a.overtimeHours}h, 야간 ${a.nightHours}h, 휴일 ${a.holidayHours}h, 휴일8h초과 ${over8}h`})
     }

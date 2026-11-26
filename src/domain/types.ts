@@ -267,6 +267,9 @@ export interface WorkSchedule {
 }
 
 export interface AttendanceSetting {
+  ordinaryMonthlyHours?: number
+  policyReview?: {sources:string[];signature:string;reason:string;reviewedAt:string}
+
   id: string
   employmentId: string
   workScheduleId: string
@@ -678,6 +681,8 @@ export interface PayrollRun {
 
 /** Payroll Run 시점의 입력 Snapshot. 마감 후 원본 HR Master 변경에 영향을 받지 않는다. */
 export interface PayrollEntry {
+  ordinaryMonthlyHoursSnapshot?: number
+
   calculationInputs?: {ordinaryMonthlyHours:number;overtimeHours:number;nightHours:number;holidayHours:number;holidayOvertimeHours:number}|null
   deriveEmploymentBase?:boolean
   nonTaxEligibility?: import('../modules/payroll/nonTaxRules').NonTaxEligibility
