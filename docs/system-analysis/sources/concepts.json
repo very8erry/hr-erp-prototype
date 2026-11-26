@@ -1,0 +1,51 @@
+[
+  [
+    "Interface / Type",
+    "컴파일 시 데이터 계약",
+    "TypeScript가 작성 중 누락·잘못된 값 종류를 점검한다. 런타임에 스스로 실행되거나 DB 테이블을 만들지 않는다. Employment.companyId 누락은 satisfies Employment로 구성 시 점검하도록 개선했다. 외부 JSON은 타입 선언만으로 검증되지 않는다.",
+    "src/domain/types.ts",
+    "등록 객체와 백업 JSON의 런타임 검증 차이를 확인한다."
+  ],
+  [
+    "Object",
+    "실행 중 만들어지는 값",
+    "registerEmployee는 person 객체와 employment 객체를 별도 ID로 생성한다. 객체는 참조 필드로 연결되고 store.add로 저장될 때 영속 데이터가 된다. 스프레드 복사는 같은 사람의 정당한 신원 확인을 대신하지 않는다.",
+    "src/infrastructure/db/indexedDb.ts",
+    "객체 생성·부분실패 후 원자적 취소를 확인한다."
+  ],
+  [
+    "Validation",
+    "입력 및 업무 선행조건 검사",
+    "폼 required, 서비스 숫자 검사, 저장소 상태·참조 검사는 책임이 다르다. 모든 기능이 하나의 Validator 클래스를 거치는 구조가 아니다. validatePayrollRun은 다시 계산하는 업무 명령이다.",
+    "src/modules/payroll/payrollService.ts",
+    "잘못된 숫자, stale, locked를 서로 다른 테스트로 확인한다."
+  ],
+  [
+    "Service",
+    "UI의 업무 호출 창구",
+    "HrService는 많은 요청을 위임하고 일부 필드를 검사한다. PayrollService.syncAttendance는 원천 시간을 금액 입력으로 변환한다. 모든 서비스가 순수 전달 계층은 아니며 repo에도 업무 정책이 있다.",
+    "src/modules/payroll/payrollService.ts",
+    "호출 하나가 읽기인지 쓰기인지 구분한다."
+  ],
+  [
+    "Repository",
+    "저장·트랜잭션과 업무 조정",
+    "IndexedDbHrRepository는 인사/ATS/급여/운영 저장을 폭넓게 수행한다. 공통 데이터에 걸친 tx를 쉽게 구성하지만 책임 집중은 테스트/변경 비용을 만든다. 저장소별 분리보다 원자적 업무 단위가 우선이다.",
+    "src/infrastructure/db/indexedDb.ts",
+    "실패 주입 시 저장과 로그의 원자성을 확인한다."
+  ],
+  [
+    "IndexedDB / PK / logical FK",
+    "브라우저 로컬 비동기 저장소",
+    "PK id 및 unique 인덱스는 저장소가 강제한다. personId가 존재하는 Person을 가리키는지는 앱이 검사해야 한다. 트랜잭션은 포함한 저장소 범위에서만 원자적이다. 별개 put 두 번은 한 업무의 원자성 보장이 아니다.",
+    "src/infrastructure/db/config.ts",
+    "중복 키와 고아 참조는 다른 검증 항목이다."
+  ],
+  [
+    "Snapshot / Migration",
+    "시점 값과 구조 변환",
+    "스냅샷은 과거 계산 재현의 입력이다. 현재 master 변경이 과거 snapshot을 자동 바꾸면 안 된다. 마이그레이션은 버전간 읽기·쓰기 계약의 변환이며 사용자 편집값을 더미 기본값으로 덮지 않아야 한다.",
+    "src/infrastructure/db/migrations.ts",
+    "백업 왕복, 버전 업그레이드, 오래된 입력 보존을 각각 시험한다."
+  ]
+]

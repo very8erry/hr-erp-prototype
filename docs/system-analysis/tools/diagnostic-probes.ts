@@ -1,0 +1,9 @@
+import 'fake-indexeddb/auto'
+import {IndexedDbHrRepository} from '../../../src/infrastructure/db/indexedDb'
+import {writeFileSync} from 'node:fs'
+const r=new IndexedDbHrRepository();await r.initialize();const b=await r.exportDatabase();
+const duplicate=structuredClone(b);duplicate.data.persons.push({...duplicate.data.persons[0],fullName:'중복덮어쓰기검증'});await r.importDatabase(duplicate);const after=await r.exportDatabase();const first=after.data.persons.find(p=>p.id===b.data.persons[0].id)!;
+const run=await r.createPayrollRun({period:'2026-11',payDate:'2026-11-25',note:'fault probe'});await r.calculatePayrollRun(run.id);await r.validatePayrollRun(run.id);
+const original=(r as any).put.bind(r);(r as any).put=async(store:string,row:any)=>{if(store==='auditLogs'&&row.action==='PAYROLL_CONFIRMED')throw Error('injected audit write failure');return original(store,row)};
+let error='';try{await r.setPayrollRunStatus(run.id,'CONFIRMED')}catch(e){error=String(e)}
+const state=await r.getPayrollRun(run.id);writeFileSync('docs/system-analysis/evidence/diagnostic-probes.json',JSON.stringify({baseline:'b4aeb300270a62273d3d5f0c2fea87f2a09ba800',engine:'fake-indexeddb isolated test',findings:[{id:'ISS-A01',inputPersons:duplicate.data.persons.length,storedPersons:after.data.persons.length,duplicateOverwrote:first.fullName==='중복덮어쓰기검증',expected:'duplicate PK rejected before clearing original DB',actual:'restore accepted; last duplicate value wins'},{id:'ISS-A02',injectedFailure:error,storedRunStatus:state?.status,auditWritten:(await r.listAuditLogs()).some(a=>a.entityId===run.id&&a.action==='PAYROLL_CONFIRMED'),expected:'status and audit commit together or both reject',actual:'run confirmed although audit write rejected'}]},null,2));console.log('Recorded 2 diagnostic probes; application source unchanged')

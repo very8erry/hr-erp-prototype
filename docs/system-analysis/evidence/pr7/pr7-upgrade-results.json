@@ -1,0 +1,11 @@
+{
+  "browser": "157.0.8103.79",
+  "status": "PASS",
+  "case": "canonical v6→v7 blocked upgrade with real repository retry",
+  "preserved": {
+    "personId": "PER-00001",
+    "assignments": 374,
+    "attendance": 2906
+  },
+  "message": "데이터베이스 업그레이드가 다른 탭의 이전 연결에 의해 차단되었습니다. 이 앱의 다른 localhost 탭을 닫은 뒤 새로고침하세요. 데이터 삭제는 필요하지 않습니다."
+}

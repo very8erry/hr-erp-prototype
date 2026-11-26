@@ -1,0 +1,7 @@
+digraph G {graph[fontname="Arial",label="Deployment / trust boundary",labelloc=t,fontsize=16,bgcolor="white",pad=.3,nodesep=.4,ranksep=.65];node[fontname="Arial",fontsize=11,color="#48647d",fontcolor="#142c45"];edge[fontname="Arial",fontsize=9,color="#48647d",arrowsize=.7];rankdir=TB;node[shape=box3d];repo[label="«artifact» Git repository
+versioned source + docs"];ci[label="«executionEnvironment» GitHub Actions
+npm ci / build / Pages artifact"];pages[label="«node» GitHub Pages
+static HTML / JS / CSS"];subgraph cluster_local{label="User device / browser origin boundary";browser[label="«executionEnvironment» Chrome
+React app + services + repository"];db[shape=cylinder,label="IndexedDB
+hr-training-simulator v7"];local[shape=folder,label="Downloaded JSON / XLSX / PDF
+user-managed files"];}repo->ci[label="main push"];ci->pages[label="deploy dist"];pages->browser[label="HTTPS static assets"];browser->db[label="local transactions",dir=both];browser->local[label="export / import",dir=both];}
