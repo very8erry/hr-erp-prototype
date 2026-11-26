@@ -75,6 +75,7 @@ import {calculateDailyWorkRecord} from '../../modules/payroll/dailyWorkerRules'
 import { extraItems } from '../../modules/payroll/itemDefaults'
 import { calculateAttendanceDay } from '../../modules/attendance/timeRules'
 import { createSeedBundle } from '../../fixtures/seed'
+import {demoScheduledHours,standardOrdinaryHours} from '../../fixtures/demoAttendance'
 import type { HrRepository } from '../repositories/hrRepository'
 import type { PayrollRepository } from '../../modules/payroll/payrollRepository'
 import { calculatePayrollEntry, PAYROLL_RULE_VERSION } from '../../modules/payroll/payrollRules'
@@ -1006,7 +1007,8 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     if(!c.demoHistoryVersion){
       for(let n=0;n<21;n++){const period=`${2025+Math.floor(n/12)}-${String(n%12+1).padStart(2,'0')}`
         for(const e of employees){if(e.hireDate>monthEnd(period)||(e.terminationDate&&e.terminationDate<monthStart(period))||existing.some(r=>r.employmentId===e.employmentId&&r.period===period))continue
-          additions.push({id:`ATT-DEMO-${e.employmentId}-${period}`,employmentId:e.employmentId,period,organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,jobSnapshot:e.job,scheduledHours:160,workedHours:160,overtimeHours:0,nightHours:0,holidayHours:0,leaveDays:0,absenceHours:0,lateMinutes:0,earlyLeaveMinutes:0})}
+          const planned=demoScheduledHours(period,e.hireDate,e.terminationDate,calendar,e)
+          additions.push({id:`ATT-DEMO-${e.employmentId}-${period}`,employmentId:e.employmentId,period,organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,jobSnapshot:e.job,ordinaryMonthlyHours:standardOrdinaryHours(e.workSchedule),scheduledHours:planned,workedHours:planned,overtimeHours:0,nightHours:0,holidayHours:0,leaveDays:0,absenceHours:0,lateMinutes:0,earlyLeaveMinutes:0})}
         for(const w of workers){if(w.startDate>monthEnd(period)||w.endDate&&w.endDate<monthStart(period)||records.some(r=>r.dailyWorkerId===w.id&&r.workDate.startsWith(period)))continue
           for(const day of Array.from({length:28},(_,i)=>i+1).filter(day=>!dayPolicy(`${period}-${String(day).padStart(2,'0')}`,calendar).off).filter((_,i)=>i%5===0).slice(0,2+(n+workers.indexOf(w))%3)){const workDate=`${period}-${String(day).padStart(2,'0')}`;if(workDate>=w.startDate&&(!w.endDate||workDate<=w.endDate))newRecords.push(calculateDailyWorkRecord(w,workDate,8,'가상 IT 이벤트 운영지원',{otherAllowance:20000,holidayAllowance:holidays2026[workDate]?Math.round(w.dailyRate*.5):0}))}}
       }
@@ -1014,8 +1016,13 @@ export class IndexedDbHrRepository implements HrRepository, PayrollRepository {
     const cutoff=date<'2026-10-31'?date:'2026-10-31'
     if(date>='2026-10-01')for(const e of employees){if(c.attendanceClosed?.['2026-10'])continue;const old=existing.find(r=>r.period==='2026-10'&&r.employmentId===e.employmentId);if(old?.confirmedAt||old?.manualEdited)continue
       for(let day=1;day<=Number(cutoff.slice(8));day++){const workDate=`2026-10-${String(day).padStart(2,'0')}`;if(e.hireDate>workDate||e.terminationDate&&e.terminationDate<workDate||daily.some(r=>r.employmentId===e.employmentId&&r.workDate===workDate))continue
-        if(c.demoScenarioVersion){newDaily.push(correctedDemoDay(e,workDate,employees,calendar));continue}const sick=workDate==='2026-10-02'&&employees.indexOf(e)%19===0;const off=[0,6].includes(new Date(workDate+'T00:00:00Z').getUTCDay());newDaily.push({id:`ATTD-DEMO-${e.employmentId}-${workDate}`,employmentId:e.employmentId,workDate,startTime:'09:00',endTime:'18:00',endNextDay:false,breakStart:'12:00',breakMinutes:60,holiday:false,absence:false,activity:off?'OFF':sick?'SICK':'WORK',workedHours:off||sick?0:8,overtimeHours:0,nightHours:0,holidayHours:0,holidayOvertimeHours:0,updatedAt:new Date().toISOString(),updatedBy:'DEMO',editReason:'서울 날짜까지 일별 누적'})}
-      const days=[...daily,...newDaily].filter(r=>r.employmentId===e.employmentId&&r.workDate.startsWith('2026-10'));if(days.length)additions.push({id:old?.id??`ATT-DEMO-${e.employmentId}-2026-10`,employmentId:e.employmentId,period:'2026-10',organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,jobSnapshot:e.job,scheduledHours:days.filter(r=>r.offKind!=='WEEKEND'&&r.offKind!=='STATUTORY'&&(r.activity!=='OFF'||r.offKind==='PERSONAL')).length*8,workedHours:days.reduce((s,r)=>s+r.workedHours,0),overtimeHours:days.reduce((s,r)=>s+r.overtimeHours,0),nightHours:days.reduce((s,r)=>s+r.nightHours,0),holidayHours:days.reduce((s,r)=>s+r.holidayHours,0),leaveDays:days.reduce((s,r)=>s+(r.leaveHours??0)/8,0),absenceHours:days.filter(r=>r.activity==='ABSENT').length*8,paidCreditHours:days.reduce((s,r)=>s+(r.paidCreditHours??0),0),unpaidHours:days.filter(r=>r.payTreatment==='UNPAID').length*8,sickPaidHours:days.filter(r=>r.activity==='SICK'&&r.payTreatment==='PAID').length*8,sickUnpaidHours:days.filter(r=>r.activity==='SICK'&&r.payTreatment==='UNPAID').length*8,issueNote:[...new Set(days.filter(r=>!['WORK','OFF'].includes(r.activity??'WORK')||r.paidCreditHours).map(r=>`${r.workDate.slice(5)} ${r.note??r.activity} (${r.payTreatment==='UNPAID'?'무급':r.payTreatment==='BENEFIT'?'보험급여':'유급'})`))].join(' / '),lateMinutes:0,earlyLeaveMinutes:0})
+        newDaily.push(correctedDemoDay(e,workDate,employees,calendar))}
+      const days=[...daily,...newDaily].filter(r=>r.employmentId===e.employmentId&&r.workDate.startsWith('2026-10'))
+      if(days.length){
+        const base:AttendanceMonthlySummary=old??{id:`ATT-DEMO-${e.employmentId}-2026-10`,employmentId:e.employmentId,period:'2026-10',organizationNameSnapshot:e.organizationName,gradeSnapshot:e.grade,jobSnapshot:e.job,scheduledHours:0,workedHours:0,overtimeHours:0,nightHours:0,holidayHours:0,leaveDays:0,absenceHours:0,lateMinutes:0,earlyLeaveMinutes:0}
+        const summary=summaryFromDaily({...base,ordinaryMonthlyHours:base.ordinaryMonthlyHours??standardOrdinaryHours(e.workSchedule)},days)
+        if(!old||JSON.stringify({...summary,revision:old.revision})!==JSON.stringify(old))additions.push(summary)
+      }
     }
     if(date>='2026-10-01'&&!c.dailyClosed?.['2026-10'])for(const w of workers)for(let day=1;day<=Number(cutoff.slice(8));day++){
       const workDate=`2026-10-${String(day).padStart(2,'0')}`

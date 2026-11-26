@@ -1,4 +1,6 @@
 import {demoNames} from '../modules/core-hr/nameValidation'
+import {DEMO_ORDINARY_MONTHLY_HOURS,demoScheduledHours} from './demoAttendance'
+import {calendarSeed} from '../modules/operations/operations'
 import type {
   Address,
   Assignment,
@@ -163,6 +165,7 @@ const payrollItemMasters: PayrollItemMaster[] = [
 
 export function createSeedBundle(): SeedBundle {
   const rand = mulberry32(260929)
+  const demoCalendar=calendarSeed()
   const pick = <T,>(values: T[]): T => values[Math.floor(rand() * values.length)]
 
   const company: Company = {
@@ -303,15 +306,23 @@ export function createSeedBundle(): SeedBundle {
     for (let month=1; month<=9; month += 1) {
       const period=`2026-${pad(month,2)}`
       if (hireDate > `${period}-28` || (terminationDate && terminationDate < `${period}-01`)) continue
-      const scheduled=160 + Math.floor(rand()*16)
-      const leaveDays=Math.round(rand()*3*2)/2
-      const overtime=Math.round(rand()*22*10)/10
-      const absence=status==='LEAVE' && period>='2026-07' ? scheduled : (rand()>.97 ? 8 : 0)
+      // Retain the original PRNG draw count so employee identities and other fixtures do not change.
+      rand()
+      const scheduled=demoScheduledHours(period,hireDate,terminationDate,demoCalendar,{employmentId,organizationId:org.id})
+      const rawLeave=Math.round(rand()*3*2)/2,rawOvertime=Math.round(rand()*22*10)/10
+      const fullLeave=status==='LEAVE'&&period>='2026-07'
+      const rawAbsence=fullLeave?scheduled:(rand()>.97?8:0)
+      const rawNight=Math.round(rand()*4*10)/10,rawHoliday=Math.round(rand()*8*10)/10
+      const rawLate=Math.floor(rand()*30),rawEarly=Math.floor(rand()*15)
+      const absence=Math.min(scheduled,rawAbsence),leaveDays=Math.min(rawLeave,(scheduled-absence)/8)
+      const regular=scheduled-absence-leaveDays*8
+      const lateMinutes=Math.min(rawLate,regular*60),earlyLeaveMinutes=Math.min(rawEarly,regular*60-lateMinutes)
+      const overtime=regular>0?rawOvertime:0,holidayHours=regular>0?rawHoliday:0
       attendanceMonthlySummaries.push({
-        id:`ATTM-${pad(i,5)}-${period}`,employmentId,period,organizationNameSnapshot:org.name,gradeSnapshot:grade,jobSnapshot:currentJob,scheduledHours:scheduled,
-        workedHours:Math.max(0,scheduled-leaveDays*8-absence+overtime),overtimeHours:overtime,
-        nightHours:Math.round(rand()*4*10)/10,holidayHours:Math.round(rand()*8*10)/10,
-        leaveDays,absenceHours:absence,lateMinutes:Math.floor(rand()*30),earlyLeaveMinutes:Math.floor(rand()*15),
+        id:`ATTM-${pad(i,5)}-${period}`,employmentId,period,organizationNameSnapshot:org.name,gradeSnapshot:grade,jobSnapshot:currentJob,ordinaryMonthlyHours:DEMO_ORDINARY_MONTHLY_HOURS,scheduledHours:scheduled,
+        workedHours:Math.round((regular-(lateMinutes+earlyLeaveMinutes)/60+overtime+holidayHours)*100)/100,overtimeHours:overtime,
+        nightHours:Math.min(rawNight,Math.round((overtime+holidayHours)*10)/10),holidayHours,
+        leaveDays,absenceHours:absence,lateMinutes,earlyLeaveMinutes,
       })
     }
 
