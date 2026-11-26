@@ -316,6 +316,8 @@ export interface AuditLog {
 }
 
 export interface AttendanceMonthlySummary {
+  /** Monthly ordinary-wage divisor including paid weekly rest; separate from scheduledHours. */
+  ordinaryMonthlyHours?:number
   paidCreditHours?:number
   issueNote?:string
   unpaidHours?:number
