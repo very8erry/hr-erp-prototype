@@ -1,0 +1,22 @@
+name: Verify HRIS changes
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run test:demo-hours
+      - run: npm test
+      - run: npm run build
+      - run: node --import tsx scripts/test-payroll-attendance-consistency.ts
