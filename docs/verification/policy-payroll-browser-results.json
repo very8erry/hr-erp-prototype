@@ -1,0 +1,69 @@
+{
+  "browser": "158.0.8127.88",
+  "engine": "Google Chrome / native IndexedDB, isolated context",
+  "records": [
+    {
+      "name": "rendered policy registry and parameter approval",
+      "status": "PASS",
+      "detail": {
+        "value": 1.75
+      }
+    },
+    {
+      "name": "policy mismatch popup deduplication, source edit and Markdown",
+      "status": "PASS",
+      "detail": {
+        "firstMismatch": 26,
+        "changedMismatch": 27,
+        "savedPayDay": 27
+      }
+    },
+    {
+      "name": "native dummy rebuild, immutable identity and refresh",
+      "status": "PASS",
+      "detail": {
+        "periods": [
+          "2026-09",
+          "2026-10"
+        ],
+        "employees": 341,
+        "daily": 20572,
+        "monthly": 677,
+        "payroll": 0,
+        "skipped": [],
+        "alreadyApplied": false,
+        "sequentialJanuary": [
+          "2026-01"
+        ]
+      }
+    },
+    {
+      "name": "official populated PDF / 7 employees / three pages",
+      "status": "PASS",
+      "detail": {
+        "employees": 7,
+        "size": 752616
+      }
+    },
+    {
+      "name": "rendered filing table / XLSX download / import / saved revision",
+      "status": "PASS",
+      "detail": {
+        "savedVersions": 2
+      }
+    },
+    {
+      "name": "scoped reset dialog and persisted approved value after reload",
+      "status": "PASS",
+      "detail": {
+        "value": 1.75
+      }
+    },
+    {
+      "name": "no browser runtime errors",
+      "status": "PASS",
+      "detail": []
+    }
+  ],
+  "errors": []
+}

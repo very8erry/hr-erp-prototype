@@ -16,6 +16,11 @@ import type {
 } from '../../domain/types'
 
 export interface HrRepository {
+ rebuildPolicyDemo(from:string,to:string,backupConfirmed:boolean):Promise<import('../db/rebuildPolicyDemo').RebuildDemoReport>
+ resetScope(scope:import('../db/scopedReset').ResetScope,period:string,backupConfirmed:boolean):Promise<void>
+
+ saveWorkContract(employmentId:string,contract:import('../../modules/attendance/workContract').WorkContract,revision:number):Promise<void>
+
   saveResume(employmentId:string,file:import('../../domain/attachments').StoredFile):Promise<void>
   editMaster(input:import('../../domain/masterEdit').MasterEdit):Promise<void>
   savePersonNames(id:string,names:{fullName:string;englishName:string;hanjaName:string},reviewed:boolean):Promise<void>

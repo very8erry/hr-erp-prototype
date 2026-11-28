@@ -20,6 +20,16 @@ import type {
 
 export type ConfirmSection='attendance'|'annual'|'daily'|'retirement'|'yearend'
 export interface PayrollRepository {
+ filingTaxProfiles():Promise<import("../../domain/types").TaxProfile[]>
+
+ policyContext():Promise<{settings:import('../../domain/types').AttendanceSetting[];schedules:import('../../domain/types').WorkSchedule[];documents:import('../operations/operations').PolicyDocument[];items:import('../../domain/types').PayrollItemMaster[];info:import('./companyInfo').CompanyInfo}>
+ attendanceMonthBasis(employmentId:string,period:string):Promise<import('../attendance/attendanceBasis').AttendanceBasis>
+ saveWorkContract(employmentId:string,contract:import('../attendance/workContract').WorkContract,revision:number):Promise<void>
+
+ reopenPayroll(input:import('./payrollCorrections').ReopenPayrollInput):Promise<void>
+ applyPaidCorrection(input:import('./payrollCorrections').PaidCorrectionInput):Promise<void>
+ payrollCorrections(runId:string):Promise<import('../../domain/types').AuditLog[]>
+
   refreshIssues():Promise<void>
   convertCandidate(input:import("../recruiting/evaluations").OnboardingInput):Promise<{personId:string;employmentId:string}>
   planningReview():Promise<import('../operations/planningReview').PlanningReview>

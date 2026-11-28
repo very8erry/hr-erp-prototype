@@ -1,39 +1,23 @@
-# HRIS 기획·설계 검토 v3.0
+# HRIS 기획·설계 검토 v3.1
 
-분석 기준: `55281cd2a7de4ab4fc2191d04c06bfd2b05a227b` + `codex/workflow-integrity-review`의 수정 사항. 작성일 2026-11-24.
+분석 기준: main `3fc7b8ce91cb2fe2b11716e11fa86b631a8984dc` + `codex/policy-payroll-workflow` 변경안. 작성/검증일: 2026-11-28.
 
-## 산출물과 편집
+`public/hris-design.html`은 기존 메뉴 구조를 유지하는 독립 열람용 문서다. 실제 HRIS IndexedDB·API를 조회하거나 수정하지 않는다. 170개 요구사항, 14개 영역, 68개 타입 정의와 기존 개념/논리/물리 모델을 포함한다. 요구 연결이 모든 세부 기능의 테스트 완료를 의미하지 않는다.
 
-`public/hris-design.html`은 외부 라이브러리 없이 열 수 있는 단일 HTML이다. GitHub Pages의 `/hris-design.html`로 배포된다.
+## 편집 원본
 
-- `data.json`: 사용자 요구 165건, 14개 업무영역, 35개 대표 기능, 검토 근거와 남은 범위. 요구사항을 기능에 연결한 것은 개별 요구 전체의 검증 완료를 의미하지 않는다.
-- `schema.json`: 실제 TypeScript 인터페이스의 필드·타입·소스 위치.
-- `physical.json`: 실제 DB 이름·버전 및 44개 저장소의 인덱스 정의.
-- `base.html`, `extension.js`, `extension.css`: 문서 UI 및 SVG 편집 원본.
-- `python3 scripts/build-design-review.py`: 단일 HTML 재생성. 이후 `npm run build`로 배포 파일을 생성한다.
+- `data.json`: 요구·기능·대응표·근거·남은 범위와 소스 지문.
+- `schema.json`: 실제 TypeScript 필드·타입·소스 위치. `node scripts/refresh-design-schema.mjs`로 갱신.
+- `physical.json`: 기존 DB 저장소/인덱스. 이번 변경은 DB 이름·버전·PK를 변경하지 않는다.
+- `base.html`, `extension.js`, `extension.css`: 화면·도식 편집 원본.
+- `python3 scripts/build-design-review.py`: 단일 HTML 생성.
+- `python3 scripts/build-policy-reference.py`: 열람용 규정 참고 파일 갱신.
+- `docs/manuals/*.html`: 최신 설명서 PDF의 편집 원본.
 
-논리적 ERD는 Google 이미지 검색에서 살펴본 10개 예시의 공통 표기인 엔터티 표, PK/FK, 관계선, crow's-foot를 적용했다. 참고 URL은 HTML의 작성 근거에서 확인한다. 타인의 도식 이미지를 복제하지 않았다. 42개 타입-저장소 대응과 607개 필드를 사전에 포함한다. 나머지 메타/설정 이력 저장소는 물리 모델에서 확인한다. IndexedDB에 SQL 외래키 제약이 있다고 표현하지 않는다.
+## 최신성 및 검증
 
-## 재검토 판정
+`test-design-current.ts`가 소스 지문, 요구 ID, ERD 타입, HTML의 데이터 접근 금지, 설명서 파일을 검사한다. 릴리스 검사에 포함되어 소스가 바뀌면 문서 갱신 없이 빌드가 통과하지 않는다. 지문 갱신만으로 의미 검토를 대신하지 않으며 변경된 요구/기능/상태 설명을 함께 검토한다.
 
-- 31개 기능: 표기된 코드·테스트 사례의 범위에서 일치.
-- 2개 기능: 코드 경로 확인. 해당 기능 전체의 브라우저 저장/통지 검증으로 확대하지 않는다.
-- 1개 기능: 개인 지급·공제 내역 출력 경로가 있으므로 기존 '경로 미확인' 표현 수정. 법정 명세서 자동 교부와는 별개다.
-- 1개 기능: 로컬 역할 시뮬레이션과 서버 인증의 제품 범위 구분.
+이번 실제 변경, 테스트 입력·기대/실제 결과, 보존 범위, 미지원·승인 항목은 [최종 검증 기록](../verification/policy-payroll-20261128.md)을 기준으로 한다. 과거 보고서의 성공을 이번 변경에 그대로 적용하지 않는다.
 
-각 기능의 `evidence`, `remaining`, `previousStatus`가 근거 기준이다. 미실행 외부 접수/통지 및 정책 판단을 성공으로 바꾸지 않았다.
-
-## 실행한 검증
-
-- `npm run build`: PASS. prebuild의 전체 릴리스 검사, TypeScript, Vite 포함. 번들 크기 및 기존 혼합 import 경고는 남는다.
-- `node --import tsx scripts/test-requested.ts`: PASS. 21개월 더미 이력, NTS 소득세, 연도별 요약 Excel, 원본 신고양식 보존·회사 전화번호, 마감 순서·잠금, 초기화 검증.
-- `node --import tsx scripts/test-withholding-atomic.ts`: 수정 전 실패 재현, 수정 후 PASS. 로그 저장 실패 시 전체 저장소 보존, 정상 초안/로그 저장, 회사정보와 동시 저장 시 양쪽 변경 보존.
-- `scripts/test-workflow-links.ts`, `scripts/test-dashboard-payroll.ts`: 릴리스 검사에 포함되어 PASS. 휴직 충돌/잠금·로그 원자성, 계산액/지급액/일용 발생액 분리.
-- 생성 HTML JavaScript 구문 검사, 요구 ID 중복, ERD 참조 필드와 실제 타입·저장소 매칭, 근거 파일 존재, `git diff --check`: PASS.
-- Chrome 실제 문서: 15개 메뉴, 전체 기능·전체 흐름, ERD 표시, 데이터 사전 검색, 기획/설계 대조 상세 표시 확인. 콘솔 오류 없음. 이 검사는 실제 급여 저장 흐름 전체를 재수행했다는 의미가 아니다.
-
-## 변경·보존
-
-휴직 저장과 회사/정산설정 변경의 검증·감사로그를 같은 트랜잭션에 포함한다. 원천세 신고초안도 회사정보 및 로그와 함께 원자적으로 저장한다. 대시보드에서 계산액과 지급 완료액을 구분한다. DB 이름/버전/PK 변경 및 기존 데이터 초기화는 없다. 사용자의 실제 IndexedDB 데이터는 문서 작성/배포 과정에서 수정하지 않았다.
-
-남은 범위: 실제 기관 업로드 접수, 법정 통지 도달, 실제 문자/메일 전송, 서버 인증·중앙 감사, 전체 요구 165건의 개별 E2E 검증. 이번 문서와 로컬 시험의 통과가 이 범위의 완료를 의미하지 않는다.
+공식 2026 반기 신고서 작성 및 로컬 XLSX 왕복은 검증 대상이다. 실제 기관 접수·송금·자동 교부·2027 월별 공식 PDF 지원을 완료로 표시하지 않는다. 근거가 확정되지 않은 규정과 회사별 판단은 확인 필요로 유지한다.
