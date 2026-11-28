@@ -5,6 +5,16 @@ import type { FilingFormValues,RetirementSettlement,YearEndTaxCase,AnnualLeaveLe
 import type { PayrollRepository,ConfirmSection } from './payrollRepository'
 
 export class PayrollService {
+ filingTaxProfiles(){return this.repository.filingTaxProfiles()}
+
+ policyContext(){return this.repository.policyContext()}
+ attendanceMonthBasis(employmentId:string,period:string){return this.repository.attendanceMonthBasis(employmentId,period)}
+ saveWorkContract(employmentId:string,contract:import('../attendance/workContract').WorkContract,revision:number){return this.repository.saveWorkContract(employmentId,contract,revision)}
+
+ reopenPayroll(input:import('./payrollCorrections').ReopenPayrollInput){return this.repository.reopenPayroll(input)}
+ applyPaidCorrection(input:import('./payrollCorrections').PaidCorrectionInput){return this.repository.applyPaidCorrection(input)}
+ payrollCorrections(runId:string){return this.repository.payrollCorrections(runId)}
+
   populateWorkYear(year:number){return this.repository.populateWorkYear(year)}
   async setScheduleImportance(id:string,important:boolean){await this.repository.setScheduleImportance(id,important);this.workChanged()}
   async saveWorkEvents(events:import('../operations/operations').CalendarEvent[]){await this.repository.saveWorkEvents(events);this.workChanged()}

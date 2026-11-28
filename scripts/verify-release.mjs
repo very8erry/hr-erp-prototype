@@ -85,7 +85,7 @@ const integrityTest=spawnSync(process.execPath,['--import','tsx',path.join(root,
 
 const pr7Test=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-pr7-integration.ts')],{cwd:root,stdio:'inherit'});if(pr7Test.status!==0)process.exit(1)
 const scheduleIntegrity=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-pr7-scheduled.ts')],{cwd:root,stdio:'inherit'});if(scheduleIntegrity.status!==0)process.exit(1)
-console.log(`\nRelease verification passed: v${version}`)
+
 
 const consistencyTest=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-payroll-attendance-consistency.ts')],{cwd:root,stdio:'inherit'});if(consistencyTest.status!==0)process.exit(1)
 const workflowLinks=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-workflow-links.ts')],{cwd:root,stdio:'inherit'});if(workflowLinks.status!==0)process.exit(1)
@@ -94,3 +94,9 @@ const dashboardPayments=spawnSync(process.execPath,['--import','tsx',path.join(r
 const withholdingAtomic=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-withholding-atomic.ts')],{cwd:root,stdio:'inherit'});if(withholdingAtomic.status!==0)process.exit(1)
 
 for(const script of ['test-policy-alignment.ts','test-policy-registration.ts','test-policy-preservation.ts']){const check=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts',script)],{cwd:root,stdio:'inherit'});if(check.status!==0)process.exit(1)}
+
+for(const script of ['test-policy-payroll-workflow.ts','test-contract-policy-registry.ts','test-policy-storage.ts']){const check=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts',script)],{cwd:root,stdio:'inherit'});if(check.status!==0)process.exit(1)}
+
+const designCurrent=spawnSync(process.execPath,['--import','tsx',path.join(root,'scripts/test-design-current.ts')],{cwd:root,stdio:'inherit'});if(designCurrent.status!==0)process.exit(1)
+
+console.log(`\nRelease verification passed: v${version}`)

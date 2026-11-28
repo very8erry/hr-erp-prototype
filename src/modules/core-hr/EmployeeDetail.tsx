@@ -1,3 +1,4 @@
+import {WorkContractEditor} from './WorkContractEditor'
 import {Pencil,UserRoundPlus,SpellCheck,IdCard,Upload} from 'lucide-react'
 import {ScrollTable} from '../../components/ScrollTable'
 import { Textarea } from '../../components/ui/textarea'
@@ -84,7 +85,7 @@ export function EmployeeDetail({ service, employee, employees, organizations, on
     {tab==='employment' && <><EmploymentTab detail={detail} managerName={managerName} onEditManagers={()=>setShowManager(true)}/><div className="panel"><h3>신고 직종 · 이직사유</h3><p>직종코드: {employee.occupationCode||'미지정'}</p><p>이직사유: {detail.socialInsuranceProfile?.departureReasonCode||'미입력'} · {detail.socialInsuranceProfile?.departureReason||''}</p><Button onClick={()=>setMasterEdit(true)}>직종·4대보험 정보 수정</Button></div></>}
     {tab==='payroll' && <PayrollTaxTab detail={detail} payrollDependent={payrollDependent}/>}
     {tab==='capability' && <CapabilityTab detail={detail}/>}
-    {tab==='attendance' && <AttendanceTab detail={detail} managerName={managerName} onEditManagers={()=>setShowManager(true)}/>}
+    {tab==='attendance' && <><WorkContractEditor setting={detail.attendanceSetting??undefined} schedule={detail.workSchedule??undefined} onSave={async(c,r)=>{await service.saveWorkContract(employee.employmentId,c,r);await saved('근로계약을 저장했습니다.')}}/><AttendanceTab detail={detail} managerName={managerName} onEditManagers={()=>setShowManager(true)}/></>}
     {tab==='history' && <HistoryTab detail={detail} organizations={organizations}/>}
     {tab==='documents' && <DocumentsTab detail={detail} service={service} onSaved={()=>saved('첨부문서를 저장했습니다.')}/>}
 

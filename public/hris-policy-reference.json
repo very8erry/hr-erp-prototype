@@ -1,5 +1,5 @@
 {
-  "version": "2026-11-26.1",
+  "version": "2026-11-28.1",
   "scope": "공지 첨부를 기반으로 한 HR 실습 기준. 기존 문서는 검토안이며 법정 신고·승인 완료로 바꾸지 않음.",
   "sources": [
     {
@@ -24,11 +24,27 @@
     },
     {
       "file": "src/infrastructure/db/operationsUpgrade.ts",
-      "sha256": "2d05c048c8090ae2e42c2b700346916800f38f08f091383f9ebe014720a2dfae"
+      "sha256": "06ae3aca3713d2799c60762bb3737c682702080ea1897ef3e9dba61fe17e1138"
     },
     {
       "file": "src/modules/payroll/payrollRules.ts",
-      "sha256": "48535b03a8f8a5c53d808996b1de1c085b2696dc48ff62878b89bffb54ed1579"
+      "sha256": "b77e4c82fc818eae8bd3408be93a9d7e337724959d4031bea843a401024f59cd"
+    },
+    {
+      "file": "src/modules/payroll/policyRegistry.ts",
+      "sha256": "f0c07a4c3592cc296e91254144a9182b058fb56fa151c8a4b9f452728bb3b7c9"
+    },
+    {
+      "file": "src/modules/payroll/payrollParameters.ts",
+      "sha256": "7684e9e69b83de9d40c4d1d4a411b5ecd94e424bd76b6911e7f833acd77e25f0"
+    },
+    {
+      "file": "src/modules/attendance/workContract.ts",
+      "sha256": "7eb52d9c18c90af7d78df377a99dc0f42552758b465af7b2bfc82b4d299f2db1"
+    },
+    {
+      "file": "src/modules/attendance/attendanceBasis.ts",
+      "sha256": "4de03b38b076536776d8566fa2becd4fcfce80e0fd8263e0932e471158e783e0"
     }
   ],
   "workflow": [
@@ -132,7 +148,7 @@
     "pregnancy": "2026-01-01~02-16, 07-07~07-18: 실근로 6h+유급인정 2h",
     "maternity": "07-19~10-16: 실근로 0h, 기존 출산휴가/고용보험 구분 유지",
     "childcare": "10-17~12-31: 실근로 6h, 주30h 단축계약, 기본급 75%, 고정수당 유지",
-    "other": "병가·결근·연차·훈련·가족돌봄 등 기존 지정 대상/일자/증빙 유지. 일반 직원 일부 수요일 승인 연장/야간근로 생성."
+    "other": "병가·결근·연차·훈련·가족돌봄 등 기존 지정 대상/일자/증빙 유지. 일반 직원은 계약상 정상근무. 기존 지정 이슈에 한해 연장·야간·휴일근로 보존."
   },
   "preservation": "수기·가져오기·확정·마감·지급완료 원본은 자동 교체하지 않음. 과거 지급완료 자료는 기존 스냅샷 보존; 신규 생성 이력에 수정 기준 적용. 자동 수정 근태에 연결된 미확정 계산 결과는 재계산 필요 상태로 변경.",
   "references": [

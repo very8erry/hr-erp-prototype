@@ -85,6 +85,23 @@
           "previousStatus": "화면 확인",
           "review": "코드·시험 일치",
           "remaining": "검증 범위는 표기한 사례에 한정합니다."
+        },
+        {
+          "id": "F-HR-04",
+          "name": "근로계약 유효 이력",
+          "input": "근무요일·시각·주휴·환산시간",
+          "rule": "기간 중복·잠금·오래된 편집 차단",
+          "output": "계약 이력·월 집계·급여 무효화",
+          "status": "구현·검증 기록 참조",
+          "test": "scripts/test-policy-storage.ts",
+          "source": "src/infrastructure/db/contractRepository.ts",
+          "evidence": {
+            "path": "scripts/test-policy-storage.ts",
+            "scope": "파일 내 명시된 사례",
+            "function": "근로계약 유효 이력"
+          },
+          "review": "코드·시험 대조",
+          "remaining": "기관 접수·은행 이체·사용자 실DB는 수행하지 않음"
         }
       ]
     },
@@ -286,11 +303,11 @@
       "steps": [
         "급여월 생성·대상자 구성",
         "근태 수당 반영 / 입력",
-        "최신 원본·설정으로 계산",
-        "오류·버전 검사 → 검증",
+        "최신 원본·설정으로 계산 및 자동 검증",
+        "오류 정정·경고 확인",
         "확정 → 근태 마감 확인 → 급여 마감 → 지급"
       ],
-      "exception": "원본 누락·버전 불일치·계산 오류 → 검증/확정 차단. 잠긴 결과는 재계산하지 않는다.",
+      "exception": "오류·원천 변경은 확정 차단. 미지급 정정은 원본 아카이브; 지급 완료는 이후월 별도 차액.",
       "features": [
         {
           "id": "F-PAY-01",
@@ -332,7 +349,7 @@
           "id": "F-PAY-03",
           "name": "상태 전이·잠금",
           "input": "검증 결과·근태 마감",
-          "rule": "DRAFT→CALCULATED→VALIDATED→CONFIRMED→CLOSED→PAID. 보호상태의 원천 변경은 제한한다.",
+          "rule": "계산 → 자동 VALIDATED(오류 없음) → CONFIRMED → CLOSED → PAID. 미지급 정정은 아카이브 후 DRAFT, PAID 원본 불변.",
           "output": "잠긴 결과·감사로그",
           "status": "근거 확인",
           "test": "scripts/test-domain.ts · confirmation, five ledger locks, backup preservation",
@@ -363,6 +380,40 @@
           "previousStatus": "추가 검증",
           "review": "기획 표현 수정",
           "remaining": "전용 명세서 서식·실제 교부와 수신 증빙은 구현 완료로 표시하지 않습니다."
+        },
+        {
+          "id": "F-PAY-05",
+          "name": "상태별 정정",
+          "input": "잠긴 급여·사유·반영월",
+          "rule": "미지급은 원본 보존 후 해제; 지급 완료는 이후월 차액만 반영",
+          "output": "정정 이력·후속 검토",
+          "status": "구현·검증 기록 참조",
+          "test": "scripts/test-policy-payroll-workflow.ts",
+          "source": "src/infrastructure/db/payrollCorrectionsRepository.ts",
+          "evidence": {
+            "path": "scripts/test-policy-payroll-workflow.ts",
+            "scope": "파일 내 명시된 사례",
+            "function": "상태별 정정"
+          },
+          "review": "코드·시험 대조",
+          "remaining": "기관 접수·은행 이체·사용자 실DB는 수행하지 않음"
+        },
+        {
+          "id": "F-PAY-06",
+          "name": "근로소득간이지급명세서",
+          "input": "지급완료 스냅샷·회사정보",
+          "rule": "지급월·의제·과세소득·거주 구분",
+          "output": "공식 반기 PDF·목록·버전 초안",
+          "status": "구현·검증 기록 참조",
+          "test": "scripts/test-policy-storage.ts",
+          "source": "src/modules/payroll/SimplifiedEarnedPanel.tsx",
+          "evidence": {
+            "path": "scripts/test-policy-storage.ts",
+            "scope": "파일 내 명시된 사례",
+            "function": "근로소득간이지급명세서"
+          },
+          "review": "코드·시험 대조",
+          "remaining": "기관 접수·은행 이체·사용자 실DB는 수행하지 않음"
         }
       ]
     },
@@ -448,6 +499,23 @@
           "previousStatus": "코드 확인",
           "review": "코드 확인",
           "remaining": "검증 범위는 표기한 사례에 한정합니다."
+        },
+        {
+          "id": "F-SET-04",
+          "name": "요율 승인·정산 적용",
+          "input": "공식 원문 후보·기간·개별 선택",
+          "rule": "사용자 승인값·개별 요건으로 계산",
+          "output": "설정 이력·정산 공제·교차검증",
+          "status": "구현·검증 기록 참조",
+          "test": "scripts/test-policy-payroll-workflow.ts",
+          "source": "src/modules/payroll/ParameterReview.tsx",
+          "evidence": {
+            "path": "scripts/test-policy-payroll-workflow.ts",
+            "scope": "파일 내 명시된 사례",
+            "function": "요율 승인·정산 적용"
+          },
+          "review": "코드·시험 대조",
+          "remaining": "기관 접수·은행 이체·사용자 실DB는 수행하지 않음"
         }
       ]
     },
@@ -1602,15 +1670,15 @@
     {
       "id": "REQ-PAY-04",
       "group": "PAY",
-      "title": "확정·마감·지급 통제",
-      "detail": "DRAFT→CALCULATED→VALIDATED→CONFIRMED→CLOSED→PAID 순서를 적용한다.",
-      "accept": "근태 변경·검증 오류·미마감이면 차단하고 확정 이후 원천 변경으로 과거 결과를 덮지 않는다.",
+      "title": "계산 및 자동 검증·확정·마감·지급",
+      "detail": "급여 계산 한 번으로 최신 근태·산출식·세금·보험·오류·경고를 검사한다. 오류가 없으면 VALIDATED, 오류가 있으면 CALCULATED로 남기고 확정을 차단한다. 별도 검증 버튼은 제거한다.",
+      "accept": "계산 이후 원천이 바뀌면 기존 검증 무효화. 근태 마감 후 급여 마감, 이후 지급 완료.",
       "priority": "P0",
       "kind": "기능",
-      "status": "관련 코드 확인 · 검증 범위 별도",
-      "source": "대화 사용자 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-PAY-04",
       "flow": "UF-PAY",
       "wire": "WF-PAY"
@@ -1714,15 +1782,15 @@
     {
       "id": "REQ-PAY-11",
       "group": "PAY",
-      "title": "과거 급여 정정",
-      "detail": "확정·마감·지급 데이터와 수기값·수정 이력을 보호한다.",
-      "accept": "과거 원천 수정이 잠긴 결과를 변경하지 않고 정정은 별도 절차로 남는다.",
+      "title": "상태별 과거 급여 정정",
+      "detail": "확정·마감 미지급은 사유·지급 여부·신고영향 확인과 원본 보존 후 정정. 지급 완료 원본은 변경하지 않고 이후 급여월에 추가지급·환수·분류 정정을 별도 반영한다.",
+      "accept": "정정 전후·차액·반영월·상태·원본 이력을 보존하고 중복 반영을 차단한다. 은행 지급액 확인은 외부 업무다.",
       "priority": "P1",
       "kind": "기능",
-      "status": "요구 확정 · 세부 대조 필요",
-      "source": "대화 사용자 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-PAY-11",
       "flow": "UF-PAY",
       "wire": "WF-PAY"
@@ -1762,15 +1830,15 @@
     {
       "id": "REQ-SET-02",
       "group": "SET",
-      "title": "정산항목 설정",
-      "detail": "연말·중도정산, 소득세·주민세, 건강·장기요양 정산의 표시·중도 포함·연말 포함을 설정한다.",
-      "accept": "안함·완납/1차·2차·3차 등 적용 방식이 저장되고 계산·정산에서 반영된다.",
+      "title": "개별 정산항목과 연결 조건",
+      "detail": "정산항목별 선택·표시·중도 포함·연말 차수를 저장한다. 소득세/주민세, 건강/요양의 공통 포함 조건은 그룹 적용 가능하며 금액은 독립 입력한다.",
+      "accept": "미선택·잘못된 차수는 계산 오류, 환급은 음수 공제로 반영. 확정 스냅샷은 보존.",
       "priority": "P1",
       "kind": "기능",
-      "status": "요구 확정 · 세부 대조 필요",
-      "source": "대화 사용자 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-SET-02",
       "flow": "UF-SET",
       "wire": "WF-SET"
@@ -1778,15 +1846,15 @@
     {
       "id": "REQ-SET-03",
       "group": "SET",
-      "title": "산출식 확인·수정",
-      "detail": "항목별 기본 산출식·수정 산출식·수기 금액을 같은 창에서 조회·변경한다.",
-      "accept": "유효하지 않은 식을 거부하고 저장값이 새 계산에 반영된다.",
+      "title": "산출식·공통 고정금액",
+      "detail": "기본 산출식·사용자 지정 산출식·공통 고정금액을 구분한다. 고정금액은 허용 지급항목·직원·지급요건·시행월을 지정한다. 직원별 명시 금액(0 포함)을 우선하고 중복 합산하지 않는다.",
+      "accept": "설정 변경 이력과 적용기간을 보존한다. 보험·근로시간 수당은 공통 고정금액 대상에서 제외하고 개별 수기입력/산출식을 사용한다.",
       "priority": "P1",
       "kind": "기능",
-      "status": "관련 코드 확인 · 검증 범위 별도",
-      "source": "대화 사용자 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-SET-03",
       "flow": "UF-SET",
       "wire": "WF-SET"
@@ -1794,15 +1862,15 @@
     {
       "id": "REQ-SET-04",
       "group": "SET",
-      "title": "가산율 값·출처",
-      "detail": "연장·야간·휴일·초과 배율 변수의 현재 저장값과 기본값을 명시한다.",
-      "accept": "배율 변경 후 수당이 같은 계산 함수로 산출되고 불러오기와 계산 간 고정값 차이가 없다.",
+      "title": "원문 검토·승인된 가산율과 요율",
+      "detail": "급여설정의 원문·키워드·숫자·단위·적용기간을 검토하고 사용자가 승인한 값을 해당 귀속월 계산에 사용한다. 미승인 후보는 계산을 바꾸지 않는다.",
+      "accept": "공식 원문 링크와 확인일·승인자·승인시각 보존. 기간 중복/법정 최소 미만 차단. 기존값과 승인값 구분.",
       "priority": "P1",
       "kind": "기능",
-      "status": "관련 코드 확인 · 검증 범위 별도",
-      "source": "대화 사용자 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-SET-04",
       "flow": "UF-SET",
       "wire": "WF-SET"
@@ -1826,15 +1894,15 @@
     {
       "id": "REQ-SET-06",
       "group": "SET",
-      "title": "비과세·보험 교차검증",
-      "detail": "식대·자가운전·보육·연구활동비의 요건·한도와 보험 보수 포함 여부를 분리한다.",
-      "accept": "비과세 체크만으로 모든 보험 기준을 임의 차감하지 않고 공단 결정 기준값과 대사한다.",
+      "title": "비과세 한도·보험 교차검증",
+      "detail": "요건 충족 식대 30만원은 비과세 인정 20만원, 과세 초과 10만원으로 나누고 보험 보수 포함 설정에 따라 초과분을 후보액에 반영한다.",
+      "accept": "국민연금·건강보험 결정 보수를 자동 덮지 않는다. 고용보험 계산 연동 여부와 항목별 후보액을 확인한다.",
       "priority": "P1",
       "kind": "기능",
-      "status": "요구 확정 · 세부 대조 필요",
-      "source": "대화 사용자 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-SET-06",
       "flow": "UF-SET",
       "wire": "WF-SET"
@@ -1874,15 +1942,15 @@
     {
       "id": "REQ-SET-09",
       "group": "SET",
-      "title": "설정 파일 작업",
-      "detail": "다른 모듈과 같은 다운로드·업로드·샘플 아이콘을 제공한다.",
-      "accept": "설정 파일 재입력 시 배율·식·사용여부가 보존되고 오류 파일은 원자적으로 거부된다.",
+      "title": "급여설정 파일 작업",
+      "detail": "기존 CSV/XLSX/JSON로 산출식·공통 고정금액·시행월·대상·요건을 내려받고 재입력한다. 구 수기금액 열도 읽는다.",
+      "accept": "승인 이력은 읽기전용이며 파일로 승인절차를 우회할 수 없다.",
       "priority": "P1",
       "kind": "기능",
-      "status": "요구 확정 · 세부 대조 필요",
-      "source": "대화 사용자 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-SET-09",
       "flow": "UF-SET",
       "wire": "WF-SET"
@@ -2626,15 +2694,15 @@
     {
       "id": "REQ-OPS-14",
       "group": "OPS",
-      "title": "작업시간 집계",
-      "detail": "예상 최소·최대·실제 HR 작업시간과 외부대기·교육시간을 구분한다.",
-      "accept": "상위·하위와 월별 예산·세부 시간을 중복 합산하지 않는다.",
+      "title": "HR 작업시간 집계의 급여 격리",
+      "detail": "예상 최소·최대·실제 HR 작업시간과 외부대기·교육시간을 구분한다. 업무일정의 예상작업시간은 직원 근태·급여 계산에 연결하지 않는다.",
+      "accept": "업무 예상시간 수정 전후 급여 Run·입력·결과·근태 저장소가 동일하다.",
       "priority": "P1",
       "kind": "기능",
-      "status": "요구 확정 · 세부 대조 필요",
-      "source": "대화 사용자 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-OPS-14",
       "flow": "UF-OPS",
       "wire": "WF-OPS"
@@ -3443,14 +3511,14 @@
       "id": "REQ-DOC-01",
       "group": "DOC",
       "title": "통합 요구사항 정의서",
-      "detail": "지금까지의 사용자 요구를 최신 지시 우선으로 정리하고 표준 양식 항목으로 작성한다.",
-      "accept": "ID·분류·명칭·상세·요청자·우선순위·수용·현행·검증·근거·변경이력을 확인한다.",
+      "detail": "최신 사용자 요구를 우선한다. 기존 기능 재사용·영향도를 분석하여 중복 개발과 손상을 방지한다. 업무정책·기능 범위 결정은 사용자에게 확인한다.",
+      "accept": "요구 ID로 코드·필드·규칙·실행 시험을 연결하며 미실행 검증은 성공으로 표시하지 않는다.",
       "priority": "P1",
       "kind": "비기능",
-      "status": "요구 확정 · 세부 대조 필요",
-      "source": "최신 산출물 요청 / 이전 문서화 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-DOC-01",
       "flow": "UF-DOC",
       "wire": "WF-DOC"
@@ -3490,15 +3558,15 @@
     {
       "id": "REQ-DOC-04",
       "group": "DOC",
-      "title": "명세서 경로 설명",
-      "detail": "개인 급여내역 조회·다운로드와 전용 명세서·개별교부를 나눠 근거를 표시한다.",
-      "accept": "‘직접 경로 미확인’만으로 존재하는 기능까지 부정하지 않는다.",
+      "title": "실제 급여 출력 경로",
+      "detail": "PAY-12와 같은 개인 급여 상세 → 개인 내역 다운로드 경로를 문서에 설명한다. 별도 중복 기능을 추가하지 않는다.",
+      "accept": "PayrollPage → payrollDetail → PersonalDetail → DownloadActions → CSV/XLSX/JSON. 전용 법정양식·직원에게 자동교부는 해당 경로의 기능이 아니다.",
       "priority": "P1",
       "kind": "비기능",
-      "status": "조회·다운로드 확인 / 전용 교부 별도",
-      "source": "최신 산출물 요청 / 이전 문서화 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-DOC-04",
       "flow": "UF-DOC",
       "wire": "WF-DOC"
@@ -3554,15 +3622,15 @@
     {
       "id": "REQ-DOC-08",
       "group": "DOC",
-      "title": "사용설명·이슈 처리",
-      "detail": "직원등록부터 급여·신고까지 사용자 설명서와 이슈별 처리방법을 제공한다.",
-      "accept": "정상·예외 순서와 실제 실행하지 않은 외부 신고가 분리된다.",
+      "title": "최신 사용설명·이슈 처리",
+      "detail": "기존 v0.7.5 PDF 전체를 현재 메뉴·버튼·코드와 대조하여 자동검증·정정·범위 초기화·계약시간·신고서 작성 절차를 갱신한다.",
+      "accept": "실제 앱 경로와 사례 원천을 기재하고 외부 이체·기관 접수는 로컬 성공과 구분한다.",
       "priority": "P1",
       "kind": "비기능",
-      "status": "요구 확정 · 세부 대조 필요",
-      "source": "최신 산출물 요청 / 이전 문서화 요청",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부 2종",
       "owner": "사용자 / HR 관리자",
-      "version": "1.0",
+      "version": "2.0",
       "spec": "FS-DOC-08",
       "flow": "UF-DOC",
       "wire": "WF-DOC"
@@ -3714,6 +3782,86 @@
       "source": "2026-11-24 사용자 요청",
       "owner": "사용자",
       "version": "3.0"
+    },
+    {
+      "id": "REQ-SET-11",
+      "group": "SET",
+      "title": "규정 기준표",
+      "detail": "공지·취업규칙 기준을 원문 추출 후 검토하고 실제 저장값과 대조한다. 문서·분류별 조회, 불일치 중복알림 억제, 실제 설정 이동, 같은 자료 Markdown 내보내기.",
+      "accept": "확정 불가·미연결 값을 임의 일치 처리하지 않는다.",
+      "priority": "P1",
+      "kind": "기능",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부",
+      "owner": "사용자 / HR 관리자",
+      "version": "1.0",
+      "spec": "FS-SET-11",
+      "flow": "UF-SET",
+      "wire": "WF-SET"
+    },
+    {
+      "id": "REQ-HR-12",
+      "group": "HR",
+      "title": "유효기간 근로계약",
+      "detail": "직원별 근무요일·시업종업·휴게·주휴·월 환산시간·단축유형을 유효기간 이력으로 보존한다.",
+      "accept": "중복기간·오래된 편집·확정기간은 거부. Person/Employment PK 유지.",
+      "priority": "P1",
+      "kind": "기능",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부",
+      "owner": "사용자 / HR 관리자",
+      "version": "1.0",
+      "spec": "FS-HR-12",
+      "flow": "UF-HR",
+      "wire": "WF-HR"
+    },
+    {
+      "id": "REQ-ATT-12",
+      "group": "ATT",
+      "title": "계약·달력 기준 근태 집계",
+      "detail": "실제 월 소정시간, 실제 근로, 유급주휴, 유급공휴일, 연차 및 기타 인정시간을 분리한다. 209는 통상임금 월 환산시간이며 실제 근로 209시간을 강제하지 않는다.",
+      "accept": "미입력·경계 주·지원금 주휴는 검토 표시. 야간 중복·연장으로 결근 상쇄 금지.",
+      "priority": "P1",
+      "kind": "기능",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부",
+      "owner": "사용자 / HR 관리자",
+      "version": "1.0",
+      "spec": "FS-ATT-12",
+      "flow": "UF-ATT",
+      "wire": "WF-ATT"
+    },
+    {
+      "id": "REQ-PAY-13",
+      "group": "PAY",
+      "title": "근로소득간이지급명세서",
+      "detail": "지급 완료 자료를 지급기간별로 불러와 공식 양식 PDF·목록 Excel·샘플·업로드·초안 이력을 제공한다.",
+      "accept": "2026 반기 공식 양식. 2027 월별 목록과 공식 서식 미지원 구분. 가상식별번호만 사용.",
+      "priority": "P1",
+      "kind": "기능",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부",
+      "owner": "사용자 / HR 관리자",
+      "version": "1.0",
+      "spec": "FS-PAY-13",
+      "flow": "UF-PAY",
+      "wire": "WF-PAY"
+    },
+    {
+      "id": "REQ-DOC-19",
+      "group": "DOC",
+      "title": "선택 범위 초기화·더미 재구성",
+      "detail": "전체 백업 후 월 급여/근태와 급여/일용 확정상태/전체/규정 기준 더미 재구성을 구분한다.",
+      "accept": "수기·출처불명·가져온 자료는 재구성 제외. 가상 직원·이슈 보존, 계산 후 미확정으로 유지.",
+      "priority": "P1",
+      "kind": "기능",
+      "status": "구현·검증 기록 참조",
+      "source": "2026-11-27 사용자 요청·첨부",
+      "owner": "사용자 / HR 관리자",
+      "version": "1.0",
+      "spec": "FS-DOC-19",
+      "flow": "UF-DOC",
+      "wire": "WF-DOC"
     }
   ],
   "pairs": {
@@ -4042,10 +4190,10 @@
       "organizationId"
     ]
   ],
-  "sha": "55281cd2a7de4ab4fc2191d04c06bfd2b05a227b",
-  "date": "2026-11-23",
+  "sha": "3fc7b8ce91cb2fe2b11716e11fa86b631a8984dc",
+  "date": "2026-11-28",
   "site": "https://very8erry.github.io/hr-erp-prototype/",
-  "reviewSha": "1a8f0fa",
+  "reviewSha": "codex/policy-payroll-workflow",
   "referenceImages": [
     [
       "draw.io",
@@ -4097,5 +4245,663 @@
       "https://www.conceptdraw.com/examples/crows-feet-notation-explained",
       "하나/선택/다수 끝점 표기"
     ]
+  ],
+  "analysisSources": [
+    {
+      "file": "src/app/App.tsx",
+      "sha256": "80c476522ab535432e1ad61e54dc328d61fb07805975d7ac265b1f75efc1e3d3"
+    },
+    {
+      "file": "src/app/auditDescription.ts",
+      "sha256": "1a25d940db25907fb588f28df040cc5affef4709b329ac41d8caf7224728822f"
+    },
+    {
+      "file": "src/app/DashboardCharts.tsx",
+      "sha256": "5a8a2ab8330437e241921ca0547b719fbe4906516c24b8c3ae827c739cc30027"
+    },
+    {
+      "file": "src/app/dashboardPayroll.ts",
+      "sha256": "561b08277d4b71fe75c1e09ccf0a17433917f38ef4b38bda6ede88f3f5790df5"
+    },
+    {
+      "file": "src/app/DataToolbar.tsx",
+      "sha256": "8fb47067981ef30ca5c9ea92b3598f379443a8417a704ad21a369e2a013255d4"
+    },
+    {
+      "file": "src/app/EmployeeIssueBoard.tsx",
+      "sha256": "9397ac730e6646b4b1894d42b42aebec7142b06de45b03e8f8420736b863f469"
+    },
+    {
+      "file": "src/app/issueProgress.ts",
+      "sha256": "bbcf011bd961c8b8f7be97f5205cdeb6df3df83b368a7f39920fcd3c47aedd04"
+    },
+    {
+      "file": "src/app/monthlyStatus.ts",
+      "sha256": "722e5a834f527aeb4410c925d375204579076eef3544f3384c497e18cc4788f1"
+    },
+    {
+      "file": "src/app/OperationsDashboard.tsx",
+      "sha256": "cd523fb5a0e8abef4880ab53e98ea37603ef38b453976139ca64f08593446bf1"
+    },
+    {
+      "file": "src/app/ResetScopeDialog.tsx",
+      "sha256": "e332e8ecc612026ed3e7309276eaf896f251322495494d88384f8597926eac1f"
+    },
+    {
+      "file": "src/app/version.ts",
+      "sha256": "f9f378178f18b94fc5a8b420e9f09eddd066361e096cfccb5bd42dde99a686c6"
+    },
+    {
+      "file": "src/components/DownloadActions.tsx",
+      "sha256": "90f39435bd5555d503353aed5314b956db6c670828485cc205212dfe40598b07"
+    },
+    {
+      "file": "src/components/MemoReference.tsx",
+      "sha256": "9c4552d03a03b1866fd5a13e8665b0b0d46f2004be46a8a689645a0ecdac79bc"
+    },
+    {
+      "file": "src/components/MonthPicker.tsx",
+      "sha256": "97141a759e192ca4033d5a0fd91668b92a6e94666ab1ce7c6141c0194e43e3b7"
+    },
+    {
+      "file": "src/components/ScrollTable.tsx",
+      "sha256": "4589eb0c557d55d3d097df1a76fe4ff842c1d4d9a859ad1655ad8287c48f2ea0"
+    },
+    {
+      "file": "src/components/SearchSelect.tsx",
+      "sha256": "24428f9e17bee77cea66a4841d2e2f9b3ed583eecceae6182f538de2b0663842"
+    },
+    {
+      "file": "src/components/TableControls.tsx",
+      "sha256": "fb27129f827d890a8600ba8715a92a2a67f9284e5d6454ee4485862d808ba676"
+    },
+    {
+      "file": "src/components/tableFreeze.ts",
+      "sha256": "0d8f1fe39ed3628633a5acde17e25999eae749a9b01bdbb5f4f0a6a19d29b081"
+    },
+    {
+      "file": "src/components/ui/badge.tsx",
+      "sha256": "a24795f11021f2fc61669211c8d6f6a331dd05f476dcf5c1155b018ea937c688"
+    },
+    {
+      "file": "src/components/ui/button.tsx",
+      "sha256": "15048ed14972c49c4b4a959e4586553de66daeb8ea8386ed25bdc610f0862829"
+    },
+    {
+      "file": "src/components/ui/card.tsx",
+      "sha256": "183003a3aed1de2841b43c841de9ad5b8ad0bd75acc13dbf73b12337ee62e278"
+    },
+    {
+      "file": "src/components/ui/input.tsx",
+      "sha256": "0b2c194c76a46de2c79dee50657cf377132ee3dee0cf07a50e341bcdfc149023"
+    },
+    {
+      "file": "src/components/ui/modal.tsx",
+      "sha256": "336ee32460a7a6476e39d349598c9f5bcda322678bec90c59228691302b5921d"
+    },
+    {
+      "file": "src/components/ui/native-select.tsx",
+      "sha256": "1da0194360811f167eececd81aa47baa283df484924b963f947aed5ed011bd1d"
+    },
+    {
+      "file": "src/components/ui/separator.tsx",
+      "sha256": "8b024ee218d5233056506421aaa5318a7e032f67b6e71909b7811caa3cb2c145"
+    },
+    {
+      "file": "src/components/ui/textarea.tsx",
+      "sha256": "bfd6fd7826a45b95ad9916226966b8ca1fb56cee19ad3408bc59ba6bfab8855c"
+    },
+    {
+      "file": "src/components/WorkbookActions.tsx",
+      "sha256": "5f6a6aaa8f0ebd37f32dd2bc99737ff2256c8520c145c0a43646af390e454009"
+    },
+    {
+      "file": "src/domain/attachments.ts",
+      "sha256": "370996e34697ebcd846701b6844b5559cc5a9855f6e86155238a34f7ab977263"
+    },
+    {
+      "file": "src/domain/dataIntegrity.ts",
+      "sha256": "234ab5d9f9b05b915fcae021e420c6902cc080ada6916d5f98a47ccdef99f9f5"
+    },
+    {
+      "file": "src/domain/masterEdit.ts",
+      "sha256": "5932c391bc6cca84f4c58930568e4dbed42287c07ef012a8d37edf16ebec5d0b"
+    },
+    {
+      "file": "src/domain/types.ts",
+      "sha256": "09293c2f451a6378b324be53d2b87b8599abb3b0675185e01fcad38ebd630218"
+    },
+    {
+      "file": "src/fixtures/scenarios.ts",
+      "sha256": "d0ff7c16915171f07668bd6ce8650a2e77962f4a658536a4af86935e323d3c8f"
+    },
+    {
+      "file": "src/fixtures/seed.ts",
+      "sha256": "6b86bc701be9eba4638cedcce0ee61ef662df01291d2740a0da36dd052371e94"
+    },
+    {
+      "file": "src/fixtures/staffNotices.json",
+      "sha256": "bb3880d2cfb0c17b1d50cb82f1184aad6bd755606cfea02b33a26a2b270b8d0c"
+    },
+    {
+      "file": "src/fixtures/workRulesAttachments.json",
+      "sha256": "8e2affafaa8e6ed28c918d53caa5d521efe85df488d0aa5ba0d9ebdf014b4c30"
+    },
+    {
+      "file": "src/infrastructure/db/config.ts",
+      "sha256": "33f433df18d99f18a1cc65d0eeb02dc10bb69895a641311aa6d1a0347430e34f"
+    },
+    {
+      "file": "src/infrastructure/db/contractRepository.ts",
+      "sha256": "43319fa615f5e4e1c4a9516ca10f7a8fd5c3a1dbbc5f3a662aceb23f04897fc6"
+    },
+    {
+      "file": "src/infrastructure/db/idbUtils.ts",
+      "sha256": "1842a18ce18c1add8c77087bc8c551577da281ad61ee1f1f3bf8164c04c3ee53"
+    },
+    {
+      "file": "src/infrastructure/db/indexedDb.ts",
+      "sha256": "27cb53da5f6859c2985496b69044e1e30c3d5e676606cc11db86f755edde3a2b"
+    },
+    {
+      "file": "src/infrastructure/db/issueProgressSeed.ts",
+      "sha256": "1f43b76aa34e7b8f4d643502b18970da840b1e09602164e20b2a884f8f5664b2"
+    },
+    {
+      "file": "src/infrastructure/db/lemonUpgrade.ts",
+      "sha256": "acf455c0be516aa0cff4b7dbcc73d752e9bcba6e38956de38ff6ed4912faf356"
+    },
+    {
+      "file": "src/infrastructure/db/migrations.ts",
+      "sha256": "9a356dac4fa681416c5a664e65819fefc1537d3a975e67e1f0bc875268a49eb2"
+    },
+    {
+      "file": "src/infrastructure/db/operationsUpgrade.ts",
+      "sha256": "06ae3aca3713d2799c60762bb3737c682702080ea1897ef3e9dba61fe17e1138"
+    },
+    {
+      "file": "src/infrastructure/db/payrollCorrectionsRepository.ts",
+      "sha256": "e07797096ee91a3db8a3ecf368d3ab671ea4e52e69d6f2e7eeed9489aa14dbda"
+    },
+    {
+      "file": "src/infrastructure/db/planningRepository.ts",
+      "sha256": "c0b7429edf7cb631a8511d5a092272fd62a4d530f1b8cde275b3358bdea3e35d"
+    },
+    {
+      "file": "src/infrastructure/db/rebuildPolicyDemo.ts",
+      "sha256": "4b0163d391c02f4dd0db816e99b921423dea017cdc44b0cb61bc3ad40dd0daa0"
+    },
+    {
+      "file": "src/infrastructure/db/scopedReset.ts",
+      "sha256": "cbc456f0661a5823fc1b534730174b24ef6ff3225d0efc006b4c672e662e5159"
+    },
+    {
+      "file": "src/infrastructure/db/staffNoticesSeed.ts",
+      "sha256": "ca62082bd90f308ba433c1ff9ebb1f27ec1fd1ef08aad196f436f4511044212a"
+    },
+    {
+      "file": "src/infrastructure/db/workRulesSeed.ts",
+      "sha256": "faee30bbd0e56bbcc118689ca4a1c9eced08bc37f2d8f697a737e1be4e38a0b5"
+    },
+    {
+      "file": "src/infrastructure/repositories/hrRepository.ts",
+      "sha256": "c16b05c91ee2243b5b2788ba63a7df96dd862f13ae0273f2e420576bf2a556df"
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "sha256": "e46429536f43f5910f5b2b0c50bb2769b510a4558bb4b5d20a3b0a9091dbf7c3"
+    },
+    {
+      "file": "src/main.tsx",
+      "sha256": "81f660d1cda37c4a6596ed515b8459652d1ba448b13e0aec435d10b39c8851b3"
+    },
+    {
+      "file": "src/modules/attendance/annualLeaveFiles.ts",
+      "sha256": "dab1d268e3976fad2d70db28a5cace2d02cec1df9a533c2d3959c671768f4eec"
+    },
+    {
+      "file": "src/modules/attendance/AnnualLeavePanel.tsx",
+      "sha256": "8ad4ab6a02c1c3aab52e0c19d38ff6f05629c406043b0a12134641eefafc2488"
+    },
+    {
+      "file": "src/modules/attendance/AnnualPromotion.tsx",
+      "sha256": "adfea5b410567ce7ef64ffa447ae28a451c90a17137447ef35b8e2c075ce29c7"
+    },
+    {
+      "file": "src/modules/attendance/attendanceBasis.ts",
+      "sha256": "4de03b38b076536776d8566fa2becd4fcfce80e0fd8263e0932e471158e783e0"
+    },
+    {
+      "file": "src/modules/attendance/attendanceFiles.ts",
+      "sha256": "1f66dccff1b01e68bd6c3a2aaa77834a3e4b8d1a923dd257d25c7d751824f965"
+    },
+    {
+      "file": "src/modules/attendance/AttendancePage.tsx",
+      "sha256": "39593d1dc6acc539cfcbf0e4ebb86b1abfe8ad8f26542c21fb23e87021ed6b18"
+    },
+    {
+      "file": "src/modules/attendance/AttendanceTools.tsx",
+      "sha256": "8de55a8d31190e07af574d146fee9374f9cf5321ff45534b77d7da6b9976cd88"
+    },
+    {
+      "file": "src/modules/attendance/dailyAttendanceFiles.ts",
+      "sha256": "006a75caac05544adda6e597fa2b2514bf5f201d00f1a7424e862ff47950f18e"
+    },
+    {
+      "file": "src/modules/attendance/leaveComparison.ts",
+      "sha256": "e6f22013ce6b038b090dd6d2b85b575a6fcdd4f6c92db41298937127ac888cb2"
+    },
+    {
+      "file": "src/modules/attendance/leaveLabels.ts",
+      "sha256": "49b9a4628441835478986bb206cc911e885edc46440c2c7008398df6f95bf6a9"
+    },
+    {
+      "file": "src/modules/attendance/timeRules.ts",
+      "sha256": "a2ffef43aad9cb3ad767461ba24c35449813e3ecd99d718b27288c8cde81f83a"
+    },
+    {
+      "file": "src/modules/attendance/workContract.ts",
+      "sha256": "7eb52d9c18c90af7d78df377a99dc0f42552758b465af7b2bfc82b4d299f2db1"
+    },
+    {
+      "file": "src/modules/core-hr/EmployeeDetail.tsx",
+      "sha256": "f39610f225189518c444fed2f72fa3bf618bca9590f862d7c2572fb3f2c54133"
+    },
+    {
+      "file": "src/modules/core-hr/EmployeeRegistration.tsx",
+      "sha256": "625260fa18095359f927132f4a37317c92089f319eb64e0f94d5262db4fc656f"
+    },
+    {
+      "file": "src/modules/core-hr/hrService.ts",
+      "sha256": "97efb494f5d1c66809031a929a1a23420577b8a480c2e6508bac418e5324c4cd"
+    },
+    {
+      "file": "src/modules/core-hr/labels.ts",
+      "sha256": "6387dd572e0a9c9ceda352344df58065b17c944590e4aa074ba20c3bed29e573"
+    },
+    {
+      "file": "src/modules/core-hr/MasterEditor.tsx",
+      "sha256": "08f0829962a016e2ddad88582d1f81314ab5539fcac480dd0ee8ca66849087ee"
+    },
+    {
+      "file": "src/modules/core-hr/nameValidation.ts",
+      "sha256": "955b384ac8ade60bf465b36f04f1b5c626206035631bd3ef8bc6798505e0372a"
+    },
+    {
+      "file": "src/modules/core-hr/registrationPolicy.ts",
+      "sha256": "56f2ca4e3b34a872ae794c7e7acfb1739398be6741844660503119fe1f83e841"
+    },
+    {
+      "file": "src/modules/core-hr/WorkContractEditor.tsx",
+      "sha256": "a2bcfb2081cc735cdab382748909592beceae47af879cf95afc8b75d3604ddbd"
+    },
+    {
+      "file": "src/modules/operations/CalendarPanel.tsx",
+      "sha256": "e47571b635c84aeef0873702f2b555ebef6224a56271f431b231ca0dda7001b2"
+    },
+    {
+      "file": "src/modules/operations/manualSchedule.ts",
+      "sha256": "ca467e8904d2555d35b83f971f454e0ceb2bb1cf6a35d3e3ad47951b4d9a71ae"
+    },
+    {
+      "file": "src/modules/operations/ManualScheduleDialog.tsx",
+      "sha256": "d78f8546f60a31f5a186f0657a3ef4700e163ba7078f4765a5fb2810599f2789"
+    },
+    {
+      "file": "src/modules/operations/occupationDictionary.ts",
+      "sha256": "73c4145753fb577e2bf0e6eb175ef76ef9343067574e861d3df78d6a996cbd91"
+    },
+    {
+      "file": "src/modules/operations/OccupationPanel.tsx",
+      "sha256": "19518a925d58c76c8ed418cef3ef10739afefe7f91664e2c0246c6a1ecaf09fe"
+    },
+    {
+      "file": "src/modules/operations/operations.ts",
+      "sha256": "f4888b535f2f213d89e980bbb00f2993b0a89f963bffcaeb3ddb432e89688fac"
+    },
+    {
+      "file": "src/modules/operations/OperationsPanels.tsx",
+      "sha256": "5676c4ab08be0b1a8c43736c4120f62062a1ebf030c8e7fe77b5a6a53b39211c"
+    },
+    {
+      "file": "src/modules/operations/PeriodCalendar.tsx",
+      "sha256": "b9e15a6e93a4dbbd151b1b407ac5a632bdd89b87af71b6d3bd396b5a7e544138"
+    },
+    {
+      "file": "src/modules/operations/planningReview.ts",
+      "sha256": "2a034eb13986fa3b460afefaa4348216150edf48372c1042b84b6a0d4cc82883"
+    },
+    {
+      "file": "src/modules/operations/PlanningReviewPanel.tsx",
+      "sha256": "c1a1051e3d9c2c446761550454628ef0342e8ad6bb84e164e4f329fa738d03db"
+    },
+    {
+      "file": "src/modules/operations/PolicyConnections.tsx",
+      "sha256": "30d4ab59067706eb47ed9dc49b4ee0ba7ee09188012d5a372739faeaf649fddb"
+    },
+    {
+      "file": "src/modules/operations/policyReading.ts",
+      "sha256": "01264ff03eeb4a86805a351891c7b6b310db19892c346712a3196317d6bf32fe"
+    },
+    {
+      "file": "src/modules/operations/scheduleData.ts",
+      "sha256": "33f3c4b9e28f921cfac7be3c87c6cbd1b64537d5606ab597b0b914d621096b6a"
+    },
+    {
+      "file": "src/modules/operations/ScheduleExports.ts",
+      "sha256": "267fa1f9c802026500267d7e1df13d0fec5fcfe5df98085a018ae2496ef9d8fc"
+    },
+    {
+      "file": "src/modules/operations/schedulePresentation.ts",
+      "sha256": "3e0c764fa0b3ea7e837b1e1b26dd9f16552611edfa4b384cd408351bae1175c3"
+    },
+    {
+      "file": "src/modules/operations/useWorkSchedule.ts",
+      "sha256": "3bfab6d189e637f055390755ac05beec4e21438279232afdcc072081d08947fc"
+    },
+    {
+      "file": "src/modules/operations/WorkDetail.tsx",
+      "sha256": "ae6e98eaf41c9de5c77b847b3813d1b8aec9fe13a3ecc907316c451024fd1da5"
+    },
+    {
+      "file": "src/modules/operations/WorkRulesPanel.tsx",
+      "sha256": "1630075d79423456bf63fc61b60cb83773f43aa9928e3fc117f408f923f3c35b"
+    },
+    {
+      "file": "src/modules/operations/workSchedule.ts",
+      "sha256": "8f15716993eaffdb6b4e1520c0372c7801c7d4d43fb29d3a9007d3b7fa9729e9"
+    },
+    {
+      "file": "src/modules/operations/WorkSchedulePage.tsx",
+      "sha256": "61596c0739cace2272ada87fda5ecb0fd27e11bd2c558df062fdf97f56249297"
+    },
+    {
+      "file": "src/modules/operations/WorkSettings.tsx",
+      "sha256": "9916c472b72d2d56cf77340f44cdcc28ea3fc9266362d13476dbbaed707d334f"
+    },
+    {
+      "file": "src/modules/payroll/companyInfo.ts",
+      "sha256": "3d997a41d82b40ad5c1fafdcee87deab722ee5a047984e2333083716a7879b45"
+    },
+    {
+      "file": "src/modules/payroll/CompanyInfoPage.tsx",
+      "sha256": "7634f0a6e82b043548200a06c7ce36b72a1c858749a15689d26ab2e7640800d4"
+    },
+    {
+      "file": "src/modules/payroll/dailyFiles.ts",
+      "sha256": "4b4784242148e2a1885c28585359bfafa16da5dbc75ab6bc9edd20b3543970c4"
+    },
+    {
+      "file": "src/modules/payroll/dailyWorkerFiles.ts",
+      "sha256": "9d48dc0de8f57911991978e9b35cb418a7fec89c11567869e7088fb45500b5b4"
+    },
+    {
+      "file": "src/modules/payroll/DailyWorkerPage.tsx",
+      "sha256": "9d8069b7d5bdfef606cf4fc9738b524894636c80ba271d34c962ac4bb4502b41"
+    },
+    {
+      "file": "src/modules/payroll/dailyWorkerRules.ts",
+      "sha256": "2fc79d6c4c921f9246618ae6fe87bb520bcd7ec51795b4bc503a6bbbbb88a3f1"
+    },
+    {
+      "file": "src/modules/payroll/ediColumns.json",
+      "sha256": "c7df75e6329a06c5b9c8e9cbdf788750388f5574b64ad9ad79d6692f2ce52bec"
+    },
+    {
+      "file": "src/modules/payroll/ediFiling.ts",
+      "sha256": "1e7e09ea2c599b1b8a52aa8e3a8daa59d310739437766be22424e447c9a24a79"
+    },
+    {
+      "file": "src/modules/payroll/EdiInsuranceWorksheet.tsx",
+      "sha256": "4f31b04ea926f5ac0b372177ab3e8163d603255d4ebc0281b133e7d841f6f39c"
+    },
+    {
+      "file": "src/modules/payroll/FilingPanel.tsx",
+      "sha256": "fe89b6acd3ffa98ac92020762ee46023c7e96d9d5ef0a2b9bdd7dc5e0940a9b0"
+    },
+    {
+      "file": "src/modules/payroll/filingWorksheet.ts",
+      "sha256": "585d48b2d0114e288b50a50830cfa7c4f70570ff7ab6bc733f314a75bb50c21a"
+    },
+    {
+      "file": "src/modules/payroll/InsuranceFilingPanel.tsx",
+      "sha256": "b6cc6385ebf30ff6014cddc6b526eef8f679ff6a0ed91eaae3215c8a464bc5b3"
+    },
+    {
+      "file": "src/modules/payroll/insuranceRules.ts",
+      "sha256": "f6afe351b6c5b5be728597d6768257bd064cd153833361b9df550c925513c31e"
+    },
+    {
+      "file": "src/modules/payroll/InsuranceWorksheet.tsx",
+      "sha256": "fe3baec38000950868956baa1bfbe0f73bb222c6407b7cccdc64e20555518027"
+    },
+    {
+      "file": "src/modules/payroll/itemCalculation.ts",
+      "sha256": "9e4845b52144e2f7236b6cd1857daee34ba5c2289aa5bbfa6d18ae3e990bd3b3"
+    },
+    {
+      "file": "src/modules/payroll/itemDefaults.ts",
+      "sha256": "ac82ceef0010bf5f23dda279f963da66caf0fff786cc318180ae87fddab28a8f"
+    },
+    {
+      "file": "src/modules/payroll/ManualLedger.tsx",
+      "sha256": "c2be1f6c2f91ff81a1fef23a2fdf102e806092eac76be428311c625ff04c8ab0"
+    },
+    {
+      "file": "src/modules/payroll/multiPagePdf.ts",
+      "sha256": "7ca04c50f8222c9b2560d997607ab7bcd89c6b74684519c7415ea9fe82f81a76"
+    },
+    {
+      "file": "src/modules/payroll/nonTaxRules.ts",
+      "sha256": "5e440b56c9c91a3eac0ff0c81cf5a010a76d8d0b49d7fb3ff3ccdfa57e8995ef"
+    },
+    {
+      "file": "src/modules/payroll/ntsTax.ts",
+      "sha256": "f5f559838668c721ae03f88442f4762738b8ceb2e48a8f191e5339851d96c397"
+    },
+    {
+      "file": "src/modules/payroll/ntsTaxTable.json",
+      "sha256": "823c32680e2573331d55e9684d06efe032420f7238840c1b2e92b683e2f74238"
+    },
+    {
+      "file": "src/modules/payroll/ParameterReview.tsx",
+      "sha256": "7ed040580c1c0c505930c784dc2f3094a598e7507d453a1922160c5feef3b638"
+    },
+    {
+      "file": "src/modules/payroll/parameterSources.ts",
+      "sha256": "45c1d97d505e18c5cfcaeb181bf454254b73805005bbf4c957fe93ed30b01ced"
+    },
+    {
+      "file": "src/modules/payroll/payrollColumns.ts",
+      "sha256": "22b3753e0cf9a7fa792df6dbae5d2374226b30919d69315c1c40b7163709e258"
+    },
+    {
+      "file": "src/modules/payroll/PayrollCorrectionPanel.tsx",
+      "sha256": "06a9a7f7b4c72df3c41f1e1a2a0c70941ab127edc23b67ecaad38988490df7d9"
+    },
+    {
+      "file": "src/modules/payroll/payrollCorrections.ts",
+      "sha256": "f6668a3bb813d0bddb101fc51a8db8ea443bb4ded16beb44313de279af1989e6"
+    },
+    {
+      "file": "src/modules/payroll/PayrollEntryEditor.tsx",
+      "sha256": "e9ab6f54fdbe53d6739bef03679a0f6c828096f89ece714b8396caa49d6ff2d3"
+    },
+    {
+      "file": "src/modules/payroll/PayrollPage.tsx",
+      "sha256": "934a5d25afdfbbfe59cbb8bdb51215d492fa02ccc4380a469c463d05395cb41d"
+    },
+    {
+      "file": "src/modules/payroll/payrollParameters.ts",
+      "sha256": "7684e9e69b83de9d40c4d1d4a411b5ecd94e424bd76b6911e7f833acd77e25f0"
+    },
+    {
+      "file": "src/modules/payroll/payrollRepository.ts",
+      "sha256": "d7f1ce44b3f90b48a99695cebfbb035310c2eb045a40aa56fdfbb9699d03a637"
+    },
+    {
+      "file": "src/modules/payroll/payrollRules.ts",
+      "sha256": "b77e4c82fc818eae8bd3408be93a9d7e337724959d4031bea843a401024f59cd"
+    },
+    {
+      "file": "src/modules/payroll/payrollService.ts",
+      "sha256": "230025e38a6a9c5253187c74ffa3df41465ab6f22c09dc51efc99c5bfbcd8c55"
+    },
+    {
+      "file": "src/modules/payroll/payrollSettingsFiles.ts",
+      "sha256": "2008e777be3ee680f88845eef6f3b043b1ee31ca41788a7eb83abc8331dd455b"
+    },
+    {
+      "file": "src/modules/payroll/PayrollTools.tsx",
+      "sha256": "66b114533d05aacf56663fbb90ba2b230a4d178d532451efd264909cbf78986a"
+    },
+    {
+      "file": "src/modules/payroll/policyRegistry.ts",
+      "sha256": "f0c07a4c3592cc296e91254144a9182b058fb56fa151c8a4b9f452728bb3b7c9"
+    },
+    {
+      "file": "src/modules/payroll/PolicyRegistryPanel.tsx",
+      "sha256": "bfaeaea3f4a85628bf91e7c0f47da1da72aa3c20ec9e1aa0c1784f52d7e6cafc"
+    },
+    {
+      "file": "src/modules/payroll/RemunerationWorksheet.tsx",
+      "sha256": "7ce2469c1f8ced693d2e7c95970548ab65cf698a4a88f75336f72a90fadfe0e7"
+    },
+    {
+      "file": "src/modules/payroll/retirementCalculation.ts",
+      "sha256": "0602d334481b9911de1fba3539e297a9f8e0d10b6a905a2e1986875a86e7c9ff"
+    },
+    {
+      "file": "src/modules/payroll/RetirementRules.tsx",
+      "sha256": "0515fa55dee51ca06195b2e990d8f88e79fb34a5337cc2926977220acdfd54c3"
+    },
+    {
+      "file": "src/modules/payroll/SettlementPanels.tsx",
+      "sha256": "975d9fb3543ff945100228e6e931821914960504fa787d716d8ca4d4911e5496"
+    },
+    {
+      "file": "src/modules/payroll/settlementRules.ts",
+      "sha256": "8db4dfd0b97e7bf72306166b395130b30037294f6bad225a46db585287a174db"
+    },
+    {
+      "file": "src/modules/payroll/SettlementSettings.tsx",
+      "sha256": "d5398e6a091109dadd35938b1cd3b56dd0b613ede8127f0133e4d1a260982350"
+    },
+    {
+      "file": "src/modules/payroll/simplifiedEarned.ts",
+      "sha256": "e7a207a80baa4554b1377cdd8c88dc9e9c9025fb9f192f0d9679d0ee9436776c"
+    },
+    {
+      "file": "src/modules/payroll/SimplifiedEarnedPanel.tsx",
+      "sha256": "eb944be60768144d85a02c2978a5d015c90e9e3694801695166b99a3d09cc4c3"
+    },
+    {
+      "file": "src/modules/payroll/simplifiedEarnedPdf.ts",
+      "sha256": "bd44bd49b40687464809aaa21654b31f73b794924ec8aa1a9816cc957cc1be8d"
+    },
+    {
+      "file": "src/modules/payroll/summaryExport.ts",
+      "sha256": "bbd6687e3742ad7b4cb8ae287e14b7cb00b19559c396484127bd040d3518a418"
+    },
+    {
+      "file": "src/modules/payroll/UnifiedPayroll.tsx",
+      "sha256": "a2940ce0015ff3f9196b8e9628b48b7b440a161dd24c148367306c483a44e3e4"
+    },
+    {
+      "file": "src/modules/payroll/WithholdingChecklist.tsx",
+      "sha256": "0afa927a3f945146bbfa3dcc86aac53ad945a3e60278d990602bcc5eef78d651"
+    },
+    {
+      "file": "src/modules/payroll/WithholdingEditor.tsx",
+      "sha256": "6715ea7927ad6cc1835a2598be9044f885c299f144ca80e82361b6ebce613a38"
+    },
+    {
+      "file": "src/modules/payroll/withholdingForm.ts",
+      "sha256": "22e36717ad6b0e4e978714302e67fc3ecf139f2176aabab6980935f6a51bd1ef"
+    },
+    {
+      "file": "src/modules/payroll/withholdingPdf.ts",
+      "sha256": "962cbae15198794a4b8e284b3e85a5384ab8e2fbe4da9d60e155f1c1123fb256"
+    },
+    {
+      "file": "src/modules/payroll/workReport.ts",
+      "sha256": "9d6c984287288b0af31d2048e1d9fd07af67179e6048048ef3fe9b80262faea2"
+    },
+    {
+      "file": "src/modules/payroll/YearEndDocumentReview.tsx",
+      "sha256": "b06a160a24b4b3219cb44c25ad9b6eea422d3de507dc69d4740c1e7af4cc8db2"
+    },
+    {
+      "file": "src/modules/payroll/yearEndDocuments.ts",
+      "sha256": "560c5374c3b749d7e680238626d8c187852da2c4f2d623e3e8ce04460fefae83"
+    },
+    {
+      "file": "src/modules/recruiting/ApplicantIntake.tsx",
+      "sha256": "12f065872f4baca25bc47d6bc0e81dcdc9971a63e5436bad8e305b81a81b989f"
+    },
+    {
+      "file": "src/modules/recruiting/AutomationPanel.tsx",
+      "sha256": "0b1e6e16fb19bc9736760899e1b78a30b512eef14f6fa54962ed02c65babd86c"
+    },
+    {
+      "file": "src/modules/recruiting/candidateText.ts",
+      "sha256": "adac236bb2174c3d0715ec422fa7f9b369d19d81320c2fac96c4e377388b5ef3"
+    },
+    {
+      "file": "src/modules/recruiting/EvaluationPanel.tsx",
+      "sha256": "a45e21f725a64b07b8b97dd538d48267ccd7a8a12560ebb756eedd3f034a6cc2"
+    },
+    {
+      "file": "src/modules/recruiting/evaluations.ts",
+      "sha256": "835908eb94221f5ad214834941739f4fc9e3ee3c5dc00569cdea0f65b0d234f0"
+    },
+    {
+      "file": "src/modules/recruiting/integrationValidation.ts",
+      "sha256": "536a2e6fb58511a8753d462d7fb830b79fb151afde1304172aa380c53d664e66"
+    },
+    {
+      "file": "src/modules/recruiting/KeywordReview.tsx",
+      "sha256": "cf6cf1d49a52387338a54eded9bd93a6540317b7748641bf118d85ddf6be6060"
+    },
+    {
+      "file": "src/modules/recruiting/OffersPanel.tsx",
+      "sha256": "a3c3383b574581a7e1f2d5b914f9c08b9525b0ecbf0f173a27b759eae89518a8"
+    },
+    {
+      "file": "src/modules/recruiting/recruiting.ts",
+      "sha256": "6c4727ef79f2d7d3cced4825d7b7f6ab0e50e8ed271b72d4d0b0ae347dfa5f4a"
+    },
+    {
+      "file": "src/modules/recruiting/RecruitingPage.tsx",
+      "sha256": "02e47c0ae2bb2d1a34ab6c179ba0defdd1440d18ecc91297a274ed7d56967442"
+    },
+    {
+      "file": "src/modules/recruiting/scoring.ts",
+      "sha256": "91bf92c1bffb6ad8e1ab903a7810461e62021b9d26242613247c7ec7b813d149"
+    },
+    {
+      "file": "src/modules/recruiting/selection.ts",
+      "sha256": "85ce48bb6492b39495ac8e51996fb014bf504cbf8162ab83c94cf704edeccb22"
+    },
+    {
+      "file": "src/modules/recruiting/selectionAudit.ts",
+      "sha256": "5dc8956fc13efb40942fa9873b67cca6663e597a959fe9ccc28f14f08da3dcef"
+    },
+    {
+      "file": "src/modules/recruiting/SelectionCatalog.tsx",
+      "sha256": "9641d1ac6eb7121518ab8ca6c1715bdd60386d1f41c3fff5202bf60e0ad5e875"
+    },
+    {
+      "file": "src/modules/recruiting/SelectionReview.tsx",
+      "sha256": "bfd788def9b7eb98caef2685c4f0863e676c8c9df5ff80ac6af1abd5fa07fa47"
+    },
+    {
+      "file": "src/modules/recruiting/SelectionWorkspace.tsx",
+      "sha256": "200d842999a16bf76422ce3b4bf317b46aa5efe890058bc93abdaf5f8efe5bb0"
+    },
+    {
+      "file": "src/rules/types.ts",
+      "sha256": "d2a1d993f96f2da56c6a0fa3ebdd3685d218aa928208db2c339a1345dc92e2fb"
+    }
   ]
 }

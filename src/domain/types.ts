@@ -14,6 +14,9 @@ export type PayrollCalculationMethod = 'MASTER' | 'FORMULA' | 'OVERTIME' | 'MANU
 
 
 export interface Company {
+  demoPolicyRebuildVersion?:number
+  demoRebuiltPeriods?:string[]
+
   scheduleReview?:import('../modules/operations/planningReview').PlanningReview
 
   withholdingDrafts?:Record<string,import('../modules/payroll/withholdingForm').WithholdingDraft>
@@ -267,6 +270,9 @@ export interface WorkSchedule {
 }
 
 export interface AttendanceSetting {
+  contracts?:import("../modules/attendance/workContract").WorkContract[]
+  contractRevision?:number
+
   ordinaryMonthlyHours?: number
   policyReview?: {sources:string[];signature:string;reason:string;reviewedAt:string}
 
@@ -319,6 +325,8 @@ export interface AuditLog {
 }
 
 export interface AttendanceMonthlySummary {
+  basis?:import("../modules/attendance/attendanceBasis").AttendanceBasis
+
   paidCreditHours?:number
   issueNote?:string
   unpaidHours?:number
@@ -491,6 +499,10 @@ export interface YearEndTaxCase {
 }
 
 export interface PayrollItemMaster {
+  effectiveFrom?: string
+  previousRules?: {from:string;to:string;item:Omit<PayrollItemMaster,'previousRules'>}[]
+  fixedEligibility?: {employmentIds:string[];condition:string}
+  parameters?: import('../modules/payroll/payrollParameters').ApprovedParameter[]
   id: string
   code: string
   name: string
@@ -660,6 +672,8 @@ export type PayrollEntryStatus = 'DRAFT' | 'CALCULATED' | 'ERROR'
 
 export interface FilingFormValues {incomeName:string;incomeCode:string;headcount:number;grossPay:number;incomeTax:number;localIncomeTax:number;note:string;updatedAt?:string;editReason?:string}
 export interface PayrollRun {
+  settlementSnapshot?:import("../modules/payroll/companyInfo").SettlementSetting[]
+
   filingFormOverrides?: FilingFormValues
   id: string
   companyId: string
@@ -681,6 +695,11 @@ export interface PayrollRun {
 
 /** Payroll Run 시점의 입력 Snapshot. 마감 후 원본 HR Master 변경에 영향을 받지 않는다. */
 export interface PayrollEntry {
+  attendanceBasisSnapshot?:import("../modules/attendance/attendanceBasis").AttendanceBasis
+
+  settlementInput?:import("../modules/payroll/settlementRules").SettlementInput
+  classificationAdjustment?:number
+
   ordinaryMonthlyHoursSnapshot?: number
 
   calculationInputs?: {ordinaryMonthlyHours:number;overtimeHours:number;nightHours:number;holidayHours:number;holidayOvertimeHours:number}|null
@@ -728,6 +747,9 @@ export interface PayrollEntry {
 }
 
 export interface PayrollResult {
+  appliedSettlements?:Record<string,number>
+
+  nonTaxInsuranceBreakdown?: {code:string;name:string;paid:number;exempt:number;taxable:number;pension:number;health:number;employment:number;basis:string}[]
   insuranceBaseCheck?:{pension:number;health:number;employment:number;employmentApplied:number}
   appliedItemAmounts?:Record<string,number>
   payrollRuleVersion?:string
@@ -752,12 +774,16 @@ export interface PayrollResult {
   netPay: number
   calculatedAt: string
   ruleVersion: string
+  premiumCalculationDetails?: {code:string;monthlyHours:number;companyPayRate:number;hours:number;hourlyRate:number;amount:number}[]
   warnings: string[]
   errors: string[]
 }
 
 export type InsuranceOverrides=Partial<Pick<PayrollResult,'nationalPension'|'healthInsurance'|'longTermCareInsurance'|'employmentInsurance'|'localIncomeTax'>>
 export interface PayrollEntryInput {
+  settlementInput?:import("../modules/payroll/settlementRules").SettlementInput
+  classificationAdjustment?:number
+
   calculationInputs?: {ordinaryMonthlyHours:number;overtimeHours:number;nightHours:number;holidayHours:number;holidayOvertimeHours:number}|null
   deriveEmploymentBase?:boolean
   nonTaxEligibility?: import('../modules/payroll/nonTaxRules').NonTaxEligibility
@@ -803,6 +829,8 @@ export interface PayrollRunSummary {
 
 export type AttendanceActivity='WORK'|'ANNUAL_LEAVE'|'OFF'|'SICK'|'ABSENT'|'MATERNITY'|'TRAINING'|'PRENATAL'|'FAMILY_CARE'|'PARENTAL'|'SPOUSE_BIRTH'|'FERTILITY'
 export interface AttendanceDailyRecord {
+  scheduledHours?:number
+
   confirmedAt?:string
   manualEdited?:boolean
   source?:string

@@ -1,3 +1,4 @@
+import {ResetScopeDialog} from './ResetScopeDialog'
 import {EmployeeIssueBoard} from './EmployeeIssueBoard'
 import {WorkSchedulePage} from '../modules/operations/WorkSchedulePage'
 import {describeAudit} from './auditDescription'
@@ -55,6 +56,7 @@ export default function App() {
   const [selectedId,setSelectedId]=useState<string|null>(null)
   const [notice,setNotice]=useState('')
   const [dataRevision,setDataRevision]=useState(0)
+  const [resetOpen,setResetOpen]=useState(false)
 
   const refresh=async()=>{
     const [c,e,o,al]=await Promise.all([service.company(),service.employees(),service.organizations(),service.auditLogs()])
@@ -72,14 +74,14 @@ export default function App() {
   useEffect(()=>{if(!ready)return;let lastDate=seoulDate();const timer=window.setInterval(()=>{const date=seoulDate();if(date===lastDate)return;lastDate=date;void payrollService.ensureDemoHistory().then(refresh).then(()=>setDataRevision(v=>v+1)).catch(e=>setNotice(e.message))},60000);return()=>clearInterval(timer)},[ready])
   const summary=useMemo(()=>HrService.summary(employees),[employees])
   const selected=employees.find(e=>e.employmentId===selectedId)??null
-  const resetDemo=async()=>{if(!window.confirm('현재 브라우저의 실습 데이터를 모두 지우고 초기 가상회사로 되돌릴까요?'))return;await service.resetDemo();await payrollService.ensureDemoHistory();await refresh();setDataRevision(v=>v+1);setSelectedId(null);setNotice('교육환경을 초기화했습니다.')}
+  const resetDemo=async()=>setResetOpen(true)
 
   const expectedBuild = new URLSearchParams(window.location.search).get('expectedBuild')
   if(expectedBuild && expectedBuild!==BUILD_VERSION) return <div className="loadingError"><h2>다른 버전 서버가 실행 중입니다</h2><p>브라우저가 Build {BUILD_VERSION}이 아닌 {expectedBuild} 실행을 기대하고 있습니다. 기존 Vite 서버를 종료하고 이 버전을 다시 실행하세요.</p></div>
   if(initError) return <div className="loadingError"><h2>초기화에 실패했습니다</h2><p>{initError}</p><Button onClick={()=>window.location.reload()}>다시 시도</Button></div>
   if(!ready||readyService!==payrollService) return <div className="loading">HR 실습환경을 준비하고 있습니다… 첫 실행에는 21개월 가상자료 생성에 약 1~2분이 걸릴 수 있습니다.<small>Build {BUILD_VERSION} · WFM/Payroll 활성 연결을 검증하고 데이터를 준비합니다.</small></div>
 
-  return <div className="shell">
+  return <div className="shell">{resetOpen&&<ResetScopeDialog service={service} onResetAll={async()=>{await service.resetDemo();await payrollService.ensureDemoHistory();await service.rebuildPolicyDemo("2025-01",seoulDate().slice(0,7),true)}} onClose={()=>setResetOpen(false)} onChanged={async m=>{await refresh();setDataRevision(v=>v+1);setSelectedId(null);setNotice(m)}}/>}
     <TableControls/>{sidebarOpen&&<button className="mobileSidebarScrim" aria-label="메뉴 닫기" onClick={()=>setSidebarOpen(false)}/>}<aside className={`sidebar ${sidebarOpen?'isOpen':''}`}>
       {showBuildNotice&&<Modal onClose={()=>{localStorage.setItem('dismissedBuild',BUILD_VERSION);setShowBuildNotice(false)}} className="modalBackdrop"><div className="modal" role="dialog" aria-modal="true" aria-label="개선사항 안내"><Button className="noticeClose" aria-label="닫기" onClick={()=>{localStorage.setItem('dismissedBuild',BUILD_VERSION);setShowBuildNotice(false)}}>×</Button><p>HRIS 개선사항 테스트 중.</p></div></Modal>}<div className="brand"><span className="brandMark">HR</span><div><strong>lemonpAI</strong><small>인사 실습･검토 시스템</small><em className="buildBadge">Build {BUILD_VERSION}</em></div></div>
       <nav aria-label="주요 메뉴"><div className="navGroup">워크스페이스</div>

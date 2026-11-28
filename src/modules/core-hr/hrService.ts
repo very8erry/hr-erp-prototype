@@ -9,6 +9,11 @@ import type {
 import type { HrRepository } from '../../infrastructure/repositories/hrRepository'
 
 export class HrService {
+ rebuildPolicyDemo(from:string,to:string,backupConfirmed:boolean){return this.repository.rebuildPolicyDemo(from,to,backupConfirmed)}
+ resetScope(scope:import('../../infrastructure/db/scopedReset').ResetScope,period:string,backupConfirmed:boolean){return this.repository.resetScope(scope,period,backupConfirmed)}
+
+ saveWorkContract(employmentId:string,contract:import('../attendance/workContract').WorkContract,revision:number){return this.repository.saveWorkContract(employmentId,contract,revision)}
+
   constructor(private readonly repository: HrRepository) {}
 
   saveResume(employmentId:string,file:import('../../domain/attachments').StoredFile){return this.repository.saveResume(employmentId,file)}

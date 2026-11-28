@@ -6,7 +6,7 @@ for name in ['render','links','erdDiagram','comparison','filterCompare','compare
 s=base.replace('render();\n</script>','\n'+(p/'extension.js').read_text()+'\n</script>')
 s=s.replace('</style>',(p/'extension.css').read_text()+'</style>')
 for token,file in [('__DATA__','data.json'),('__SCHEMA__','schema.json'),('__PHYSICAL__','physical.json')]:s=s.replace(token,(p/file).read_text().replace('</','<\\/'))
-s=s.replace('__VERIFICATION__','기존 릴리스 검증·TypeScript·Vite 빌드 통과. 신고초안 원자성 테스트 통과. 시험 범위는 각 기능의 근거 파일에 표시했습니다. 브라우저 및 추가 양식 시험 결과는 최종 검증 기록을 참조하세요.')
+s=s.replace('__VERIFICATION__','2026-11-28 규정·계약·급여 변경 검증은 docs/verification/policy-payroll-20261128.md에 기록합니다. 이전 기록과 이번 실행 결과를 구분합니다. <a href="./manuals/급여지급_사용설명서.pdf">최신 사용설명서</a> · <a href="./manuals/이슈직원_처리안내.pdf">이슈 처리 안내</a>')
 s=s.replace('v2.0','v3.0').replace('수정 검증 1a8f0fa · GitHub 업로드 보류','수정 검증 브랜치 · workflow-integrity-review')
 s=s.replace('HRIS / 설계 리뷰','HRIS / 기획·설계').replace('실제 서비스에서 출발한 기획과 설계','전체 구조 · 요구 · 화면 · 데이터')
 # Inline handlers must not collide with HTMLElement.title, all generated data escaped.
